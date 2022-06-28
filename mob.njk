@@ -8,5 +8,11 @@ permalink: "mobs/{{ mob.id }}.html"
 
 {% extends "base.njk" %}
 {% block content %}
-{{ mob.name }}
+<h1>{{ mob.name }}</h1>
+<ul>
+{% for pattern in mob.schedule %}
+<li>{{ pattern.rrule }} at {{ pattern.start }} for {{ pattern.duration }} hours, {{ pattern.timeZone }}.</li>
+{% endfor %}
+</ul>
+{{ mob.description | safe }}
 {% endblock %}
