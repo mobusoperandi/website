@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "lint": "standard",
+    "build": "eleventy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mobusoperandi/mobusoperandi.github.io.git"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "1.0.1",
+    "lefthook": "1.0.4",
+    "standard": "17.0.0",
+    "yaml": "2.1.1"
+  }
+}
