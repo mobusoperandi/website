@@ -1,4 +1,5 @@
 const { Temporal, toTemporalInstant } = require('@js-temporal/polyfill')
+// eslint-disable-next-line no-extend-native
 Date.prototype.toTemporalInstant = toTemporalInstant
 const yaml = require('yaml')
 const fs = require('fs').promises
