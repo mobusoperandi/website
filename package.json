@@ -1,7 +1,8 @@
 {
   "scripts": {
     "lint": "standard",
-    "build": "eleventy"
+    "build": "eleventy",
+    "serve": "eleventy --serve"
   },
   "repository": {
     "type": "git",
