@@ -1,0 +1,89 @@
+# Here's the spec:
+# - `name`: the mob's name
+# - `id`: the mob's id. Probably best to never change.
+# - `schedule` list of recurring sessions
+# - `schedule.rrule`: http://jakubroztocil.github.io/rrule/
+# - `schedule.timeZone`: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+# - `schedule.start`: start time in `HH:MM`
+# - `schedule.duration`: duration in `HH:MM`
+
+- name: Mob Zero
+  id: mob_zero
+  schedule:
+    - rrule: Every Tuesday, Wednesday and Thursday
+      timeZone: Etc/UCT
+      start: 14:00
+      duration: 01:30
+  theme: 
+    bgColor: pink
+    textColor: black
+- name: Mob Loblaw
+  id: mob_loblaw
+  schedule:
+    - rrule: Every Saturday
+      timeZone: Etc/UCT
+      start: 21:00
+      duration: 02:00
+  theme: 
+    bgColor: turquoise
+    textColor: black
+- name: Mob Three
+  id: mob_three
+  schedule:
+    - rrule: Every Tuesday, Wednesday and Thursday
+      timeZone: Etc/UCT
+      start: 03:00
+      duration: 02:00
+  theme: 
+    bgColor: brown
+    textColor: white
+- name: Mob Explore
+  id: mob_explore
+  schedule:
+    - rrule: Every Saturday and Sunday
+      timeZone: Etc/UCT
+      start: 14:00
+      duration: 02:00
+  theme: 
+    bgColor: yellow
+    textColor: black
+- name: Mob One
+  id: mob_one
+  schedule:
+    - rrule: Every Saturday and Sunday
+      timeZone: Etc/UCT
+      start: 06:00
+      duration: 03:00
+  theme: 
+    bgColor: violet
+    textColor: black
+- name: Mob Real
+  id: mob_real
+  schedule:
+    - rrule: Every Wednesday and Friday
+      timeZone: Etc/UCT
+      start: 07:00
+      duration: 02:00
+  theme: 
+    bgColor: blue
+    textColor: yellow
+- name: Mob Otter
+  id: mob_otter
+  schedule:
+    - rrule: Every weekday
+      timeZone: Etc/UCT
+      start: 13:00
+      duration: 02:00
+  theme: 
+    bgColor: purple
+    textColor: green
+- name: Mob More
+  id: mob_more
+  schedule:
+    - rrule: Every Saturday and Sunday
+      timeZone: Etc/UCT
+      start: 13:00
+      duration: 02:00
+  theme: 
+    bgColor: green
+    textColor: black

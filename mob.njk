@@ -1,0 +1,12 @@
+---
+pagination:
+  data: data.mobs
+  size: 1
+  alias: mob
+permalink: "mobs/{{ mob.id }}.html"
+---
+
+{% extends "base.njk" %}
+{% block content %}
+{{ mob.name }}
+{% endblock %}
