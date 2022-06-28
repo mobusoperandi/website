@@ -15,9 +15,9 @@ module.exports = async () => {
       tzid: schedule.timezone,
       dtstart: new Date(
         new Temporal.ZonedDateTime(0n, Temporal.TimeZone.from(schedule.timeZone))
-          .with({ hour: startHour, minute: startMinute, })
+          .with({ hour: startHour, minute: startMinute })
           .epochMilliseconds
-      ),
+      )
     })
     const occurrences = rule.between(
       new Date(
@@ -44,7 +44,7 @@ module.exports = async () => {
         title: mob.name,
         url: `/mobs/${mob.id}.html`,
         backgroundColor: mob.theme.bgColor,
-        textColor: mob.theme.textColor,
+        textColor: mob.theme.textColor
       }
     })
     return events

@@ -1,7 +1,7 @@
 /* global FullCalendar */
 const events = window.__events
-console.dir({events})
-document.addEventListener('DOMContentLoaded', function init() {
+console.dir({ events })
+document.addEventListener('DOMContentLoaded', function init () {
   const calendarEl = document.getElementById('calendar')
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'timeGridWeek',
@@ -12,11 +12,11 @@ document.addEventListener('DOMContentLoaded', function init() {
       }
     },
     events,
-    height: "auto",
+    height: 'auto',
     nowIndicator: true,
     eventTextColor: 'black',
     eventBackgroundColor: 'gray',
-    eventBorderColor: 'gray',
+    eventBorderColor: 'gray'
   })
   calendar.render()
 })
