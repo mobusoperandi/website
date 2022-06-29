@@ -1,7 +1,6 @@
 const { Temporal, toTemporalInstant } = require('@js-temporal/polyfill')
 // eslint-disable-next-line no-extend-native
 Date.prototype.toTemporalInstant = toTemporalInstant
-const markdown = require('marked')
 const yaml = require('yaml')
 const fs = require('fs').promises
 const path = require('path')
@@ -51,9 +50,5 @@ module.exports = async () => {
     })
     return events
   })))
-  const mobs = data.map(mob => ({
-    ...mob,
-    description: markdown.parse(mob.description)
-  }))
-  return { mobs, events }
+  return { mobs: data, events }
 }
