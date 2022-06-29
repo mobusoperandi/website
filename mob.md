@@ -5,6 +5,9 @@ pagination:
   alias: mob
 permalink: "mobs/{{ mob.id }}.html"
 ---
+{% block title %}
+{{ mob.name }}
+{% endblock %}
 
 {% extends "base.njk" %}
 {% block content %}

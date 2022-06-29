@@ -9,6 +9,10 @@
 <script defer src='/index.js'></script>
 {% endblock %}
 
+{% block title %}
+Home
+{% endblock %}
+
 {% block content %}
 
 A small community for the regular study of [the Rust programming language][rust] in [remote mob programming] format — and it's free.
