@@ -21,7 +21,7 @@
       timeZone: Etc/UCT
       start: 14:00
       duration: 01:30
-  theme: 
+  theme:
     bgColor: pink
     textColor: black
 - name: Mob Loblaw
@@ -38,7 +38,7 @@
       timeZone: Etc/UCT
       start: 21:00
       duration: 02:00
-  theme: 
+  theme:
     bgColor: turquoise
     textColor: black
 - name: Mob Three
@@ -54,7 +54,7 @@
       timeZone: Etc/UCT
       start: 03:00
       duration: 02:00
-  theme: 
+  theme:
     bgColor: brown
     textColor: white
 - name: Mob Explore
@@ -69,7 +69,7 @@
       timeZone: Etc/UCT
       start: 14:00
       duration: 02:00
-  theme: 
+  theme:
     bgColor: yellow
     textColor: black
 - name: Mob One
@@ -79,14 +79,14 @@
 
     Nowadays we are continuing work on michie that is following feedback it received.
 
-    We are currently 4 participants and open to more. 
+    We are currently 4 participants and open to more.
     Experienced developers only. No Rust experience required.
   schedule:
     - rrule: Every Saturday and Sunday
       timeZone: Etc/UCT
       start: 06:00
       duration: 03:00
-  theme: 
+  theme:
     bgColor: violet
     textColor: black
 - name: Mob Real
@@ -94,20 +94,20 @@
   description: |
     Mob Real started with the goal of working on a new open source Rust app that is a command line implementation of the envelope budgeting system.
 
-    We are currently 3 participants. And we're welcoming to more. 
+    We are currently 3 participants. And we're welcoming to more.
     Experienced developers only. Your Rust level does not matter.
   schedule:
     - rrule: Every Wednesday and Friday
       timeZone: Etc/UCT
       start: 07:00
       duration: 02:00
-  theme: 
+  theme:
     bgColor: blue
     textColor: yellow
 - name: Mob Otter
   id: mob_otter
   description: |
-    Mob Otter is the most frequently occurring mob, at five days a week. 
+    Mob Otter is the most frequently occurring mob, at five days a week.
     Together with Mob One we have released the first open source project that is product of Mobus Operandi, the Rust crate michie.
 
     Nowadays we are continuing work on michie that is following feedback we received.
@@ -118,13 +118,13 @@
       timeZone: Etc/UCT
       start: 13:00
       duration: 02:00
-  theme: 
+  theme:
     bgColor: purple
     textColor: green
 - name: Mob More
   id: mob_more
   description: |
-    We, at Mob More are currently going through the Exercism Rust track. 
+    We, at Mob More are currently going through the Exercism Rust track.
     We are all experienced developers who are new to Rust, except for Shahar Dawn Or (mightyiam), who has been studying Rust since December 2011.
 
     We're currently six members and yet open to possibly one more. Experienced developers only.
@@ -133,6 +133,6 @@
       timeZone: Etc/UCT
       start: 13:00
       duration: 02:00
-  theme: 
+  theme:
     bgColor: green
     textColor: black
