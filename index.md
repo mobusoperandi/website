@@ -9,9 +9,7 @@
 <script defer src='/index.js'></script>
 {% endblock %}
 
-{% block title %}
-Home
-{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block content %}
 
