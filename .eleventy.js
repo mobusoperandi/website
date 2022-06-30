@@ -1,7 +1,7 @@
 const embedEverything = require("eleventy-plugin-embed-everything");
 
 module.exports = eleventyConfig => {
-  eleventyConfig.addPassthroughCopy('./index.js')
+  eleventyConfig.setTemplateFormats(['njk', 'md', 'js'])
   eleventyConfig.setNunjucksEnvironmentOptions({
     throwOnUndefined: true,
     trimBlocks: true,
@@ -9,6 +9,10 @@ module.exports = eleventyConfig => {
   })
   eleventyConfig.addPlugin(embedEverything);
   return {
+    dir: {
+      input: 'input',
+      output: 'output',
+    },
     markdownTemplateEngine: "njk"
   }
 }
