@@ -1,6 +1,5 @@
 /* global FullCalendar */
 const events = window.__events
-console.dir({ events })
 document.addEventListener('DOMContentLoaded', function init () {
   const calendarEl = document.getElementById('calendar')
   const calendar = new FullCalendar.Calendar(calendarEl, {
