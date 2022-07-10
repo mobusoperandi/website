@@ -10,9 +10,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: |
-          npm ci
-          npm run lint
-          npm run build
+        cargo install cargo-run-bin
+        cargo bin makers ci
       - uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: output

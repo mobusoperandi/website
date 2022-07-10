@@ -1,0 +1,8 @@
+schedule:
+  - recurrence: FREQ=WEEKLY;BYDAY=SA,SU
+    timezone: Etc/UTC
+    start_date: 2022-05-06
+    start_time: 13:00
+    duration: 120
+background_color: green
+text_color: black

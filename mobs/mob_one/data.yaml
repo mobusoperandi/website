@@ -1,0 +1,8 @@
+schedule:
+  - recurrence: FREQ=WEEKLY;BYDAY=SA,SU
+    timezone: Etc/UTC
+    start_date: 2022-01-02
+    start_time: 06:00
+    duration: 180
+background_color: violet
+text_color: black

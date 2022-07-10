@@ -1,0 +1,94 @@
+[env]
+CARGO_TERM_COLOR = "always"
+OUTPUT_DIR="output"
+
+[tasks.pre-commit]
+env = { RUSTFLAGS = "--deny warnings" }
+run_task = { name = ["test", "clippy", "doc", "check_fmt"], parallel = true }
+
+[tasks.ci_main]
+env = { RUSTFLAGS = "--deny warnings" }
+run_task = { name = ["test", "clippy", "check_fmt"], parallel = true }
+
+[tasks.ci_post]
+run_task = { name = ["no_untracked", "no_modified"] }
+
+[tasks.ci]
+run_task = { name = ["ci_main", "ci_post"] }
+
+[tasks.test]
+command = "cargo"
+args = ["test"]
+
+[tasks.clippy]
+command = "cargo"
+args = ["clippy"]
+
+[tasks.check_fmt]
+command = "cargo"
+args = ["fmt", "--check"]
+
+[tasks.table_of_contents]
+script = '''
+#!/usr/bin/env bash
+set -euxo pipefail
+toc=$(cargo bin md-toc --header "# Table of contents" README.md)
+MARKER='<!-- TOC -->'
+cargo bin sd "$MARKER[\S\s]*$MARKER" $"$MARKER$toc\n$MARKER" README.md
+'''
+
+[tasks.no_modified]
+script = '''
+#!/usr/bin/env bash
+set -euxo pipefail
+if ! git diff --exit-code; then
+  echo "modified files detected"
+  exit 1
+fi
+'''
+
+[tasks.no_untracked]
+script = '''
+#!/usr/bin/env bash
+set -euxo pipefail
+if [[ `git ls-files --exclude-standard --others` ]]; then
+  echo "untracked files detected"
+  exit 1
+fi
+'''
+
+[tasks.html]
+script = '''
+#!/usr/bin/env bash
+set -euxo pipefail
+mkdir --parents ${OUTPUT_DIR}
+cargo run
+'''
+
+[tasks.css]
+script = '''
+#!/usr/bin/env bash
+set -euxo pipefail
+npx tailwindcss --input ./src/input.css --output ./${OUTPUT_DIR}/index.css --content ./${OUTPUT_DIR}/*.html
+'''
+
+[tasks.produce_output]
+run_task = { name = ["html", "css"] }
+
+[tasks.watch]
+script = '''
+#!/usr/bin/env bash
+set -euxo pipefail
+cargo bin cargo-watch --shell 'cargo bin makers produce_output'
+'''
+
+[tasks.serve]
+dependencies = ["html"]
+script = '''
+#!/usr/bin/env bash
+set -euxo pipefail
+cargo bin live-server --host localhost ${OUTPUT_DIR}
+'''
+
+[tasks.dev]
+run_task = { name = ["watch", "serve"], parallel = true }

@@ -1,0 +1,8 @@
+schedule:
+  - recurrence: FREQ=WEEKLY;BYDAY=TU,WE,TH
+    timezone: Etc/UCT
+    start_date: 2022-03-02
+    start_time: 03:00
+    duration: 120
+background_color: brown
+text_color: white

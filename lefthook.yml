@@ -1,6 +1,0 @@
-pre-commit:
-  commands:
-    lint:
-      run: npm run lint
-    build:
-      run: npm run build

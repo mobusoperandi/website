@@ -1,0 +1,8 @@
+schedule:
+  - recurrence: FREQ=WEEKLY;BYDAY=TU,WE,TH
+    timezone: Etc/UTC
+    start_date: 2021-12-18
+    start_time: 14:00
+    duration: 90
+background_color: pink
+text_color: black
