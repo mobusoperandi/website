@@ -1,8 +1,8 @@
 schedule:
-  - recurrence: FREQ=WEEKLY;BYDAY=WE,FR
+  - recurrence: FREQ=WEEKLY;BYDAY=MO,TH
     timezone: Etc/UTC
     start_date: 2022-06-10
-    start_time: 07:00
+    start_time: 06:00
     duration: 120
 background_color: blue
 text_color: yellow
