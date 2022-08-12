@@ -1,7 +1,4 @@
-on:
-  push:
-    branches:
-      - master
+on: push
 permissions:
   contents: write
 jobs:
@@ -23,5 +20,6 @@ jobs:
       - run: cargo install cargo-run-bin
       - run: cargo bin makers ci
       - uses: JamesIves/github-pages-deploy-action@v4
+        if: github.ref == 'refs/heads/master'
         with:
           folder: output
