@@ -1,5 +1,5 @@
 schedule:
-  - recurrence: FREQ=WEEKLY;BYDAY=MO,TH
+  - recurrence: FREQ=WEEKLY;BYDAY=TU,TH
     timezone: Etc/UTC
     start_date: 2022-06-10
     start_time: 06:00
