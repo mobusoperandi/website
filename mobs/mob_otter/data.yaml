@@ -1,5 +1,5 @@
 schedule:
-  - recurrence: FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR
+  - recurrence: FREQ=WEEKLY;BYDAY=MO,TU,TH
     timezone: Etc/UTC
     start_date: 2022-03-17
     start_time: 11:00
