@@ -18,7 +18,7 @@ jobs:
             ${{ runner.os }}_cargo-run-bin_
             ${{ runner.os }}_
       - run: cargo install cargo-run-bin
-      - run: cargo bin makers ci
+      - run: source constants.sh && cargo bin makers ci
       - uses: JamesIves/github-pages-deploy-action@v4
         if: github.ref == 'refs/heads/master'
         with:
