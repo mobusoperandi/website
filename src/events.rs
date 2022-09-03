@@ -1,6 +1,5 @@
 use crate::mobs::mobs;
 use chrono::{DateTime, Duration, Utc};
-use chrono_tz::Tz::Etc__UTC;
 use csscolorparser::Color;
 use serde::Serialize;
 
@@ -39,7 +38,8 @@ pub fn events() -> Vec<Event> {
                     text_color: mob.text_color().clone(),
                 })
                 .take_while(|event| {
-                    event.start <= Utc::now().with_timezone(&Etc__UTC) + Duration::weeks(10)
+                    event.start
+                        <= Utc::now().with_timezone(&rrule::Tz::Etc__UTC) + Duration::weeks(10)
                 })
                 .collect::<Vec<_>>()
         })

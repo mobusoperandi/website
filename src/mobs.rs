@@ -1,5 +1,4 @@
 use chrono::{Duration, TimeZone};
-use chrono_tz::Tz;
 use csscolorparser::Color;
 use maud::{html, Markup, PreEscaped};
 use rrule::{RRule, RRuleSet, Unvalidated};
@@ -99,7 +98,8 @@ pub fn mobs() -> Vec<Mob> {
                     } = yaml_recurring_session;
                     let recurrence = format!("RRULE:{recurrence}");
                     let rrule: RRule<Unvalidated> = recurrence.parse().unwrap();
-                    let timezone: Tz = timezone.parse().unwrap();
+                    let timezone: chrono_tz::Tz = timezone.parse().unwrap();
+                    let timezone: rrule::Tz = timezone.into();
                     let start_date_time = timezone
                         .datetime_from_str(&(start_date + &start_time), "%F%R")
                         .unwrap();
