@@ -535,9 +535,9 @@ dependencies = [
 
 [[package]]
 name = "cargo-make"
-version = "0.35.16"
+version = "0.36.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aac6e3b7bc9728ac8d5b96a0e182556b8c20aad2877b2ceb4fa4b9a3cf4a4647"
+checksum = "f87c65932c7666e8676674fc28ebebb9a21d588eced187b0f8c33811d78401b3"
 dependencies = [
  "ansi_term",
  "cargo_metadata",
@@ -558,6 +558,8 @@ dependencies = [
  "indexmap",
  "lenient_semver",
  "log",
+ "once_cell",
+ "petgraph",
  "regex",
  "run_script",
  "rust_info",
@@ -1317,6 +1319,12 @@ dependencies = [
  "redox_syscall",
  "windows-sys",
 ]
+
+[[package]]
+name = "fixedbitset"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ce7134b9999ecaf8bcd65542e436736ef32ddca1b3e06094cb6ec5755203b80"
 
 [[package]]
 name = "flate2"
@@ -2433,6 +2441,16 @@ name = "percent-encoding"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4fd5641d01c8f18a23da7b6fe29298ff4b55afcccdf78973b24cf3175fee32e"
+
+[[package]]
+name = "petgraph"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6d5014253a1331579ce62aa67443b4a658c5e7dd03d4bc6d302b94474888143"
+dependencies = [
+ "fixedbitset",
+ "indexmap",
+]
 
 [[package]]
 name = "phf"
