@@ -1,6 +1,5 @@
 [env]
 CARGO_TERM_COLOR = "always"
-OUTPUT_DIR="output"
 
 [tasks.pre-commit]
 env = { RUSTFLAGS = "--deny warnings" }
