@@ -1,6 +1,7 @@
 mod events;
 mod markdown;
 mod mobs;
+mod out;
 mod sections;
 use crate::sections::sections;
 use chrono::offset::Utc;
@@ -9,25 +10,6 @@ use mobs::mobs;
 use std::{fs, path::PathBuf};
 
 const NAME: &str = "Mobus Operandi";
-
-#[derive(Clone)]
-struct OutputFile {
-    target_path: PathBuf,
-    source: Source,
-}
-
-#[derive(Clone)]
-enum Source {
-    Markup(Markup),
-}
-
-impl Source {
-    fn into_string(self) -> String {
-        match self {
-            Source::Markup(markup) => markup.into_string(),
-        }
-    }
-}
 
 fn base(
     content: Markup,
@@ -56,7 +38,7 @@ fn base(
     markup
 }
 
-fn index() -> OutputFile {
+fn index() -> out::File {
     let sections = sections();
     let content = html! {
       @for ((row, col), section) in sections.indexed_iter() {
@@ -78,9 +60,9 @@ fn index() -> OutputFile {
         "snap-both scroll-smooth snap-proximity".to_string(),
         "grid grid-cols-auto grid-rows-auto".to_string(),
     );
-    OutputFile {
+    out::File {
         target_path: "index.html".into(),
-        source: Source::Markup(markup),
+        source: out::Source::Markup(markup),
     }
 }
 
@@ -91,7 +73,7 @@ fn main() {
         .concat()
         .into_iter()
         .for_each(
-            |OutputFile {
+            |out::File {
                  target_path,
                  source,
              }| {
@@ -105,7 +87,7 @@ fn main() {
         )
 }
 
-fn mob_pages() -> Vec<OutputFile> {
+fn mob_pages() -> Vec<out::File> {
     mobs()
         .into_iter()
         .map(|mob| {
@@ -114,9 +96,9 @@ fn mob_pages() -> Vec<OutputFile> {
                 h1 { (mob.id()) }
                 (*description)
             };
-            OutputFile {
+            out::File {
                 target_path: [mob.id(), ".html"].concat().parse().unwrap(),
-                source: Source::Markup(base(
+                source: out::Source::Markup(base(
                     content,
                     [].into_iter(),
                     "".to_string(),
