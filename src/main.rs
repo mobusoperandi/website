@@ -11,9 +11,22 @@ use std::{fs, path::PathBuf};
 const NAME: &str = "Mobus Operandi";
 
 #[derive(Clone)]
-struct Page {
-    path: PathBuf,
-    markup: Markup,
+struct OutputFile {
+    target_path: PathBuf,
+    source: Source,
+}
+
+#[derive(Clone)]
+enum Source {
+    Markup(Markup),
+}
+
+impl Source {
+    fn into_string(self) -> String {
+        match self {
+            Source::Markup(markup) => markup.into_string(),
+        }
+    }
 }
 
 fn base(
@@ -43,7 +56,7 @@ fn base(
     markup
 }
 
-fn index() -> Page {
+fn index() -> OutputFile {
     let sections = sections();
     let content = html! {
       @for ((row, col), section) in sections.indexed_iter() {
@@ -65,9 +78,9 @@ fn index() -> Page {
         "snap-both scroll-smooth snap-proximity".to_string(),
         "grid grid-cols-auto grid-rows-auto".to_string(),
     );
-    Page {
-        path: "index.html".into(),
-        markup,
+    OutputFile {
+        target_path: "index.html".into(),
+        source: Source::Markup(markup),
     }
 }
 
@@ -77,14 +90,22 @@ fn main() {
     [[index_page].as_slice(), mob_pages.as_slice()]
         .concat()
         .into_iter()
-        .for_each(|Page { path, markup }| {
-            let output_dir_path: PathBuf = std::env::var("OUTPUT_DIR").unwrap().parse().unwrap();
-            let output_file_path: PathBuf = [output_dir_path, path].into_iter().collect();
-            fs::write(output_file_path, markup.into_string()).unwrap();
-        })
+        .for_each(
+            |OutputFile {
+                 target_path,
+                 source,
+             }| {
+                let output_dir_path: PathBuf =
+                    std::env::var("OUTPUT_DIR").unwrap().parse().unwrap();
+                let output_file_path: PathBuf =
+                    [output_dir_path, target_path].into_iter().collect();
+                let contents = source.into_string();
+                fs::write(output_file_path, contents).unwrap();
+            },
+        )
 }
 
-fn mob_pages() -> Vec<Page> {
+fn mob_pages() -> Vec<OutputFile> {
     mobs()
         .into_iter()
         .map(|mob| {
@@ -93,9 +114,14 @@ fn mob_pages() -> Vec<Page> {
                 h1 { (mob.id()) }
                 (*description)
             };
-            Page {
-                path: [mob.id(), ".html"].concat().parse().unwrap(),
-                markup: base(content, [].into_iter(), "".to_string(), "".to_string()),
+            OutputFile {
+                target_path: [mob.id(), ".html"].concat().parse().unwrap(),
+                source: Source::Markup(base(
+                    content,
+                    [].into_iter(),
+                    "".to_string(),
+                    "".to_string(),
+                )),
             }
         })
         .collect()
