@@ -1,5 +1,5 @@
 mod events;
-mod markdown_to_html;
+mod markdown;
 mod mobs;
 mod sections;
 use crate::sections::sections;

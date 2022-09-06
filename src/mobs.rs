@@ -8,7 +8,7 @@ use std::{
     path::PathBuf,
 };
 
-use crate::markdown_to_html::markdown_to_html;
+use crate::markdown;
 
 #[derive(Clone)]
 pub struct Mob {
@@ -115,7 +115,7 @@ pub fn mobs() -> Vec<Mob> {
                 .into_iter()
                 .collect();
             let description = read_to_string(description_path).unwrap();
-            let description = markdown_to_html(&description);
+            let description = markdown::to_html(&description);
             let description = html!((PreEscaped(description)));
             Mob {
                 id: mob_id.into_string().unwrap(),
