@@ -1,5 +1,7 @@
 use std::path;
 
+use crate::fonts;
+
 #[derive(Clone)]
 pub(crate) struct File {
     pub(crate) target_path: path::PathBuf,
@@ -9,12 +11,5 @@ pub(crate) struct File {
 #[derive(Clone)]
 pub(crate) enum Source {
     Markup(maud::Markup),
-}
-
-impl Source {
-    pub(crate) fn into_string(self) -> String {
-        match self {
-            Source::Markup(markup) => markup.into_string(),
-        }
-    }
+    Font(fonts::Font),
 }

@@ -1,7 +1,7 @@
 use chrono::Utc;
-use maud::{html, Markup, DOCTYPE};
+use maud::{html, Markup, PreEscaped, DOCTYPE};
 
-use crate::{mobs, out, sections};
+use crate::{fonts, mobs, out, sections};
 
 const NAME: &str = "Mobus Operandi";
 
@@ -22,6 +22,14 @@ pub(crate) fn base(
           link rel="stylesheet" href={ "/index.css?v=" (version) };
           @for stylesheet in stylesheets {
               link rel="stylesheet" href=(stylesheet);
+          }
+          style type="text/css" {
+            @for font in fonts::ALL {(PreEscaped(format!("
+              @font-face {{
+                font-family: '{}';
+                src: url('/{}') format('truetype');
+              }}
+            ", font.name, font.output_filename())))}
           }
         }
         body class=(body_classes) {

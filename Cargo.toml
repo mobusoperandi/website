@@ -6,14 +6,21 @@ edition = "2021"
 [dependencies]
 chrono = { version = "0.4.19", features = ["serde"] }
 chrono-tz = "0.6.1"
+counted-array = "0.1.2"
 csscolorparser = { version = "0.6.0", features = ["serde"] }
+hex-literal = "0.3.4"
 maud = "0.23.0"
+michie = "1.1.0"
 ndarray = "0.15.4"
 pulldown-cmark = "0.9.1"
+readext = "0.1.0"
+reqwest = { version = "0.11.11", features = ["blocking"] }
 rrule = "0.10.0"
 serde = { version = "1.0.138", features = ["derive"] }
 serde_json = "1.0.82"
 serde_yaml = "0.9.11"
+sha2 = "0.10.5"
+zip = "0.6.2"
 
 [dev-dependencies]
 cargo-make = "0.36.0"
