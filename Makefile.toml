@@ -86,7 +86,9 @@ dependencies = ["html"]
 script = '''
 #!/usr/bin/env bash
 set -euxo pipefail
-cargo bin live-server --host localhost ${OUTPUT_DIR}
+# cargo bin live-server --host localhost ${OUTPUT_DIR}
+npx live-server --host=localhost --no-browser \
+    --watch=${OUTPUT_DIR} --mount=/:${OUTPUT_DIR}
 '''
 
 [tasks.dev]
