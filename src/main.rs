@@ -7,7 +7,6 @@ mod out;
 mod page;
 mod sections;
 use crate::{out::File, sections::sections};
-use mobs::mobs;
 use readext::ReadExt;
 use sha2::Digest;
 use std::{fs, path::PathBuf};
