@@ -20,10 +20,15 @@ fn main() {
     std::fs::create_dir_all(&output_dir).unwrap();
     let index_page = page::index();
     let mob_pages = page::mob_pages();
+    let favicon = File {
+        target_path: PathBuf::from("favicon.ico"),
+        source: out::Source::Bytes(vec![]),
+    };
     [
         fonts.as_slice(),
         [index_page].as_slice(),
         mob_pages.as_slice(),
+        [favicon].as_slice(),
     ]
     .concat()
     .into_iter()
@@ -51,6 +56,7 @@ fn main() {
 
                     font.download_and_extract()
                 }
+                out::Source::Bytes(bytes) => bytes,
             };
             fs::write(output_file_path, contents).unwrap();
         },

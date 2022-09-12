@@ -12,4 +12,5 @@ pub(crate) struct File {
 pub(crate) enum Source {
     Markup(maud::Markup),
     Font(fonts::Font),
+    Bytes(Vec<u8>),
 }
