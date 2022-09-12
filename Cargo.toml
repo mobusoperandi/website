@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 chrono = { version = "0.4.19", features = ["serde"] }
 chrono-tz = "0.6.1"
+const_env = "0.1.2"
 counted-array = "0.1.2"
 csscolorparser = { version = "0.6.0", features = ["serde"] }
 hex-literal = "0.3.4"
