@@ -1,7 +1,11 @@
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
-use crate::{fonts, mobs, out, sections};
+use crate::{
+    fonts,
+    mobs::{mobs, Mob},
+    out, sections,
+};
 
 const NAME: &str = "Mobus Operandi";
 
@@ -69,23 +73,20 @@ pub(crate) fn index() -> out::File {
 }
 
 pub(crate) fn mob_pages() -> Vec<out::File> {
-    mobs()
-        .into_iter()
-        .map(|mob| {
-            let description = mob.description();
-            let content = html! {
+    mobs().into_iter().map(mob_page).collect()
+}
+
+fn mob_page(mob: Mob) -> out::File {
+    out::File {
+        target_path: [mob.id(), ".html"].concat().parse().unwrap(),
+        source: out::Source::Markup(base(
+            html! {
                 h1 { (mob.id()) }
-                (*description)
-            };
-            out::File {
-                target_path: [mob.id(), ".html"].concat().parse().unwrap(),
-                source: out::Source::Markup(base(
-                    content,
-                    [].into_iter(),
-                    "".to_string(),
-                    "".to_string(),
-                )),
-            }
-        })
-        .collect()
+                (*mob.description())
+            },
+            [].into_iter(),
+            "".to_string(),
+            "".to_string(),
+        )),
+    }
 }
