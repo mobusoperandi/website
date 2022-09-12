@@ -7,12 +7,13 @@ mod out;
 mod page;
 mod sections;
 use crate::{out::File, sections::sections};
+use environment::OUTPUT_DIR;
 use readext::ReadExt;
 use sha2::Digest;
 use std::{fs, path::PathBuf};
 
 fn main() {
-    let output_dir: PathBuf = PathBuf::from(env!("OUTPUT_DIR"));
+    let output_dir: PathBuf = PathBuf::from(OUTPUT_DIR);
     let fonts = fonts::ALL.map(|font| File {
         source: out::Source::Font(font),
         target_path: font.output_filename().into(),
