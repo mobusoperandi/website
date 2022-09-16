@@ -1,8 +1,13 @@
 schedule:
   - recurrence: FREQ=WEEKLY;BYDAY=SA,SU
-    timezone: Etc/UTC
+    timezone: US/Eastern 
     start_date: 2022-05-21
-    start_time: 14:00
+    start_time: 09:00
     duration: 120
+  - recurrence: FREQ=WEEKLY;BYDAY=TU,WE,TH
+    timezone: US/Eastern
+    start_date: 2021-12-18
+    start_time: 10:30
+    duration: 90
 background_color: yellow
 text_color: black
