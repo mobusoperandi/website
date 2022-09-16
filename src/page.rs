@@ -1,11 +1,7 @@
+use crate::{environment::OUTPUT_DIR, fonts, mobs::Event, sections, ssg};
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
-
-use crate::{
-    fonts,
-    mobs::{mobs, Mob},
-    out, sections,
-};
+use std::path::PathBuf;
 
 const NAME: &str = "Mobus Operandi";
 
@@ -28,12 +24,13 @@ pub(crate) fn base(
               link rel="stylesheet" href=(stylesheet);
           }
           style type="text/css" {
+            // TODO extract as font utility
             @for font in fonts::ALL {(PreEscaped(format!("
               @font-face {{
                 font-family: '{}';
                 src: url('/{}') format('truetype');
               }}
-            ", font.name, font.output_filename())))}
+            ", font.name, fonts::output_filename(&font))))}
           }
         }
         body class=(body_classes) {
@@ -44,8 +41,8 @@ pub(crate) fn base(
     markup
 }
 
-pub(crate) fn index() -> out::File {
-    let sections = sections();
+pub(crate) fn index(events: Vec<Event>) -> ssg::Input {
+    let sections = sections(events);
     let content = html! {
       @for ((row, col), section) in sections.indexed_iter() {
         @let id = section.id();
@@ -66,27 +63,8 @@ pub(crate) fn index() -> out::File {
         "snap-both scroll-smooth snap-proximity".to_string(),
         "grid grid-cols-auto grid-rows-auto".to_string(),
     );
-    out::File {
-        target_path: "index.html".into(),
-        source: out::Source::Markup(markup),
-    }
-}
-
-pub(crate) fn mob_pages() -> Vec<out::File> {
-    mobs().into_iter().map(mob_page).collect()
-}
-
-fn mob_page(mob: Mob) -> out::File {
-    out::File {
-        target_path: [mob.id(), ".html"].concat().parse().unwrap(),
-        source: out::Source::Markup(base(
-            html! {
-                h1 { (mob.id()) }
-                (*mob.description())
-            },
-            [].into_iter(),
-            "".to_string(),
-            "".to_string(),
-        )),
+    ssg::Input {
+        target_path: PathBuf::from(OUTPUT_DIR).join("index.html"),
+        source: ssg::Source::Bytes(markup.0.into_bytes()),
     }
 }

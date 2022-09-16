@@ -4,23 +4,32 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.65"
 chrono = { version = "0.4.19", features = ["serde"] }
 chrono-tz = "0.6.1"
+console-subscriber = "0.1.8"
 const_env = "0.1.2"
-counted-array = "0.1.2"
 csscolorparser = { version = "0.6.0", features = ["serde"] }
+futures = "0.3.24"
+futures-util = "0.3.24"
 hex-literal = "0.3.4"
+http-cache-reqwest = "0.5.0"
 maud = "0.23.0"
 michie = "1.1.0"
 ndarray = "0.15.4"
 pulldown-cmark = "0.9.1"
 readext = "0.1.0"
 reqwest = { version = "0.11.11", features = ["blocking"] }
+reqwest-middleware = "0.1.6"
 rrule = "0.10.0"
 serde = { version = "1.0.138", features = ["derive"] }
 serde_json = "1.0.82"
 serde_yaml = "0.9.11"
 sha2 = "0.10.5"
+# TODO less features
+tokio = { version = "1.21.0", features = ["fs", "tokio-macros", "full"] }
+tokio-stream = { version = "0.1.9", features = ["fs", "sync"] }
+url = "2.3.1"
 zip = "0.6.2"
 
 [dev-dependencies]

@@ -1,4 +1,4 @@
-use crate::fonts::fonts;
+use crate::fonts;
 
 use super::Section;
 use maud::html;
@@ -8,7 +8,7 @@ pub fn section() -> Section {
         "".into(),
         None,
         html! {
-            h1 class=(format!("font-[{}]", fonts::Vollkorn)) { "An online community for the regular study of software development in mob programming format" }
+            h1 class=(format!("font-[{}]", fonts::VOLLKORN)) { "An online community for the regular study of software development in mob programming format" }
             ul {
                 li { a href="#in_the_media" { "in_the_media" } }
                 li { a href="#mobs_calendar" { "mobs_calendar" } }

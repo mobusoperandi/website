@@ -1,9 +1,8 @@
 use super::{home, Section};
-use crate::events::events;
+use crate::mobs::Event;
 use maud::{html, PreEscaped};
 
-pub fn section() -> Section {
-    let events = events();
+pub fn section(events: Vec<Event>) -> Section {
     let events = serde_json::to_string(&events).unwrap();
     Section::new(
         "mobs_calendar".into(),

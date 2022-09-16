@@ -1,65 +1,62 @@
 mod environment;
-mod events;
 mod fonts;
 mod markdown;
 mod mobs;
-mod out;
 mod page;
 mod sections;
-use crate::{out::File, sections::sections};
+mod ssg;
+use crate::{mobs::read_mob, sections::sections};
 use environment::OUTPUT_DIR;
-use readext::ReadExt;
-use sha2::Digest;
-use std::{fs, path::PathBuf};
+use futures::{future::BoxFuture, Stream, StreamExt};
+use futures_util::FutureExt;
+use mobs::Mob;
+use std::{future::ready, path::PathBuf, pin::Pin};
+use tokio::{fs, sync::broadcast};
+use tokio_stream::wrappers::{BroadcastStream, ReadDirStream};
 
-fn main() {
-    let output_dir: PathBuf = PathBuf::from(OUTPUT_DIR);
-    let fonts = fonts::ALL.map(|font| File {
-        source: out::Source::Font(font),
-        target_path: font.output_filename().into(),
-    });
-    std::fs::create_dir_all(&output_dir).unwrap();
-    let index_page = page::index();
-    let mob_pages = page::mob_pages();
-    let favicon = File {
-        target_path: PathBuf::from("favicon.ico"),
-        source: out::Source::Bytes(vec![]),
+#[tokio::main]
+async fn main() {
+    //console_subscriber::init();
+    let fonts = fonts::ssg_inputs();
+    let mobs = ReadDirStream::new(fs::read_dir("mobs").await.unwrap()).then(read_mob);
+    let (sender, receiver) = broadcast::channel::<Mob>(128);
+    let mob_pages =
+        BroadcastStream::new(sender.subscribe()).map(|mob_msg| mobs::page(mob_msg.unwrap()));
+    let index_page = BroadcastStream::new(receiver)
+        .map(|mob_msg| mob_msg.unwrap())
+        .fold(Vec::new(), mobs::events)
+        .map(page::index);
+    let favicon = ssg::Input {
+        target_path: PathBuf::from(OUTPUT_DIR).join("favicon.ico"),
+        source: ssg::Source::Bytes(vec![]),
     };
-    [
-        fonts.as_slice(),
-        [index_page].as_slice(),
-        mob_pages.as_slice(),
-        [favicon].as_slice(),
-    ]
-    .concat()
-    .into_iter()
-    .for_each(
-        |out::File {
-             target_path,
-             source,
-         }| {
-            let output_file_path: PathBuf = output_dir.join(target_path);
-            let contents = match source {
-                out::Source::Markup(markup) => markup.0.into_bytes(),
-                out::Source::Font(font) => {
-                    if output_file_path.try_exists().unwrap() {
-                        let existing_contents = fs::File::open(&output_file_path)
-                            .unwrap()
-                            .read_into_vec()
-                            .unwrap();
-                        let mut hasher = sha2::Sha256::new();
-                        hasher.update(&existing_contents);
-                        let existing_contents_hash = hasher.finalize();
-                        if existing_contents_hash[..] == font.hash[..] {
-                            return;
-                        }
-                    }
-
-                    font.download_and_extract()
+    let files: [Pin<Box<dyn Stream<Item = BoxFuture<ssg::Input>>>>; 4] = [
+        Box::pin(futures::stream::once(ready(ready(favicon).boxed()))),
+        Box::pin(futures::stream::iter(fonts).map(|font| async { font }.boxed())),
+        Box::pin(futures::stream::once(async { index_page.boxed() })),
+        Box::pin(mob_pages.map(|mob_file| async { mob_file }.boxed())),
+    ];
+    let files = futures::stream::select_all(files);
+    // TODO exit code
+    let generated = ssg::generate_static_site(files)
+        .map(tokio::spawn)
+        .for_each_concurrent(usize::MAX, |join_handle| async {
+            match join_handle.await.unwrap() {
+                Ok(file) => {
+                    println!("generated: {:?}", file.target_path);
                 }
-                out::Source::Bytes(bytes) => bytes,
-            };
-            fs::write(output_file_path, contents).unwrap();
-        },
-    )
+                // TODO know which file errored
+                Err(error) => {
+                    println!("error: {:?}", error);
+                }
+            }
+        });
+    let mobs_transmitted = async {
+        mobs.for_each_concurrent(usize::MAX, |mob| async {
+            sender.send(mob).unwrap();
+        })
+        .await;
+        drop(sender);
+    };
+    tokio::join!(generated, mobs_transmitted);
 }
