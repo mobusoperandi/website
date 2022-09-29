@@ -21,33 +21,10 @@ pub fn sections(events: Vec<Event>) -> Array2<Section> {
 }
 
 pub struct Section {
-    id: String,
-    classes: String,
-    stylesheet: Option<String>,
-    content: Markup,
-}
-
-impl Section {
-    pub fn new(id: String, classes: String, stylesheet: Option<String>, content: Markup) -> Self {
-        Self {
-            id,
-            classes,
-            stylesheet,
-            content,
-        }
-    }
-    pub fn id(&self) -> &str {
-        &self.id
-    }
-    pub fn classes(&self) -> &str {
-        &self.classes
-    }
-    pub fn stylesheet(&self) -> Option<&str> {
-        self.stylesheet.as_deref()
-    }
-    pub fn content(&self) -> Markup {
-        self.content.clone()
-    }
+    pub id: String,
+    pub classes: String,
+    pub stylesheet: Option<String>,
+    pub content: Markup,
 }
 
 fn home(classes: String) -> Markup {

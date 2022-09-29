@@ -45,18 +45,15 @@ pub(crate) fn index(events: Vec<Event>) -> ssg::Input {
     let sections = sections(events);
     let content = html! {
       @for ((row, col), section) in sections.indexed_iter() {
-        @let id = section.id();
-        @let classes = section.classes();
-        @let class = format!("w-screen h-screen row-start-{} col-start-{} snap-start {classes}", row + 1, col + 1);
-        @let content = section.content();
-        section id=(id) class=(class) {
-           (content)
+        @let class = format!("w-screen h-screen row-start-{} col-start-{} snap-start {}", row + 1, col + 1, section.classes);
+        section id=(section.id) class=(class) {
+           (section.content)
         }
       }
     };
     let stylesheets = sections
         .into_iter()
-        .filter_map(|section| section.stylesheet().map(|stylesheel| stylesheel.to_owned()));
+        .filter_map(|section| section.stylesheet.map(|stylesheel| stylesheel.to_owned()));
     let markup = base(
         content,
         stylesheets,

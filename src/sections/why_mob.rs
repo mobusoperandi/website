@@ -3,11 +3,11 @@ use maud::html;
 use super::Section;
 
 pub fn section() -> Section {
-    Section::new(
-        "why_mob".into(),
-        "".into(),
-        None,
-        html! {
+    Section {
+        id: "why_mob".into(),
+        classes: "".into(),
+        stylesheet: None,
+        content: html! {
             p { "Because you'll learn and level-up on numerous skills:" }
             ul {
                 li { "Communication" }
@@ -22,5 +22,5 @@ pub fn section() -> Section {
 
             p { "You may build something you'll be proud of. " }
         },
-    )
+    }
 }

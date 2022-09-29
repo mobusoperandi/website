@@ -3,11 +3,11 @@ use crate::fonts;
 use super::Section;
 use maud::html;
 pub fn section() -> Section {
-    Section::new(
-        "main".into(),
-        "".into(),
-        None,
-        html! {
+    Section {
+        id: "main".into(),
+        classes: "".into(),
+        stylesheet: None,
+        content: html! {
             h1 class=(format!("font-[{}]", fonts::VOLLKORN)) { "An online community for the regular study of software development in mob programming format" }
             ul {
                 li { a href="#in_the_media" { "in_the_media" } }
@@ -17,5 +17,5 @@ pub fn section() -> Section {
                 li { a href="#why_mob" { "why_mob" } }
             }
         },
-    )
+    }
 }

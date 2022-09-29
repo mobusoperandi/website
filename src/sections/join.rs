@@ -3,14 +3,14 @@ use maud::html;
 use super::Section;
 
 pub fn section() -> Section {
-    Section::new(
-        "join".into(),
-        "".into(),
-        None,
-        html! {
+    Section {
+        id: "join".into(),
+        classes: "".into(),
+        stylesheet: None,
+        content: html! {
             p {
                 "Join by " a href="https://calendly.com/mightyiam" { "scheduling a chat with Dawn" }
             }
         },
-    )
+    }
 }
