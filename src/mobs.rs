@@ -7,11 +7,13 @@ use chrono::TimeZone;
 use chrono::{DateTime, Duration, Utc};
 use csscolorparser::Color;
 use futures::join;
+use futures::Future;
 use maud::html;
 use maud::{Markup, PreEscaped};
 use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
+use std::path;
 use std::path::PathBuf;
 use std::{io, path::Path};
 use tokio::fs;
@@ -25,7 +27,7 @@ pub struct Mob {
     pub(crate) text_color: Color,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct RecurringSession {
     pub(crate) recurrence: RRuleSet,
     pub(crate) duration: Duration,
@@ -114,7 +116,7 @@ pub struct Event {
     text_color: Color,
 }
 
-pub(crate) async fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
+pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
     mob.schedule
         .iter()
         .flat_map(|recurring_session| {
@@ -139,21 +141,25 @@ pub(crate) async fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event>
     events
 }
 
-pub(crate) fn page(mob: Mob) -> ssg::Input {
-    ssg::Input {
-        target_path: PathBuf::from(OUTPUT_DIR).join(mob.id.clone() + ".html"),
-        source: ssg::Source::Bytes(
-            page::base(
-                html! {
-                    h1 { (mob.id) }
-                    (mob.description)
-                },
-                [].into_iter(),
-                "".to_string(),
-                "".to_string(),
+pub(crate) fn page(mob: &Mob) -> (path::PathBuf, impl Future<Output = ssg::Source>) {
+    let mob_id = mob.id.clone();
+    let mob_description = mob.description.clone();
+    (
+        PathBuf::from(OUTPUT_DIR).join(mob_id.clone() + ".html"),
+        async move {
+            ssg::Source::Bytes(
+                page::base(
+                    html! {
+                        h1 { (mob_id) }
+                        (mob_description)
+                    },
+                    [].into_iter(),
+                    "".to_string(),
+                    "".to_string(),
+                )
+                .0
+                .into_bytes(),
             )
-            .0
-            .into_bytes(),
-        ),
-    }
+        },
+    )
 }

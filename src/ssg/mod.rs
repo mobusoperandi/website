@@ -1,36 +1,33 @@
 mod disk_caching_http_client;
 
-use futures::{future::BoxFuture, Future, FutureExt, StreamExt};
+use anyhow::Result;
+use futures::{Future, FutureExt};
 use readext::ReadExt;
 use reqwest::Url;
 use std::{fmt::Display, path};
 use tokio::{fs, io::AsyncWriteExt};
 
 pub fn generate_static_site(
-    files: impl tokio_stream::Stream<Item = BoxFuture<'static, Input>>,
-) -> impl tokio_stream::Stream<Item = impl Future<Output = anyhow::Result<Input>>> {
-    files.then(|future_file| future_file.map(process_file))
-}
-
-async fn process_file(file: Input) -> anyhow::Result<Input> {
-    let contents = match &file.source {
-        Source::Bytes(bytes) => bytes.clone(),
-        Source::GoogleFont(google_font) => google_font.download().await?,
-    };
-    let mut file_handle = fs::OpenOptions::new()
-        .write(true)
-        .create(true)
-        .truncate(true)
-        .open(file.target_path.clone())
-        .await?;
-    file_handle.write_all(&contents).await?;
-    Ok(file)
-}
-
-#[derive(Debug)]
-pub struct Input {
-    pub target_path: path::PathBuf,
-    pub source: Source,
+    mappings: impl IntoIterator<Item = (path::PathBuf, impl Future<Output = Source>)>,
+) -> impl Iterator<Item = (path::PathBuf, impl Future<Output = Result<()>>)> {
+    mappings.into_iter().map(|(path, source)| {
+        let path_clone = path.clone();
+        let result = source.then(|source| async {
+            let contents = match source {
+                Source::Bytes(bytes) => bytes.clone(),
+                Source::GoogleFont(google_font) => google_font.download().await?,
+            };
+            let mut file_handle = fs::OpenOptions::new()
+                .write(true)
+                .create(true)
+                .truncate(true)
+                .open(path_clone)
+                .await?;
+            file_handle.write_all(&contents).await?;
+            Ok(())
+        });
+        (path, result)
+    })
 }
 
 #[derive(Clone, Debug)]
@@ -48,7 +45,7 @@ pub struct GoogleFont {
 }
 
 impl GoogleFont {
-    pub(crate) async fn download(&self) -> anyhow::Result<Vec<u8>> {
+    pub(crate) async fn download(&self) -> Result<Vec<u8>> {
         // TODO: Consider reusing the client ->
         let url = Url::parse_with_params(
             &format!(

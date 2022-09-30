@@ -1,5 +1,7 @@
 use std::path;
 
+use futures::Future;
+
 use crate::{environment::OUTPUT_DIR, ssg};
 
 pub(crate) const VOLLKORN: ssg::GoogleFont = ssg::GoogleFont {
@@ -11,11 +13,12 @@ pub(crate) const VOLLKORN: ssg::GoogleFont = ssg::GoogleFont {
 
 pub(crate) const ALL: [ssg::GoogleFont; 1] = [VOLLKORN];
 
-pub(crate) fn ssg_inputs() -> [ssg::Input; 1] {
-    ALL.map(|font| ssg::Input {
-        target_path: path::PathBuf::from(OUTPUT_DIR)
-            .join(format!("{}.ttf", font.name.to_lowercase())),
-        source: ssg::Source::GoogleFont(font),
+pub(crate) fn ssg_inputs() -> [(path::PathBuf, impl Future<Output = ssg::Source>); 1] {
+    ALL.map(|font| {
+        (
+            path::PathBuf::from(OUTPUT_DIR).join(format!("{}.ttf", font.name.to_lowercase())),
+            async move { ssg::Source::GoogleFont(font) },
+        )
     })
 }
 

@@ -1,7 +1,8 @@
 use crate::{environment::OUTPUT_DIR, fonts, mobs::Event, sections, ssg};
 use chrono::Utc;
+use futures::Future;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
-use std::path::PathBuf;
+use std::path::{self, PathBuf};
 
 const NAME: &str = "Mobus Operandi";
 
@@ -41,7 +42,7 @@ pub(crate) fn base(
     markup
 }
 
-pub(crate) fn index(events: Vec<Event>) -> ssg::Input {
+pub(crate) fn index(events: Vec<Event>) -> (path::PathBuf, impl Future<Output = ssg::Source>) {
     let sections = sections(events);
     let content = html! {
       @for ((row, col), section) in sections.indexed_iter() {
@@ -60,8 +61,7 @@ pub(crate) fn index(events: Vec<Event>) -> ssg::Input {
         "snap-both scroll-smooth snap-proximity".to_string(),
         "grid grid-cols-auto grid-rows-auto".to_string(),
     );
-    ssg::Input {
-        target_path: PathBuf::from(OUTPUT_DIR).join("index.html"),
-        source: ssg::Source::Bytes(markup.0.into_bytes()),
-    }
+    (PathBuf::from(OUTPUT_DIR).join("index.html"), async {
+        ssg::Source::Bytes(markup.0.into_bytes())
+    })
 }
