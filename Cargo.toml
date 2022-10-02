@@ -17,6 +17,7 @@ http-cache-reqwest = "0.5.0"
 maud = "0.23.0"
 michie = "1.1.0"
 ndarray = "0.15.4"
+pathdiff = "0.2.1"
 pulldown-cmark = "0.9.1"
 readext = "0.1.0"
 reqwest = { version = "0.11.11", features = ["blocking"] }

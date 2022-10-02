@@ -1,4 +1,3 @@
-use crate::environment::OUTPUT_DIR;
 use crate::markdown;
 use crate::mobs;
 use crate::page;
@@ -144,22 +143,19 @@ pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
 pub(crate) fn page(mob: &Mob) -> (path::PathBuf, impl Future<Output = ssg::Source>) {
     let mob_id = mob.id.clone();
     let mob_description = mob.description.clone();
-    (
-        PathBuf::from(OUTPUT_DIR).join(mob_id.clone() + ".html"),
-        async move {
-            ssg::Source::Bytes(
-                page::base(
-                    html! {
-                        h1 { (mob_id) }
-                        (mob_description)
-                    },
-                    [].into_iter(),
-                    "".to_string(),
-                    "".to_string(),
-                )
-                .0
-                .into_bytes(),
+    (PathBuf::from(mob_id.clone() + ".html"), async move {
+        ssg::Source::Bytes(
+            page::base(
+                html! {
+                    h1 { (mob_id) }
+                    (mob_description)
+                },
+                [].into_iter(),
+                "".to_string(),
+                "".to_string(),
             )
-        },
-    )
+            .0
+            .into_bytes(),
+        )
+    })
 }

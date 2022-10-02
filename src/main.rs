@@ -15,6 +15,7 @@ use std::{
 };
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
+use url::Url;
 
 #[tokio::main]
 async fn main() {
@@ -35,28 +36,50 @@ async fn main() {
         (path, source.boxed())
     };
     let favicon = (
-        PathBuf::from(OUTPUT_DIR).join("favicon.ico"),
+        PathBuf::from("favicon.ico"),
         async { ssg::Source::Bytes(vec![]) }.boxed(),
     );
-    let files: BTreeMap<path::PathBuf, BoxFuture<ssg::Source>> = [favicon]
-        .into_iter()
-        .chain(fonts)
-        .chain([index_page])
-        .chain(mob_pages)
-        .collect();
+    let fullcalendar_css = (
+        PathBuf::from("fullcalendar.css"),
+        async {
+            ssg::Source::Http(
+                Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css")
+                    .unwrap(),
+            )
+        }
+        .boxed(),
+    );
+    let fullcalendar_js = (
+        path::PathBuf::from("fullcalendar.js"),
+        async {
+            ssg::Source::Http(
+                Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js").unwrap(),
+            )
+        }
+        .boxed(),
+    );
+    let files: BTreeMap<path::PathBuf, BoxFuture<ssg::Source>> =
+        [favicon, index_page, fullcalendar_css, fullcalendar_js]
+            .into_iter()
+            .chain(fonts)
+            .chain(mob_pages)
+            .collect();
     // TODO exit code
-    let generated = stream::iter(ssg::generate_static_site(files))
-        .map(|(path, source)| (path, tokio::spawn(source)))
-        .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
-            match join_handle.await.unwrap() {
-                Ok(()) => {
-                    println!("generated: {:?}", path);
-                }
-                // TODO know which file errored
-                Err(error) => {
-                    println!("error: {:?}", error);
-                }
+    let generated = stream::iter(ssg::generate_static_site(
+        OUTPUT_DIR.parse().unwrap(),
+        files,
+    ))
+    .map(|(path, source)| (path, tokio::spawn(source)))
+    .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
+        match join_handle.await.unwrap() {
+            Ok(()) => {
+                println!("generated: {:?}", path);
             }
-        });
+            // TODO know which file errored
+            Err(error) => {
+                println!("error: {:?}", error);
+            }
+        }
+    });
     tokio::join!(generated);
 }
