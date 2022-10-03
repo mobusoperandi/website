@@ -56,7 +56,7 @@ pub(crate) fn index(events: Vec<Event>) -> (path::PathBuf, impl Future<Output = 
             };
             let stylesheets = sections
                 .into_iter()
-                .filter_map(|section| section.stylesheet.map(|stylesheel| stylesheel.to_owned()));
+                .filter_map(|section| section.stylesheet);
             let markup = base(
                 content,
                 stylesheets,

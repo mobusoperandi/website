@@ -84,8 +84,7 @@ async fn read_mob_description_file(path: &Path) -> Markup {
     let description_path = path.join("description.md");
     let description = fs::read_to_string(description_path).await.unwrap();
     let description = markdown::to_html(&description);
-    let description = PreEscaped(description);
-    description
+    PreEscaped(description)
 }
 
 pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
@@ -129,7 +128,7 @@ pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
                     end: (occurrence + duration).with_timezone(&Utc),
                     title: mob.id.clone(),
                     url: format!("/{}.html", mob.id),
-                    background_color: (&mob.background_color).clone(),
+                    background_color: mob.background_color.clone(),
                     text_color: mob.text_color.clone(),
                 })
         })
