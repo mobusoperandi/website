@@ -1,27 +1,23 @@
 mod disk_caching_http_client;
 
 use anyhow::{anyhow, Result};
-use futures::{Future, FutureExt};
+use futures::{future::BoxFuture, Future, FutureExt};
 use pathdiff::diff_paths;
 use readext::ReadExt;
 use reqwest::Url;
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    fmt::Display,
-    path::PathBuf,
-};
+use std::{collections::BTreeSet, fmt::Display, path::PathBuf};
 use tokio::{fs, io::AsyncWriteExt};
 
 pub fn generate_static_site(
     output_dir: PathBuf,
-    mappings: BTreeMap<PathBuf, impl Future<Output = Source>>,
+    assets: BTreeSet<Asset>,
 ) -> impl Iterator<Item = (PathBuf, impl Future<Output = Result<()>>)> {
-    let paths = mappings
+    let paths = assets
         .iter()
-        .map(|(path, _source)| path.to_owned())
+        .map(|asset| asset.target.to_owned())
         .collect::<BTreeSet<_>>();
-    mappings.into_iter().map(move |(path, source)| {
-        let this_path = path.to_owned();
+    assets.into_iter().map(move |Asset { source, target }| {
+        let this_path = target.to_owned();
         let paths = paths.clone();
         let output_dir = output_dir.clone();
         let result = source.then(|source| async {
@@ -55,8 +51,33 @@ pub fn generate_static_site(
             file_handle.write_all(&contents).await?;
             Ok(())
         });
-        (path, result)
+        (target, result)
     })
+}
+
+pub struct Asset {
+    pub source: BoxFuture<'static, Source>,
+    pub target: PathBuf,
+}
+
+impl PartialEq for Asset {
+    fn eq(&self, other: &Self) -> bool {
+        self.target == other.target
+    }
+}
+
+impl Eq for Asset {}
+
+impl PartialOrd for Asset {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Asset {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.target.cmp(&other.target)
+    }
 }
 
 pub enum Source {

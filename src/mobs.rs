@@ -5,7 +5,7 @@ use chrono::TimeZone;
 use chrono::{DateTime, Duration, Utc};
 use csscolorparser::Color;
 use futures::join;
-use futures::Future;
+use futures::FutureExt;
 use maud::html;
 use maud::{Markup, PreEscaped};
 use rrule::{RRule, RRuleSet, Unvalidated};
@@ -137,22 +137,26 @@ pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
     events
 }
 
-pub(crate) fn page(mob: &Mob) -> (PathBuf, impl Future<Output = ssg::Source>) {
+pub(crate) fn page(mob: &Mob) -> ssg::Asset {
     let mob_id = mob.id.clone();
     let mob_description = mob.description.clone();
-    (PathBuf::from(mob_id.clone() + ".html"), async move {
-        ssg::Source::Bytes(
-            page::base(
-                html! {
-                    h1 { (mob_id) }
-                    (mob_description)
-                },
-                [].into_iter(),
-                "".to_string(),
-                "".to_string(),
+    ssg::Asset {
+        target: PathBuf::from(mob_id.clone() + ".html"),
+        source: async move {
+            ssg::Source::Bytes(
+                page::base(
+                    html! {
+                        h1 { (mob_id) }
+                        (mob_description)
+                    },
+                    [].into_iter(),
+                    "".to_string(),
+                    "".to_string(),
+                )
+                .0
+                .into_bytes(),
             )
-            .0
-            .into_bytes(),
-        )
-    })
+        }
+        .boxed(),
+    }
 }
