@@ -1,4 +1,3 @@
-use futures::FutureExt;
 use std::path::PathBuf;
 
 pub(crate) const VOLLKORN: ssg::GoogleFont = ssg::GoogleFont {
@@ -11,9 +10,11 @@ pub(crate) const VOLLKORN: ssg::GoogleFont = ssg::GoogleFont {
 pub(crate) const ALL: [ssg::GoogleFont; 1] = [VOLLKORN];
 
 pub(crate) fn assets() -> [ssg::Asset; 1] {
-    ALL.map(|font| ssg::Asset {
-        target: PathBuf::from(format!("{}.ttf", font.name.to_lowercase())),
-        source: async move { ssg::Source::GoogleFont(font) }.boxed(),
+    ALL.map(|font| {
+        ssg::Asset::new(
+            PathBuf::from(format!("{}.ttf", font.name.to_lowercase())),
+            async move { ssg::Source::GoogleFont(font) },
+        )
     })
 }
 

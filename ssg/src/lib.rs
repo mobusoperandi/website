@@ -56,8 +56,17 @@ pub fn generate_static_site(
 }
 
 pub struct Asset {
-    pub source: BoxFuture<'static, Source>,
-    pub target: PathBuf,
+    pub(crate) source: BoxFuture<'static, Source>,
+    pub(crate) target: PathBuf,
+}
+
+impl Asset {
+    pub fn new(target: PathBuf, source: impl Future<Output = Source> + Send + 'static) -> Self {
+        Self {
+            source: source.boxed(),
+            target,
+        }
+    }
 }
 
 impl PartialEq for Asset {

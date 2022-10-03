@@ -1,6 +1,5 @@
 use crate::{fonts, mobs::Event, sections};
 use chrono::Utc;
-use futures::FutureExt;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 use std::path::PathBuf;
 
@@ -43,30 +42,27 @@ pub(crate) fn base(
 }
 
 pub(crate) fn index(events: Vec<Event>) -> ssg::Asset {
-    ssg::Asset {
-        target: PathBuf::from("index.html"),
-        source: async {
-            ssg::Source::BytesWithAssetSafety(Box::new(|assets| {
-                let sections = sections(assets, events);
-                let content = html! {
-                  @for ((row, col), section) in sections.indexed_iter() {
-                    @let class = format!("w-screen h-screen row-start-{} col-start-{} snap-start {}", row + 1, col + 1, section.classes);
-                    div id=(section.id) class=(class) {
-                       (section.content)
-                    }
-                  }
-                };
-                let stylesheets = sections
-                    .into_iter()
-                    .filter_map(|section| section.stylesheet);
-                let markup = base(
-                    content,
-                    stylesheets,
-                    "snap-both scroll-smooth snap-proximity".to_string(),
-                    "grid grid-cols-auto grid-rows-auto".to_string(),
-                );
-                Ok(markup.0.into_bytes())
-            }))
-        }.boxed(),
-    }
+    ssg::Asset::new(PathBuf::from("index.html"), async {
+        ssg::Source::BytesWithAssetSafety(Box::new(|assets| {
+            let sections = sections(assets, events);
+            let content = html! {
+              @for ((row, col), section) in sections.indexed_iter() {
+                @let class = format!("w-screen h-screen row-start-{} col-start-{} snap-start {}", row + 1, col + 1, section.classes);
+                div id=(section.id) class=(class) {
+                   (section.content)
+                }
+              }
+            };
+            let stylesheets = sections
+                .into_iter()
+                .filter_map(|section| section.stylesheet);
+            let markup = base(
+                content,
+                stylesheets,
+                "snap-both scroll-smooth snap-proximity".to_string(),
+                "grid grid-cols-auto grid-rows-auto".to_string(),
+            );
+            Ok(markup.0.into_bytes())
+        }))
+    })
 }

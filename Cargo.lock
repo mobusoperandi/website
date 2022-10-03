@@ -14,7 +14,6 @@ dependencies = [
  "const_env",
  "csscolorparser",
  "futures",
- "futures-util",
  "live-server",
  "markdown-toc",
  "maud",
