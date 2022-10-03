@@ -11,7 +11,6 @@ use maud::{Markup, PreEscaped};
 use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
-use std::path;
 use std::path::PathBuf;
 use std::{io, path::Path};
 use tokio::fs;
@@ -138,7 +137,7 @@ pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
     events
 }
 
-pub(crate) fn page(mob: &Mob) -> (path::PathBuf, impl Future<Output = ssg::Source>) {
+pub(crate) fn page(mob: &Mob) -> (PathBuf, impl Future<Output = ssg::Source>) {
     let mob_id = mob.id.clone();
     let mob_description = mob.description.clone();
     (PathBuf::from(mob_id.clone() + ".html"), async move {

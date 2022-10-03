@@ -2,7 +2,7 @@ use crate::{fonts, mobs::Event, sections};
 use chrono::Utc;
 use futures::Future;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
-use std::path::{self, PathBuf};
+use std::path::PathBuf;
 
 const NAME: &str = "Mobus Operandi";
 
@@ -42,7 +42,7 @@ pub(crate) fn base(
     markup
 }
 
-pub(crate) fn index(events: Vec<Event>) -> (path::PathBuf, impl Future<Output = ssg::Source>) {
+pub(crate) fn index(events: Vec<Event>) -> (PathBuf, impl Future<Output = ssg::Source>) {
     (PathBuf::from("index.html"), async {
         ssg::Source::BytesWithAssetSafety(Box::new(|assets| {
             let sections = sections(assets, events);

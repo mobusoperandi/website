@@ -8,14 +8,14 @@ use reqwest::Url;
 use std::{
     collections::{BTreeMap, BTreeSet},
     fmt::Display,
-    path,
+    path::PathBuf,
 };
 use tokio::{fs, io::AsyncWriteExt};
 
 pub fn generate_static_site(
-    output_dir: path::PathBuf,
-    mappings: BTreeMap<path::PathBuf, impl Future<Output = Source>>,
-) -> impl Iterator<Item = (path::PathBuf, impl Future<Output = Result<()>>)> {
+    output_dir: PathBuf,
+    mappings: BTreeMap<PathBuf, impl Future<Output = Source>>,
+) -> impl Iterator<Item = (PathBuf, impl Future<Output = Result<()>>)> {
     let paths = mappings
         .iter()
         .map(|(path, _source)| path.to_owned())
@@ -50,11 +50,7 @@ pub fn generate_static_site(
                 .write(true)
                 .create(true)
                 .truncate(true)
-                .open(
-                    [output_dir, this_path]
-                        .into_iter()
-                        .collect::<path::PathBuf>(),
-                )
+                .open([output_dir, this_path].into_iter().collect::<PathBuf>())
                 .await?;
             file_handle.write_all(&contents).await?;
             Ok(())
@@ -71,12 +67,12 @@ pub enum Source {
 }
 
 pub struct Assets {
-    this_path: path::PathBuf,
-    paths: BTreeSet<path::PathBuf>,
+    this_path: PathBuf,
+    paths: BTreeSet<PathBuf>,
 }
 
 impl Assets {
-    pub fn relative(&self, path: path::PathBuf) -> Result<path::PathBuf> {
+    pub fn relative(&self, path: PathBuf) -> Result<PathBuf> {
         diff_paths(
             self.paths
                 .get(&path)

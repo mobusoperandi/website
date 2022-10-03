@@ -8,10 +8,7 @@ use crate::{mobs::read_mob, sections::sections};
 use environment::OUTPUT_DIR;
 use futures::{future::BoxFuture, stream, StreamExt};
 use futures_util::FutureExt;
-use std::{
-    collections::BTreeMap,
-    path::{self, PathBuf},
-};
+use std::{collections::BTreeMap, path::PathBuf};
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
 use url::Url;
@@ -49,7 +46,7 @@ async fn main() {
         .boxed(),
     );
     let fullcalendar_js = (
-        path::PathBuf::from("fullcalendar.js"),
+        PathBuf::from("fullcalendar.js"),
         async {
             ssg::Source::Http(
                 Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js").unwrap(),
@@ -57,7 +54,7 @@ async fn main() {
         }
         .boxed(),
     );
-    let files: BTreeMap<path::PathBuf, BoxFuture<ssg::Source>> =
+    let files: BTreeMap<PathBuf, BoxFuture<ssg::Source>> =
         [favicon, index_page, fullcalendar_css, fullcalendar_js]
             .into_iter()
             .chain(fonts)
