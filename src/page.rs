@@ -49,7 +49,7 @@ pub(crate) fn index(events: Vec<Event>) -> (path::PathBuf, impl Future<Output = 
             let content = html! {
               @for ((row, col), section) in sections.indexed_iter() {
                 @let class = format!("w-screen h-screen row-start-{} col-start-{} snap-start {}", row + 1, col + 1, section.classes);
-                section id=(section.id) class=(class) {
+                div id=(section.id) class=(class) {
                    (section.content)
                 }
               }
