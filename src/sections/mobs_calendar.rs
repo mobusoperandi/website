@@ -18,9 +18,11 @@ pub fn section(assets: ssg::Assets, events: Vec<Event>) -> Section {
             (home("row-start-1 column-start-5 column-end-7".into()))
             div class="row-start-2 row-end-7 col-span-full" {}
             script defer src=(assets.relative("fullcalendar.js".into()).unwrap().display().to_string()) {}
-            script defer {
-                (PreEscaped(format!("const events = JSON.parse('{events}');")))
-                (PreEscaped(include_str!("mobs-calendar.js")))
+            script {
+                (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{
+                    const events = JSON.parse('{events}')
+                    {}
+                }})", include_str!("mobs-calendar.js"))))
             }
         },
     }
