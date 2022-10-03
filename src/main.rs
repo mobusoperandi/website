@@ -4,7 +4,6 @@ mod markdown;
 mod mobs;
 mod page;
 mod sections;
-mod ssg;
 use crate::{mobs::read_mob, sections::sections};
 use environment::OUTPUT_DIR;
 use futures::{future::BoxFuture, stream, StreamExt};

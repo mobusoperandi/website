@@ -4,7 +4,7 @@ mod main;
 mod mightyiam;
 mod mobs_calendar;
 mod why_mob;
-use crate::{mobs::Event, ssg};
+use crate::mobs::Event;
 use maud::{html, Markup};
 use ndarray::Array2;
 

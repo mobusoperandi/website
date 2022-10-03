@@ -3,21 +3,17 @@ CARGO_TERM_COLOR = "always"
 
 [tasks.pre-commit]
 env = { RUSTFLAGS = "--deny warnings" }
-run_task = { name = ["test", "clippy", "check_fmt"], parallel = true }
+run_task = { name = ["clippy", "check_fmt"], parallel = true }
 
 [tasks.ci_main]
 env = { RUSTFLAGS = "--deny warnings" }
-run_task = { name = ["test", "clippy", "check_fmt", "produce_output"], parallel = true }
+run_task = { name = ["clippy", "check_fmt", "produce_output"], parallel = true }
 
 [tasks.ci_post]
 run_task = { name = ["no_untracked", "no_modified"] }
 
 [tasks.ci]
 run_task = { name = ["ci_main", "ci_post"] }
-
-[tasks.test]
-command = "cargo"
-args = ["test"]
 
 [tasks.clippy]
 command = "cargo"

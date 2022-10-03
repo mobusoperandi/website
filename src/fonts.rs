@@ -2,8 +2,6 @@ use std::path;
 
 use futures::Future;
 
-use crate::ssg;
-
 pub(crate) const VOLLKORN: ssg::GoogleFont = ssg::GoogleFont {
     name: "Vollkorn",
     version: 21,

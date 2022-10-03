@@ -6,7 +6,6 @@ version = 3
 name = "_"
 version = "0.0.0"
 dependencies = [
- "anyhow",
  "cargo-make",
  "cargo-watch",
  "chrono",
@@ -16,28 +15,20 @@ dependencies = [
  "csscolorparser",
  "futures",
  "futures-util",
- "hex-literal",
- "http-cache-reqwest",
  "live-server",
  "markdown-toc",
  "maud",
- "michie",
  "ndarray",
- "pathdiff",
  "pulldown-cmark",
- "readext",
- "reqwest",
- "reqwest-middleware",
  "rrule",
  "sd",
  "serde",
  "serde_json",
  "serde_yaml",
- "sha2 0.10.5",
+ "ssg",
  "tokio",
  "tokio-stream",
  "url",
- "zip",
 ]
 
 [[package]]
@@ -427,31 +418,6 @@ dependencies = [
  "webpki",
  "webpki-roots",
  "wildmatch",
-]
-
-[[package]]
-name = "attribute-derive"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5d7e40762ffd53f741608a7516f628d2d7beb119a53141cb4107d962edb60db"
-dependencies = [
- "attribute-derive-macro",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "attribute-derive-macro"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5172263fd8862e2fedc2fe3e11535d39d839e5d78c49de698d1ed68b261fb67e"
-dependencies = [
- "proc-macro-error",
- "proc-macro2",
- "quote",
- "quote-use",
- "syn",
 ]
 
 [[package]]
@@ -1997,12 +1963,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
-name = "hex-literal"
-version = "0.3.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ebdb29d2ea9ed0083cd8cece49bbd968021bd99b0849edb4a9a7ee0fdf6a4e0"
-
-[[package]]
 name = "hkdf"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2654,27 +2614,6 @@ checksum = "f79496a5651c8d57cd033c5add8ca7ee4e3d5f7587a4777484640d9cb60392d9"
 dependencies = [
  "fnv",
  "nom 1.2.4",
-]
-
-[[package]]
-name = "michie"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b7303f711ba06e6bbb19ef5696a382f7020922f5a88de1fa589a23c1526aca2"
-dependencies = [
- "michie-macro",
-]
-
-[[package]]
-name = "michie-macro"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "344cc8a21b4c229d74251f320bd6e16f654bfa520aea730d87870673e3566358"
-dependencies = [
- "attribute-derive",
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]
@@ -3479,18 +3418,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "quote-use"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "825c64c14fa0cf7b2bba3c086edbb1d2f4aab69e96253dfa99b8c58a3ecf893a"
-dependencies = [
- "proc-macro-error",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "rand"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4165,6 +4092,22 @@ name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
+
+[[package]]
+name = "ssg"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "futures",
+ "http-cache-reqwest",
+ "pathdiff",
+ "readext",
+ "reqwest",
+ "reqwest-middleware",
+ "tokio",
+ "url",
+ "zip",
+]
 
 [[package]]
 name = "ssri"

@@ -1,5 +1,5 @@
 use super::{home, Section};
-use crate::{mobs::Event, ssg};
+use crate::mobs::Event;
 use maud::{html, PreEscaped};
 
 pub fn section(assets: ssg::Assets, events: Vec<Event>) -> Section {

@@ -1,4 +1,4 @@
-use crate::{fonts, mobs::Event, sections, ssg};
+use crate::{fonts, mobs::Event, sections};
 use chrono::Utc;
 use futures::Future;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
