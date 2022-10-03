@@ -68,7 +68,7 @@ cargo run
 script = '''
 #!/usr/bin/env bash
 set -euxo pipefail
-npx tailwindcss --input ./src/input.css --output ./${OUTPUT_DIR}/index.css --content ./${OUTPUT_DIR}/*.html
+npx tailwindcss --input ./src/input.css --output ./${OUTPUT_DIR}/index.css --content "./${OUTPUT_DIR}/*.html"
 '''
 
 [tasks.produce_output]
