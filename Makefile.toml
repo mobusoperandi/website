@@ -3,7 +3,7 @@ CARGO_TERM_COLOR = "always"
 
 [tasks.pre-commit]
 env = { RUSTFLAGS = "--deny warnings" }
-run_task = { name = ["test", "clippy", "doc", "check_fmt"], parallel = true }
+run_task = { name = ["test", "clippy", "check_fmt"], parallel = true }
 
 [tasks.ci_main]
 env = { RUSTFLAGS = "--deny warnings" }
