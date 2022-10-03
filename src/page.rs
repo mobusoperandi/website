@@ -1,6 +1,7 @@
 use crate::{fonts, mobs::Event, sections};
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
+use ssg::{Asset, Source};
 use std::path::PathBuf;
 
 const NAME: &str = "Mobus Operandi";
@@ -41,9 +42,9 @@ pub(crate) fn base(
     markup
 }
 
-pub(crate) fn index(events: Vec<Event>) -> ssg::Asset {
-    ssg::Asset::new(PathBuf::from("index.html"), async {
-        ssg::Source::BytesWithAssetSafety(Box::new(|assets| {
+pub(crate) fn index(events: Vec<Event>) -> Asset {
+    Asset::new(PathBuf::from("index.html"), async {
+        Source::BytesWithAssetSafety(Box::new(|assets| {
             let sections = sections(assets, events);
             let content = html! {
               @for ((row, col), section) in sections.indexed_iter() {

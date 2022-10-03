@@ -7,8 +7,9 @@ mod why_mob;
 use crate::mobs::Event;
 use maud::{html, Markup};
 use ndarray::Array2;
+use ssg::Assets;
 
-pub fn sections(assets: ssg::Assets, events: Vec<Event>) -> Array2<Section> {
+pub fn sections(assets: Assets, events: Vec<Event>) -> Array2<Section> {
     vec![
         [main::section(), join::section(), why_mob::section()],
         [

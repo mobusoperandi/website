@@ -10,6 +10,8 @@ use maud::{Markup, PreEscaped};
 use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
+use ssg::Asset;
+use ssg::Source;
 use std::path::PathBuf;
 use std::{io, path::Path};
 use tokio::fs;
@@ -136,11 +138,11 @@ pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
     events
 }
 
-pub(crate) fn page(mob: &Mob) -> ssg::Asset {
+pub(crate) fn page(mob: &Mob) -> Asset {
     let mob_id = mob.id.clone();
     let mob_description = mob.description.clone();
-    ssg::Asset::new(PathBuf::from(mob_id.clone() + ".html"), async move {
-        ssg::Source::Bytes(
+    Asset::new(PathBuf::from(mob_id.clone() + ".html"), async move {
+        Source::Bytes(
             page::base(
                 html! {
                     h1 { (mob_id) }
