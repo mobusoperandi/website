@@ -5,7 +5,11 @@ use futures::{future::BoxFuture, Future, FutureExt};
 use pathdiff::diff_paths;
 use readext::ReadExt;
 use reqwest::Url;
-use std::{collections::BTreeSet, fmt::Display, path::PathBuf};
+use std::{
+    collections::BTreeSet,
+    fmt::Display,
+    path::{Path, PathBuf},
+};
 use tokio::{fs, io::AsyncWriteExt};
 
 pub fn generate_static_site(
@@ -102,10 +106,10 @@ pub struct Assets {
 }
 
 impl Assets {
-    pub fn relative(&self, path: PathBuf) -> Result<PathBuf> {
+    pub fn relative(&self, path: impl AsRef<Path>) -> Result<PathBuf> {
         diff_paths(
             self.paths
-                .get(&path)
+                .get(&path.as_ref().to_path_buf())
                 .ok_or_else(|| anyhow!("No such path"))?,
             self.this_path.clone(),
         )
