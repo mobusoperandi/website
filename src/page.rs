@@ -24,7 +24,7 @@ pub(crate) fn base(
           @for stylesheet in stylesheets {
               link rel="stylesheet" href=(stylesheet);
           }
-          style type="text/css" {
+          style {
             // TODO extract as font utility
             @for font in fonts::ALL {(PreEscaped(format!("
               @font-face {{
