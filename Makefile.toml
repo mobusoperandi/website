@@ -74,7 +74,7 @@ run_task = { name = ["html", "css"] }
 script = '''
 #!/usr/bin/env bash
 set -euxo pipefail
-cargo bin cargo-watch --shell 'cargo bin makers produce_output'
+cargo bin cargo-watch --shell 'cargo bin cargo-make produce_output'
 '''
 
 [tasks.serve]
