@@ -14,13 +14,20 @@ use tokio::{fs, io::AsyncWriteExt};
 
 pub fn generate_static_site(
     output_dir: PathBuf,
-    assets: BTreeSet<Asset>,
-) -> impl Iterator<Item = (PathBuf, impl Future<Output = Result<()>>)> {
-    let paths = assets
-        .iter()
-        .map(|asset| asset.target.to_owned())
-        .collect::<BTreeSet<_>>();
-    assets.into_iter().map(move |Asset { source, target }| {
+    assets: impl IntoIterator<Item = Asset>,
+) -> Result<impl Iterator<Item = (PathBuf, impl Future<Output = Result<()>>)>> {
+    let (paths, assets) = assets.into_iter().try_fold(
+        (BTreeSet::<PathBuf>::new(), BTreeSet::<Asset>::new()),
+        |(mut paths, mut assets), asset| {
+            let newly_inserted = paths.insert(asset.target.clone());
+            if !newly_inserted {
+                return Err(anyhow!("Duplicate target: {}", asset.target.display()));
+            }
+            assets.insert(asset);
+            Ok((paths, assets))
+        },
+    )?;
+    Ok(assets.into_iter().map(move |Asset { source, target }| {
         let this_path = target.to_owned();
         let paths = paths.clone();
         let output_dir = output_dir.clone();
@@ -56,7 +63,7 @@ pub fn generate_static_site(
             Ok(())
         });
         (target, result)
-    })
+    }))
 }
 
 pub struct Asset {

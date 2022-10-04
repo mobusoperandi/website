@@ -43,7 +43,7 @@ async fn main() {
         .chain(mob_pages)
         .collect();
     // TODO exit code
-    let generated = stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), files))
+    let generated = stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), files).unwrap())
         .map(|(path, source)| (path, tokio::spawn(source)))
         .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
             match join_handle.await.unwrap() {
