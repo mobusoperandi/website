@@ -28,18 +28,18 @@ pub fn generate_static_site(
         },
     )?;
     Ok(assets.into_iter().map(move |Asset { source, target }| {
-        let this_path = target.to_owned();
-        let paths = paths.clone();
+        let this_target = target.to_owned();
+        let targets = paths.clone();
         let output_dir = output_dir.clone();
         let result = source.then(|source| async {
             let contents = match source {
                 Source::Bytes(bytes) => bytes.clone(),
                 Source::BytesWithAssetSafety(function) => {
-                    let assets = Assets {
-                        this_path: this_path.clone(),
-                        paths,
+                    let targets = Targets {
+                        this_target: this_target.clone(),
+                        all_targets: targets,
                     };
-                    function(assets)?
+                    function(targets)?
                 }
                 Source::GoogleFont(google_font) => google_font.download().await?,
                 Source::Http(url) => {
@@ -57,7 +57,7 @@ pub fn generate_static_site(
                 .write(true)
                 .create(true)
                 .truncate(true)
-                .open([output_dir, this_path].into_iter().collect::<PathBuf>())
+                .open([output_dir, this_target].into_iter().collect::<PathBuf>())
                 .await?;
             file_handle.write_all(&contents).await?;
             Ok(())
@@ -102,23 +102,23 @@ impl Ord for Asset {
 
 pub enum Source {
     Bytes(Vec<u8>),
-    BytesWithAssetSafety(Box<dyn FnOnce(Assets) -> Result<Vec<u8>> + Send>),
+    BytesWithAssetSafety(Box<dyn FnOnce(Targets) -> Result<Vec<u8>> + Send>),
     GoogleFont(GoogleFont),
     Http(Url),
 }
 
-pub struct Assets {
-    this_path: PathBuf,
-    paths: BTreeSet<PathBuf>,
+pub struct Targets {
+    this_target: PathBuf,
+    all_targets: BTreeSet<PathBuf>,
 }
 
-impl Assets {
+impl Targets {
     pub fn relative(&self, path: impl AsRef<Path>) -> Result<PathBuf> {
         diff_paths(
-            self.paths
+            self.all_targets
                 .get(&path.as_ref().to_path_buf())
                 .ok_or_else(|| anyhow!("No such path"))?,
-            self.this_path.clone(),
+            self.this_target.clone(),
         )
         .ok_or_else(|| anyhow!("Failed to obtain relative path"))
     }

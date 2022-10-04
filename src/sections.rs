@@ -7,15 +7,15 @@ mod why_mob;
 use crate::mobs::Event;
 use maud::{html, Markup};
 use ndarray::Array2;
-use ssg::Assets;
+use ssg::Targets;
 
-pub fn sections(assets: Assets, events: Vec<Event>) -> Array2<Section> {
+pub fn sections(targets: Targets, events: Vec<Event>) -> Array2<Section> {
     vec![
         [main::section(), join::section(), why_mob::section()],
         [
             in_the_media::section(),
             mightyiam::section(),
-            mobs_calendar::section(assets, events),
+            mobs_calendar::section(targets, events),
         ],
     ]
     .into()
