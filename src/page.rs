@@ -15,7 +15,7 @@ pub(crate) fn base(
     let version = Utc::now().timestamp_millis();
     let markup = html! {
       (DOCTYPE)
-      html lang="en" class=(html_classes) {
+      html lang="en" class=(format!("font-[{}] {html_classes}", fonts::VOLLKORN)) {
         head {
           title { (NAME) }
           meta charset="utf-8";
