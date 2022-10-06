@@ -12,7 +12,7 @@ pub fn section(targets: Targets, events: Vec<Event>) -> Section {
         classes: "".into(),
         stylesheet: Some(
             targets
-                .relative(Path::new("fullcalendar.css"))
+                .relative("fullcalendar.css")
                 .unwrap()
                 .display()
                 .to_string(),
