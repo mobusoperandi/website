@@ -13,6 +13,7 @@ pub(crate) fn base(
     body_classes: String,
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
+    let body_classes = String::from("p-1") + &body_classes;
     let markup = html! {
       (DOCTYPE)
       html lang="en" class=(format!("font-[{}] {html_classes}", fonts::VOLLKORN)) {
