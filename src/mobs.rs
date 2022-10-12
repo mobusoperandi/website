@@ -145,11 +145,13 @@ pub(crate) fn page(mob: &Mob) -> Asset {
         Source::Bytes(
             page::base(
                 html! {
-                    h1 { (mob_id) }
-                    (mob_description)
+                    section.prose {
+                        h1 { (mob_id) }
+                        (mob_description)
+                    }
                 },
                 [].into_iter(),
-                "".to_string(),
+                "prose".to_string(),
                 "".to_string(),
             )
             .0
