@@ -6,4 +6,7 @@
   a {
     @apply underline;
   }
+  h1 {
+    @apply uppercase
+  }
 }
