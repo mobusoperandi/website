@@ -13,6 +13,7 @@ pub(crate) fn base(
     body_classes: String,
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
+    let html_classes = ["[font-size:20px]", &html_classes].join(" ");
     let body_classes = String::from("p-1") + &body_classes;
     let markup = html! {
       (DOCTYPE)
