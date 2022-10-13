@@ -14,7 +14,7 @@ pub(crate) fn base(
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
     let html_classes = ["[font-size:20px]", &html_classes].join(" ");
-    let body_classes = String::from("p-1") + &body_classes;
+    let body_classes = ["p-1", &body_classes].join(" ");
     let markup = html! {
       (DOCTYPE)
       html lang="en" class=(format!("font-[{}] {html_classes}", fonts::VOLLKORN)) {

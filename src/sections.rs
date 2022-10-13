@@ -29,7 +29,7 @@ pub struct Section {
 }
 
 fn home(classes: String) -> Markup {
-    let classes = format!("text-4xl {classes}");
+    let classes = ["text-4xl", &classes].join(" ");
     html! {
       a href="#main" class=(classes) { "🏡" }
     }
