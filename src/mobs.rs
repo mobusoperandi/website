@@ -147,6 +147,7 @@ pub(crate) fn page(mob: &Mob) -> Asset {
                 html! {
                     h1 { (mob_id) }
                     (mob_description)
+                    p.uppercase { a href="/#join" { "Learn how to join" } }
                 },
                 [].into_iter(),
                 "".to_string(),
