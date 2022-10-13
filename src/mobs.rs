@@ -1,10 +1,11 @@
 use crate::markdown;
 use crate::mobs;
-use crate::page;
+use crate::pages;
 use chrono::TimeZone;
 use chrono::{DateTime, Duration, Utc};
 use csscolorparser::Color;
 use futures::join;
+use futures::StreamExt;
 use maud::html;
 use maud::{Markup, PreEscaped};
 use rrule::{RRule, RRuleSet, Unvalidated};
@@ -15,6 +16,7 @@ use ssg::Source;
 use std::path::PathBuf;
 use std::{io, path::Path};
 use tokio::fs;
+use tokio_stream::wrappers::ReadDirStream;
 
 #[derive(Debug, Clone)]
 pub struct Mob {
@@ -142,19 +144,26 @@ pub(crate) fn page(mob: &Mob) -> Asset {
     let mob_id = mob.id.clone();
     let mob_description = mob.description.clone();
     Asset::new(PathBuf::from(mob_id.clone() + ".html"), async move {
-        Source::Bytes(
-            page::base(
+        Source::BytesWithAssetSafety(Box::new(move |targets| {
+            Ok(pages::base(
                 html! {
                     h1 { (mob_id) }
                     (mob_description)
-                    p.uppercase { a href="/#join" { "Learn how to join" } }
+                    p.uppercase { a href=(targets.relative("join.html")?.display().to_string()) { "Learn how to join" } }
                 },
-                [].into_iter(),
+                [],
                 "".to_string(),
                 "prose mx-auto".to_string(),
             )
             .0
-            .into_bytes(),
-        )
+            .into_bytes())
+        }))
     })
+}
+
+pub(crate) async fn read_all_mobs() -> Vec<Mob> {
+    ReadDirStream::new(fs::read_dir("mobs").await.unwrap())
+        .then(read_mob)
+        .collect::<Vec<_>>()
+        .await
 }

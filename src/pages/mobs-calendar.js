@@ -1,6 +1,6 @@
 /* global FullCalendar */
 ; (() => {
-  const calendarEl = document.querySelector('#mobs_calendar > div')
+  const calendarEl = document.querySelector('div')
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'timeGridWeek',
     slotDuration: '01:00:00',
@@ -12,7 +12,7 @@
       }
     },
     events,
-    height: '100%',
+    height: 'auto',
     nowIndicator: true,
     eventTextColor: 'black',
     eventBackgroundColor: 'gray',

@@ -2,28 +2,20 @@ mod environment;
 mod fonts;
 mod markdown;
 mod mobs;
-mod page;
-mod sections;
-use crate::{mobs::read_mob, sections::sections};
+mod pages;
 use environment::OUTPUT_DIR;
 use futures::{stream, StreamExt};
 use ssg::{generate_static_site, Asset, Source};
 use std::{collections::BTreeSet, path::PathBuf};
-use tokio::fs;
-use tokio_stream::wrappers::ReadDirStream;
 use url::Url;
 
 #[tokio::main]
 async fn main() {
     //console_subscriber::init();
     let fonts = fonts::assets();
-    let mobs = ReadDirStream::new(fs::read_dir("mobs").await.unwrap())
-        .then(read_mob)
-        .collect::<Vec<_>>()
-        .await;
+    let mobs = mobs::read_all_mobs().await;
     let mob_pages = mobs.iter().map(mobs::page).collect::<Vec<_>>();
-    let events = mobs.into_iter().fold(Vec::new(), mobs::events);
-    let index_page = page::index(events);
+    let pages = pages::all().await;
     let favicon = Asset::new(PathBuf::from("favicon.ico"), async {
         Source::Bytes(vec![])
     });
@@ -37,9 +29,10 @@ async fn main() {
             Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js").unwrap(),
         )
     });
-    let files: BTreeSet<Asset> = [favicon, index_page, fullcalendar_css, fullcalendar_js]
+    let files: BTreeSet<Asset> = [favicon, fullcalendar_css, fullcalendar_js]
         .into_iter()
         .chain(fonts)
+        .chain(pages)
         .chain(mob_pages)
         .collect();
     // TODO exit code

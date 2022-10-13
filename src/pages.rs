@@ -1,14 +1,20 @@
-use crate::{fonts, mobs::Event, sections};
+mod in_the_media;
+mod index;
+mod join;
+mod mightyiam;
+mod mobs_calendar;
+mod why_mob;
+use crate::fonts;
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
-use ssg::{Asset, Source};
-use std::path::PathBuf;
+use ssg::Asset;
+use std::vec;
 
 const NAME: &str = "Mobus Operandi";
 
 pub(crate) fn base(
     content: Markup,
-    stylesheets: impl Iterator<Item = String>,
+    stylesheets: impl IntoIterator<Item = String>,
     html_classes: String,
     body_classes: String,
 ) -> Markup {
@@ -44,28 +50,13 @@ pub(crate) fn base(
     markup
 }
 
-pub(crate) fn index(events: Vec<Event>) -> Asset {
-    Asset::new(PathBuf::from("index.html"), async {
-        Source::BytesWithAssetSafety(Box::new(|assets| {
-            let sections = sections(assets, events);
-            let content = html! {
-              @for ((row, col), section) in sections.indexed_iter() {
-                @let class = format!("w-screen h-screen row-start-{} col-start-{} snap-start {}", row + 1, col + 1, section.classes);
-                div id=(section.id) class=(class) {
-                   (section.content)
-                }
-              }
-            };
-            let stylesheets = sections
-                .into_iter()
-                .filter_map(|section| section.stylesheet);
-            let markup = base(
-                content,
-                stylesheets,
-                "snap-both scroll-smooth snap-proximity".to_string(),
-                "grid grid-cols-auto grid-rows-auto".to_string(),
-            );
-            Ok(markup.0.into_bytes())
-        }))
-    })
+pub(crate) async fn all() -> Vec<Asset> {
+    vec![
+        in_the_media::page(),
+        index::page(),
+        join::page(),
+        mightyiam::page(),
+        mobs_calendar::page().await,
+        why_mob::page(),
+    ]
 }
