@@ -149,8 +149,8 @@ pub(crate) fn page(mob: &Mob) -> Asset {
                     (mob_description)
                 },
                 [].into_iter(),
-                "prose".to_string(),
                 "".to_string(),
+                "prose mx-auto".to_string(),
             )
             .0
             .into_bytes(),
