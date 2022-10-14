@@ -15,14 +15,12 @@ const NAME: &str = "Mobus Operandi";
 pub(crate) fn base(
     content: Markup,
     stylesheets: impl IntoIterator<Item = String>,
-    html_classes: String,
     content_classes: String,
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
-    let html_classes = ["[font-size:20px]", &html_classes].join(" ");
     let markup = html! {
       (DOCTYPE)
-      html lang="en" class=(format!("font-[{}] {html_classes}", fonts::VOLLKORN)) {
+      html lang="en" class=(format!("font-[{}] [font-size:20px]", fonts::VOLLKORN)) {
         head {
           title { (NAME) }
           meta charset="utf-8";

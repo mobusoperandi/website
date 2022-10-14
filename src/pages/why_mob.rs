@@ -22,7 +22,6 @@ pub fn page() -> Asset {
                     p { "You may build something you'll be proud of. " }
                 },
                 [],
-                "".into(),
                 "prose mx-auto".into(),
             )
             .0

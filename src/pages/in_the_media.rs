@@ -21,7 +21,6 @@ pub fn page() -> Asset {
                 }
             },
             [],
-            "".into(),
             "".into()
             ).0.into_bytes())
     })

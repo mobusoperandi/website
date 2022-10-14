@@ -16,7 +16,6 @@ pub fn page() -> Asset {
                     }
                 },
                 [],
-                "".into(),
                 "prose mx-auto".into(),
             )
             .0

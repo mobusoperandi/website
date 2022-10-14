@@ -28,7 +28,6 @@ pub async fn page() -> Asset {
                     .display()
                     .to_string()],
                 "".into(),
-                "".into(),
             )
             .0
             .into_bytes())

@@ -22,7 +22,6 @@ pub fn page() -> Asset {
                     }
                 },
                 [],
-                "".into(),
                 [
                     "grow",
                     "text-center",

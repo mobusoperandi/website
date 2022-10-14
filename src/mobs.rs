@@ -152,7 +152,6 @@ pub(crate) fn page(mob: &Mob) -> Asset {
                     p.uppercase { a href=(targets.relative("join.html")?.display().to_string()) { "Learn how to join" } }
                 },
                 [],
-                "".to_string(),
                 "prose mx-auto".to_string(),
             )
             .0
