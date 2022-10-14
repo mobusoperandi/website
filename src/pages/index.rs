@@ -24,7 +24,7 @@ pub fn page() -> Asset {
                 [],
                 "".into(),
                 [
-                    "h-screen",
+                    "grow",
                     "text-center",
                     "uppercase",
                     "tracking-widest",

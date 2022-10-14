@@ -16,11 +16,10 @@ pub(crate) fn base(
     content: Markup,
     stylesheets: impl IntoIterator<Item = String>,
     html_classes: String,
-    body_classes: String,
+    content_classes: String,
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
     let html_classes = ["[font-size:20px]", &html_classes].join(" ");
-    let body_classes = ["p-1", &body_classes].join(" ");
     let markup = html! {
       (DOCTYPE)
       html lang="en" class=(format!("font-[{}] {html_classes}", fonts::VOLLKORN)) {
@@ -42,8 +41,11 @@ pub(crate) fn base(
             ", font.name, fonts::output_filename(&font))))}
           }
         }
-        body class=(body_classes) {
-            (content)
+        body."min-h-screen"."p-1".flex."flex-col" {
+            div."mb-5" { a href="/" { "Mobus Operandi" } }
+            div class=(content_classes) {
+                (content)
+            }
         }
       }
     };
