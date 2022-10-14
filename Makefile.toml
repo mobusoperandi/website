@@ -52,23 +52,13 @@ if [[ `git ls-files --exclude-standard --others` ]]; then
 fi
 '''
 
-[tasks.html]
+[tasks.produce_output]
 script = '''
 #!/usr/bin/env bash
 set -euxo pipefail
 mkdir --parents ${OUTPUT_DIR}
 cargo run
 '''
-
-[tasks.css]
-script = '''
-#!/usr/bin/env bash
-set -euxo pipefail
-npx tailwindcss --input ./src/input.css --output ./${OUTPUT_DIR}/index.css --content "./${OUTPUT_DIR}/*.html"
-'''
-
-[tasks.produce_output]
-run_task = { name = ["html", "css"] }
 
 [tasks.watch]
 script = '''
@@ -78,7 +68,7 @@ cargo bin cargo-watch --shell 'cargo bin cargo-make produce_output'
 '''
 
 [tasks.serve]
-dependencies = ["html"]
+dependencies = ["produce_output"]
 script = '''
 #!/usr/bin/env bash
 set -euxo pipefail
