@@ -22,7 +22,7 @@ use tokio_stream::wrappers::ReadDirStream;
 pub struct Mob {
     pub(crate) id: String,
     pub(crate) schedule: Vec<RecurringSession>,
-    pub(crate) description: Markup,
+    pub(crate) freeform: Markup,
     pub(crate) background_color: Color,
     pub(crate) text_color: Color,
 }
@@ -81,24 +81,24 @@ impl From<YAMLRecurringSession> for RecurringSession {
     }
 }
 
-async fn read_mob_description_file(path: &Path) -> Markup {
-    let description_path = path.join("description.md");
-    let description = fs::read_to_string(description_path).await.unwrap();
-    let description = markdown::to_html(&description);
-    PreEscaped(description)
+async fn read_mob_freeform_file(path: &Path) -> Markup {
+    let freeform_path = path.join("freeform.md");
+    let freeform = fs::read_to_string(freeform_path).await.unwrap();
+    let freeform = markdown::to_html(&freeform);
+    PreEscaped(freeform)
 }
 
 pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
     let dir_path = dir_entry.unwrap().path();
     let id = dir_path.file_name().unwrap().to_str().unwrap().into();
-    let ((schedule, background_color, text_color), description) = join!(
+    let ((schedule, background_color, text_color), freeform) = join!(
         read_mob_data_file(&dir_path),
-        read_mob_description_file(&dir_path),
+        read_mob_freeform_file(&dir_path),
     );
     Mob {
         id,
         schedule,
-        description,
+        freeform,
         background_color,
         text_color,
     }
@@ -142,21 +142,20 @@ pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
 
 pub(crate) fn page(mob: &Mob) -> Asset {
     let mob_id = mob.id.clone();
-    let mob_description = mob.description.clone();
+    let mob_freeform = mob.freeform.clone();
     Asset::new(PathBuf::from(mob_id.clone() + ".html"), async move {
-        Source::BytesWithAssetSafety(Box::new(move |targets| {
-            Ok(pages::base(
+        Source::Bytes(
+            pages::base(
                 html! {
                     h1 { (mob_id) }
-                    (mob_description)
-                    p.uppercase { a href=(targets.relative("join.html")?.display().to_string()) { "Learn how to join" } }
+                    (mob_freeform)
                 },
                 [],
                 "prose mx-auto".to_string(),
             )
             .0
-            .into_bytes())
-        }))
+            .into_bytes(),
+        )
     })
 }
 
