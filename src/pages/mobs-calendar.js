@@ -1,6 +1,6 @@
 /* global FullCalendar */
 ; (() => {
-  const calendarEl = document.querySelector('div')
+  const calendarEl = document.querySelector('div:empty')
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'timeGridWeek',
     slotDuration: '01:00:00',
