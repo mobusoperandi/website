@@ -38,7 +38,7 @@ pub(crate) fn base(
           }
         }
         body."min-h-screen"."p-1".flex."flex-col" {
-            div."mb-5" { a href="/" { "Mobus Operandi" } }
+            div."mb-5" { a href="/" { (NAME) } }
             div class=(content_classes) {
                 (content)
             }
