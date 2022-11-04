@@ -1,7 +1,5 @@
 mod in_the_media;
 mod index;
-mod join;
-mod mightyiam;
 mod mobs_calendar;
 mod why_mob;
 use crate::fonts;
@@ -54,8 +52,6 @@ pub(crate) async fn all() -> Vec<Asset> {
     vec![
         in_the_media::page(),
         index::page(),
-        join::page(),
-        mightyiam::page(),
         mobs_calendar::page().await,
         why_mob::page(),
     ]
