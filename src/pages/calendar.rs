@@ -8,7 +8,7 @@ pub async fn page() -> Asset {
     let mobs = mobs::read_all_mobs().await;
     let events = mobs.into_iter().fold(Vec::new(), mobs::events);
     let events = serde_json::to_string(&events).unwrap();
-    Asset::new("mobs_calendar.html".into(), async {
+    Asset::new("calendar.html".into(), async {
         Source::BytesWithAssetSafety(Box::new(move |targets| {
             let content = html! {
                 div {}

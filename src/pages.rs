@@ -1,5 +1,5 @@
+mod calendar;
 mod index;
-mod mobs_calendar;
 use crate::fonts;
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
@@ -40,7 +40,7 @@ pub(crate) fn base(
         body."min-h-screen"."p-1".flex."flex-col" {
             div."mb-2".grid."grid-flow-col"."grid-cols-[auto_1fr]"."gap-2".uppercase {
                 a href="/" { (NAME) }
-                a."col-start-3" href=(targets.relative("mobs_calendar.html").unwrap().to_str().unwrap()) {
+                a."col-start-3" href=(targets.relative("calendar.html").unwrap().to_str().unwrap()) {
                     "Calendar"
                 }
             }
@@ -54,5 +54,5 @@ pub(crate) fn base(
 }
 
 pub(crate) async fn all() -> Vec<Asset> {
-    vec![index::page(), mobs_calendar::page().await]
+    vec![index::page(), calendar::page().await]
 }

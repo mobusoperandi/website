@@ -18,7 +18,7 @@ pub fn page() -> Asset {
                         span { "mob programming" }
                         " format."
                     }
-                    a href=(targets.relative("mobs_calendar.html")?.display().to_string()) {
+                    a href=(targets.relative("calendar.html")?.display().to_string()) {
                         "See calendar"
                     }
                 },
