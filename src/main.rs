@@ -1,6 +1,5 @@
 mod environment;
 mod fonts;
-mod markdown;
 mod mobs;
 mod pages;
 use environment::OUTPUT_DIR;
@@ -18,8 +17,6 @@ use url::Url;
 async fn main() {
     //console_subscriber::init();
     let fonts = fonts::assets();
-    let mobs = mobs::read_all_mobs().await;
-    let mob_pages = mobs.iter().map(mobs::page).collect::<Vec<_>>();
     let pages = pages::all().await;
     let favicon = Asset::new(PathBuf::from("favicon.ico"), async {
         Source::Bytes(vec![])
@@ -38,7 +35,6 @@ async fn main() {
         .into_iter()
         .chain(fonts)
         .chain(pages)
-        .chain(mob_pages)
         .collect();
     // TODO exit code
     let generated = stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), files).unwrap())

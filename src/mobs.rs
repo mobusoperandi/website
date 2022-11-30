@@ -1,28 +1,21 @@
-use crate::markdown;
 use crate::mobs;
-use crate::pages;
 use chrono::TimeZone;
 use chrono::{DateTime, Duration, Utc};
 use csscolorparser::Color;
-use futures::join;
 use futures::StreamExt;
-use maud::html;
-use maud::{Markup, PreEscaped};
 use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
-use ssg::Asset;
-use ssg::Source;
-use std::path::PathBuf;
 use std::{io, path::Path};
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
+use url::Url;
 
 #[derive(Debug, Clone)]
 pub struct Mob {
     pub(crate) id: String,
     pub(crate) schedule: Vec<RecurringSession>,
-    pub(crate) freeform: Markup,
+    pub(crate) url: Url,
     pub(crate) background_color: Color,
     pub(crate) text_color: Color,
 }
@@ -36,6 +29,7 @@ pub(crate) struct RecurringSession {
 #[derive(Deserialize)]
 struct YAMLMob {
     schedule: Vec<YAMLRecurringSession>,
+    url: Url,
     background_color: Color,
     text_color: Color,
 }
@@ -48,12 +42,17 @@ struct YAMLRecurringSession {
     duration: u16,
 }
 
-async fn read_mob_data_file(path: &Path) -> (Vec<RecurringSession>, Color, Color) {
+async fn read_mob_data_file(path: &Path) -> (Vec<RecurringSession>, Url, Color, Color) {
     let data_path = path.join("data.yaml");
     let data = fs::read_to_string(data_path).await.unwrap();
     let yaml_mob: YAMLMob = serde_yaml::from_str(&data).unwrap();
     let schedule = yaml_mob.schedule.into_iter().map(Into::into).collect();
-    (schedule, yaml_mob.background_color, yaml_mob.text_color)
+    (
+        schedule,
+        yaml_mob.url,
+        yaml_mob.background_color,
+        yaml_mob.text_color,
+    )
 }
 
 impl From<YAMLRecurringSession> for RecurringSession {
@@ -81,24 +80,14 @@ impl From<YAMLRecurringSession> for RecurringSession {
     }
 }
 
-async fn read_mob_freeform_file(path: &Path) -> Markup {
-    let freeform_path = path.join("freeform.md");
-    let freeform = fs::read_to_string(freeform_path).await.unwrap();
-    let freeform = markdown::to_html(&freeform);
-    PreEscaped(freeform)
-}
-
 pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
     let dir_path = dir_entry.unwrap().path();
     let id = dir_path.file_name().unwrap().to_str().unwrap().into();
-    let ((schedule, background_color, text_color), freeform) = join!(
-        read_mob_data_file(&dir_path),
-        read_mob_freeform_file(&dir_path),
-    );
+    let (schedule, url, background_color, text_color) = read_mob_data_file(&dir_path).await;
     Mob {
         id,
         schedule,
-        freeform,
+        url,
         background_color,
         text_color,
     }
@@ -128,7 +117,7 @@ pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
                     start: occurrence.with_timezone(&Utc),
                     end: (occurrence + duration).with_timezone(&Utc),
                     title: mob.id.clone(),
-                    url: format!("/{}.html", mob.id),
+                    url: mob.url.to_string(),
                     background_color: mob.background_color.clone(),
                     text_color: mob.text_color.clone(),
                 })
@@ -139,28 +128,6 @@ pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
         .for_each(|event| events.push(event));
     events
 }
-
-pub(crate) fn page(mob: &Mob) -> Asset {
-    let mob_id = mob.id.clone();
-    let mob_freeform = mob.freeform.clone();
-    Asset::new(PathBuf::from(mob_id.clone() + ".html"), async move {
-        Source::BytesWithAssetSafety(Box::new(move |targets| {
-            Ok(pages::base(
-                mob_id.clone(),
-                html! {
-                    h1 { (mob_id) }
-                    (mob_freeform)
-                },
-                [],
-                "prose mx-auto".to_string(),
-                &targets,
-            )
-            .0
-            .into_bytes())
-        }))
-    })
-}
-
 pub(crate) async fn read_all_mobs() -> Vec<Mob> {
     ReadDirStream::new(fs::read_dir("mobs").await.unwrap())
         .then(read_mob)
