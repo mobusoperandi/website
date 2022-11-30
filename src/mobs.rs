@@ -99,7 +99,7 @@ pub struct Event {
     start: DateTime<Utc>,
     end: DateTime<Utc>,
     title: String,
-    url: String,
+    url: Url,
     background_color: Color,
     text_color: Color,
 }
@@ -117,7 +117,7 @@ pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
                     start: occurrence.with_timezone(&Utc),
                     end: (occurrence + duration).with_timezone(&Utc),
                     title: mob.id.clone(),
-                    url: mob.url.to_string(),
+                    url: mob.url.clone(),
                     background_color: mob.background_color.clone(),
                     text_color: mob.text_color.clone(),
                 })
