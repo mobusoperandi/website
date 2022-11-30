@@ -18,7 +18,7 @@ pub fn page() -> Asset {
                         " format."
                     }
                     a href=(targets.relative("mobs_calendar.html")?.display().to_string()) {
-                        "See existing mobs"
+                        "See calendar"
                     }
                 },
                 [],

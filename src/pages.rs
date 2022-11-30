@@ -40,7 +40,7 @@ pub(crate) fn base(
             div."mb-5".grid."grid-flow-col"."grid-cols-[auto_1fr]"."gap-2".uppercase {
                 a href="/" { (NAME) }
                 a."col-start-3" href=(targets.relative("mobs_calendar.html").unwrap().to_str().unwrap()) {
-                    "mobs calendar"
+                    "Calendar"
                 }
             }
             div class=(content_classes) {
