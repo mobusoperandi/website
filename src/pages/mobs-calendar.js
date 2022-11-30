@@ -1,5 +1,6 @@
 /* global FullCalendar */
 ; (() => {
+  document.styleSheets[0].insertRule('.fc .fc-toolbar .fc-toolbar-title { font-size: inherit }')
   const calendarEl = document.querySelector('div:empty')
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'timeGridWeek',
