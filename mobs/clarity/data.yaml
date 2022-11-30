@@ -1,9 +1,0 @@
-schedule:
-  - recurrence: FREQ=WEEKLY;BYDAY=MO,WE,FR
-    timezone: Etc/UTC
-    start_date: 2022-10-03
-    start_time: 07:00
-    duration: 120
-url: https://example.com
-background_color: pink
-text_color: brown
