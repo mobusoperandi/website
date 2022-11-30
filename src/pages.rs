@@ -37,7 +37,7 @@ pub(crate) fn base(
           }
         }
         body."min-h-screen"."p-1".flex."flex-col" {
-            div."mb-5".grid."grid-flow-col"."grid-cols-[auto_1fr]"."gap-2".uppercase {
+            div."mb-2".grid."grid-flow-col"."grid-cols-[auto_1fr]"."gap-2".uppercase {
                 a href="/" { (NAME) }
                 a."col-start-3" href=(targets.relative("mobs_calendar.html").unwrap().to_str().unwrap()) {
                     "Calendar"
