@@ -43,6 +43,7 @@ pub(crate) fn base(
                 a."col-start-3" href=(targets.relative("calendar.html").unwrap().to_str().unwrap()) {
                     "Calendar"
                 }
+                a."col-start-4" href="https://github.com/mobusoperandi" { "GitHub" }
             }
             div class=(content_classes) {
                 (content)
