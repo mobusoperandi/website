@@ -1,7 +1,5 @@
-mod in_the_media;
 mod index;
 mod mobs_calendar;
-mod why_mob;
 use crate::fonts;
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
@@ -44,9 +42,6 @@ pub(crate) fn base(
                 a."col-start-3" href=(targets.relative("mobs_calendar.html").unwrap().to_str().unwrap()) {
                     "mobs calendar"
                 }
-                a."col-start-4" href=(targets.relative("in_the_media.html").unwrap().to_str().unwrap()) {
-                    "in the media"
-                }
             }
             div class=(content_classes) {
                 (content)
@@ -58,10 +53,5 @@ pub(crate) fn base(
 }
 
 pub(crate) async fn all() -> Vec<Asset> {
-    vec![
-        in_the_media::page(),
-        index::page(),
-        mobs_calendar::page().await,
-        why_mob::page(),
-    ]
+    vec![index::page(), mobs_calendar::page().await]
 }
