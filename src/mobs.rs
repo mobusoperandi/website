@@ -43,8 +43,7 @@ struct YAMLRecurringSession {
 }
 
 async fn read_mob_data_file(path: &Path) -> (Vec<RecurringSession>, Url, Color, Color) {
-    let data_path = path.join("data.yaml");
-    let data = fs::read_to_string(data_path).await.unwrap();
+    let data = fs::read_to_string(path).await.unwrap();
     let yaml_mob: YAMLMob = serde_yaml::from_str(&data).unwrap();
     let schedule = yaml_mob.schedule.into_iter().map(Into::into).collect();
     (
@@ -81,9 +80,9 @@ impl From<YAMLRecurringSession> for RecurringSession {
 }
 
 pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
-    let dir_path = dir_entry.unwrap().path();
-    let id = dir_path.file_name().unwrap().to_str().unwrap().into();
-    let (schedule, url, background_color, text_color) = read_mob_data_file(&dir_path).await;
+    let data_file_path = dir_entry.unwrap().path();
+    let id = data_file_path.file_stem().unwrap().to_str().unwrap().into();
+    let (schedule, url, background_color, text_color) = read_mob_data_file(&data_file_path).await;
     Mob {
         id,
         schedule,
