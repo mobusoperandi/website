@@ -146,6 +146,7 @@ pub(crate) fn page(mob: &Mob) -> Asset {
     Asset::new(PathBuf::from(mob_id.clone() + ".html"), async move {
         Source::BytesWithAssetSafety(Box::new(move |targets| {
             Ok(pages::base(
+                mob_id.clone(),
                 html! {
                     h1 { (mob_id) }
                     (mob_freeform)

@@ -6,6 +6,7 @@ pub fn page() -> Asset {
     Asset::new("index.html".into(), async {
         Source::BytesWithAssetSafety(Box::new(|targets| {
             Ok(base(
+                "🏠".to_owned(),
                 html! {
                     h2 {
                         span { "Study" }

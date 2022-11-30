@@ -21,6 +21,7 @@ pub async fn page() -> Asset {
                 }
             };
             Ok(base(
+                "Calendar".to_owned(),
                 content,
                 [targets
                     .relative("fullcalendar.css")

@@ -9,6 +9,7 @@ use std::vec;
 const NAME: &str = "Mobus Operandi";
 
 pub(crate) fn base(
+    title: String,
     content: Markup,
     stylesheets: impl IntoIterator<Item = String>,
     content_classes: String,
@@ -19,7 +20,7 @@ pub(crate) fn base(
       (DOCTYPE)
       html lang="en" class=(format!("font-[{}] [font-size:20px]", fonts::VOLLKORN)) {
         head {
-          title { (NAME) }
+          title { (format!("{title}; {NAME}")) }
           meta charset="utf-8";
           meta name="viewport" content="width=device-width, initial-scale=1.0";
           link rel="stylesheet" href={ "/index.css?v=" (version) };
