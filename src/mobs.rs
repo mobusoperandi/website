@@ -144,18 +144,19 @@ pub(crate) fn page(mob: &Mob) -> Asset {
     let mob_id = mob.id.clone();
     let mob_freeform = mob.freeform.clone();
     Asset::new(PathBuf::from(mob_id.clone() + ".html"), async move {
-        Source::Bytes(
-            pages::base(
+        Source::BytesWithAssetSafety(Box::new(move |targets| {
+            Ok(pages::base(
                 html! {
                     h1 { (mob_id) }
                     (mob_freeform)
                 },
                 [],
                 "prose mx-auto".to_string(),
+                &targets,
             )
             .0
-            .into_bytes(),
-        )
+            .into_bytes())
+        }))
     })
 }
 

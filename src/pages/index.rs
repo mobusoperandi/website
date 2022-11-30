@@ -34,6 +34,7 @@ pub fn page() -> Asset {
                     "justify-around",
                 ]
                 .join(" "),
+                &targets,
             )
             .0
             .into_bytes())

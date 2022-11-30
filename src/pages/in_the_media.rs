@@ -5,7 +5,8 @@ use ssg::{Asset, Source};
 
 pub fn page() -> Asset {
     Asset::new("in_the_media.html".into(), async {
-        Source::Bytes(base(
+        Source::BytesWithAssetSafety(Box::new(|targets| {
+            Ok(base(
             html! {
                 h1 { "In the media" }
                 @if !DEVELOPMENT {
@@ -21,7 +22,9 @@ pub fn page() -> Asset {
                 }
             },
             [],
-            "".into()
+            "".into(),
+            &targets
             ).0.into_bytes())
+        }))
     })
 }

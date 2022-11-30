@@ -5,7 +5,7 @@ mod why_mob;
 use crate::fonts;
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
-use ssg::Asset;
+use ssg::{Asset, Targets};
 use std::vec;
 
 const NAME: &str = "Mobus Operandi";
@@ -14,6 +14,7 @@ pub(crate) fn base(
     content: Markup,
     stylesheets: impl IntoIterator<Item = String>,
     content_classes: String,
+    targets: &Targets,
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
     let markup = html! {
@@ -38,7 +39,15 @@ pub(crate) fn base(
           }
         }
         body."min-h-screen"."p-1".flex."flex-col" {
-            div."mb-5" { a href="/" { (NAME) } }
+            div."mb-5".grid."grid-flow-col"."grid-cols-[auto_1fr]"."gap-2" {
+                a href="/" { (NAME) }
+                a."col-start-3" href=(targets.relative("mobs_calendar.html").unwrap().to_str().unwrap()) {
+                    "mobs calendar"
+                }
+                a."col-start-4" href=(targets.relative("in_the_media.html").unwrap().to_str().unwrap()) {
+                    "in the media"
+                }
+            }
             div class=(content_classes) {
                 (content)
             }

@@ -4,8 +4,8 @@ use ssg::{Asset, Source};
 
 pub fn page() -> Asset {
     Asset::new("why_mob.html".into(), async {
-        Source::Bytes(
-            base(
+        Source::BytesWithAssetSafety(Box::new(|targets| {
+            Ok(base(
                 html! {
                     p { "Because you'll learn and level-up on numerous skills:" }
                     ul {
@@ -23,9 +23,10 @@ pub fn page() -> Asset {
                 },
                 [],
                 "prose mx-auto".into(),
+                &targets,
             )
             .0
-            .into_bytes(),
-        )
+            .into_bytes())
+        }))
     })
 }
