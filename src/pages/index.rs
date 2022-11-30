@@ -27,7 +27,7 @@ pub fn page() -> Asset {
                     "text-center",
                     "uppercase",
                     "tracking-widest",
-                    "text-5xl",
+                    "text-4xl",
                     "leading-relaxed",
                     "flex",
                     "flex-col",
