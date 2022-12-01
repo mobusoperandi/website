@@ -2,7 +2,7 @@ mod index;
 mod join;
 mod publish;
 use super::COPYRIGHT_HOLDER;
-use crate::{fonts, NAME};
+use crate::{fonts, NAME, REPO_URL};
 use chrono::{Datelike, Utc};
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 use ssg::{Asset, Targets};
@@ -50,21 +50,23 @@ pub(crate) fn base(
                 a href=(targets.relative("index.html").unwrap().to_str().unwrap()) { "Calendar" }
                 a href=(targets.relative("join.html").unwrap().to_str().unwrap()) { "Join" }
                 a href=(targets.relative("publish.html").unwrap().to_str().unwrap()) { "Publish" }
-                a href="https://github.com/mobusoperandi" { "GitHub" }
             }
             hr {}
             div class=(content_classes) {
                 (content)
             }
             hr {}
-            p {
-                ({
-                    let year = chrono::Utc::now().year();
-                    format!("© {year} {COPYRIGHT_HOLDER}")
-                })
-                ", licensed "
-                a href="https://tldrlegal.com/license/mit-license" { "MIT" }
-                "."
+            div.flex."justify-between" {
+                p {
+                    ({
+                        let year = chrono::Utc::now().year();
+                        format!("© {year} {COPYRIGHT_HOLDER}")
+                    })
+                    ", licensed "
+                    a href="https://tldrlegal.com/license/mit-license" { "MIT" }
+                    "."
+                }
+                a href=(REPO_URL.to_string()) { "Source"}
             }
         }
       }
