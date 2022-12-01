@@ -1,4 +1,3 @@
-mod calendar;
 mod index;
 mod join;
 mod publish;
@@ -43,18 +42,12 @@ pub(crate) fn base(
         body."min-h-screen"."p-1".flex."flex-col"."gap-1" {
             div.flex."justify-end"."flex-wrap"."gap-x-2"."gap-y-1".uppercase."text-lg" {
                 div."flex-1".flex."flex-wrap" {
-                    div."flex-initial"."flex"."gap-x-2"."whitespace-nowrap"."flex-wrap"."text-center" {
-                        a href="/" { (NAME) }
-                        p
-                            ."text-sm"
-                            ."self-center"
-                            ."tracking-widest"
-                            ."text-slate-700"
-                            { "Be harmless" }
+                    div."flex-initial"."flex"."flex-col"."gap-x-2"."whitespace-nowrap" {
+                        a."tracking-widest"."text-center" href="/" { (NAME) }
+                        p."text-sm"."text-slate-700" { "A mob programming community" }
                     }
                 }
                 a href=(targets.relative("join.html").unwrap().to_str().unwrap()) { "Join" }
-                a href=(targets.relative("calendar.html").unwrap().to_str().unwrap()) { "Calendar" }
                 a href=(targets.relative("publish.html").unwrap().to_str().unwrap()) { "Publish" }
                 a href="https://github.com/mobusoperandi" { "GitHub" }
             }
@@ -79,10 +72,5 @@ pub(crate) fn base(
 }
 
 pub(crate) async fn all() -> Vec<Asset> {
-    vec![
-        calendar::page().await,
-        index::page(),
-        join::page(),
-        publish::page(),
-    ]
+    vec![index::page().await, join::page(), publish::page()]
 }

@@ -1,38 +1,34 @@
 use super::base;
-use maud::html;
+use crate::mobs;
+use maud::{html, PreEscaped};
 use ssg::{Asset, Source};
+use std::path::Path;
 
-pub fn page() -> Asset {
+pub async fn page() -> Asset {
+    let mobs = mobs::read_all_mobs().await;
+    let events = mobs.into_iter().fold(Vec::new(), mobs::events);
+    let events = serde_json::to_string(&events).unwrap();
     Asset::new("index.html".into(), async {
-        Source::BytesWithAssetSafety(Box::new(|targets| {
+        Source::BytesWithAssetSafety(Box::new(move |targets| {
+            let content = html! {
+                div {}
+                script defer src=(targets.relative(Path::new("fullcalendar.js")).unwrap().display().to_string()) {}
+                script {
+                    (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{
+                        const events = JSON.parse('{events}')
+                        {}
+                    }})", include_str!("calendar.js"))))
+                }
+            };
             Ok(base(
-                "🏠".to_owned(),
-                html! {
-                    h2 {
-                        span { "Study" }
-                        " "
-                        span { "software development" }
-                        " "
-                        span { "online" }
-                        " in "
-                        span { "mob programming" }
-                        " format."
-                    }
-                    a href=(targets.relative("join.html")?.display().to_string()) {
-                        "Join"
-                    }
-                },
-                [],
-                [
-                    "text-center",
-                    "uppercase",
-                    "tracking-widest",
-                    "text-4xl",
-                    "leading-relaxed",
-                    "sm:text-5xl",
-                    "sm:leading-relaxed",
-                ]
-                .join(" "),
+                "Calendar".to_owned(),
+                content,
+                [targets
+                    .relative("fullcalendar.css")
+                    .unwrap()
+                    .display()
+                    .to_string()],
+                "".into(),
                 &targets,
             )
             .0

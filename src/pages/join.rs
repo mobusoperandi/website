@@ -18,7 +18,7 @@ pub fn page() -> Asset {
                         }
                         li {
                             a
-                                href=(targets.relative("calendar.html")?
+                                href=(targets.relative("index.html")?
                                       .display()
                                       .to_string())
                                 { "See existing mobs" }
