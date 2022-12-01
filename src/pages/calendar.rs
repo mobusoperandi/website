@@ -17,7 +17,7 @@ pub async fn page() -> Asset {
                     (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{
                         const events = JSON.parse('{events}')
                         {}
-                    }})", include_str!("mobs-calendar.js"))))
+                    }})", include_str!("calendar.js"))))
                 }
             };
             Ok(base(
