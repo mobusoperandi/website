@@ -31,9 +31,6 @@ pub fn page() -> Asset {
                     "leading-relaxed",
                     "sm:text-5xl",
                     "sm:leading-relaxed",
-                    "flex",
-                    "flex-col",
-                    "justify-around",
                 ]
                 .join(" "),
                 &targets,
