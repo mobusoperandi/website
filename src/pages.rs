@@ -1,12 +1,11 @@
 mod calendar;
 mod index;
-use crate::fonts;
-use chrono::Utc;
+use super::COPYRIGHT_HOLDER;
+use crate::{fonts, NAME};
+use chrono::{Datelike, Utc};
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 use ssg::{Asset, Targets};
 use std::vec;
-
-const NAME: &str = "Mobus Operandi";
 
 pub(crate) fn base(
     title: String,
@@ -55,6 +54,16 @@ pub(crate) fn base(
             }
             div class=(content_classes) {
                 (content)
+            }
+            hr {}
+            p {
+                ({
+                    let year = chrono::Utc::now().year();
+                    format!("© {year} {COPYRIGHT_HOLDER}")
+                })
+                ", licensed "
+                a href="https://tldrlegal.com/license/mit-license" { "MIT" }
+                "."
             }
         }
       }

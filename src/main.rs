@@ -13,6 +13,9 @@ use std::{
 use tokio::process::Command;
 use url::Url;
 
+pub(crate) const COPYRIGHT_HOLDER: &str = "Shahar Or";
+pub(crate) const NAME: &str = "Mobus Operandi";
+
 #[tokio::main]
 async fn main() {
     //console_subscriber::init();
