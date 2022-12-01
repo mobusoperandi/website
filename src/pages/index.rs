@@ -24,7 +24,6 @@ pub fn page() -> Asset {
                 },
                 [],
                 [
-                    "grow",
                     "text-center",
                     "uppercase",
                     "tracking-widest",

@@ -15,6 +15,7 @@ pub(crate) fn base(
     targets: &Targets,
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
+    let content_classes = content_classes + " " + &["grow"].join(" ");
     let markup = html! {
       (DOCTYPE)
       html lang="en" class=(format!("font-[{}] [font-size:16px]", fonts::VOLLKORN)) {
