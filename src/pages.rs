@@ -1,5 +1,7 @@
 mod calendar;
 mod index;
+mod join;
+mod publish;
 use super::COPYRIGHT_HOLDER;
 use crate::{fonts, NAME};
 use chrono::{Datelike, Utc};
@@ -51,7 +53,9 @@ pub(crate) fn base(
                             { "Be harmless" }
                     }
                 }
+                a href=(targets.relative("join.html").unwrap().to_str().unwrap()) { "Join" }
                 a href=(targets.relative("calendar.html").unwrap().to_str().unwrap()) { "Calendar" }
+                a href=(targets.relative("publish.html").unwrap().to_str().unwrap()) { "Publish" }
                 a href="https://github.com/mobusoperandi" { "GitHub" }
             }
             hr {}
@@ -75,5 +79,10 @@ pub(crate) fn base(
 }
 
 pub(crate) async fn all() -> Vec<Asset> {
-    vec![index::page(), calendar::page().await]
+    vec![
+        calendar::page().await,
+        index::page(),
+        join::page(),
+        publish::page(),
+    ]
 }

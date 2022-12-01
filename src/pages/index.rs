@@ -18,8 +18,8 @@ pub fn page() -> Asset {
                         span { "mob programming" }
                         " format."
                     }
-                    a href=(targets.relative("calendar.html")?.display().to_string()) {
-                        "See calendar"
+                    a href=(targets.relative("join.html")?.display().to_string()) {
+                        "Join"
                     }
                 },
                 [],

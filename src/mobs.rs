@@ -1,4 +1,4 @@
-use crate::mobs;
+use crate::{mobs, MOBS_PATH};
 use chrono::TimeZone;
 use chrono::{DateTime, Duration, Utc};
 use csscolorparser::Color;
@@ -128,7 +128,7 @@ pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
     events
 }
 pub(crate) async fn read_all_mobs() -> Vec<Mob> {
-    ReadDirStream::new(fs::read_dir("mobs").await.unwrap())
+    ReadDirStream::new(fs::read_dir(MOBS_PATH).await.unwrap())
         .then(read_mob)
         .collect::<Vec<_>>()
         .await

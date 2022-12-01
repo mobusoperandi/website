@@ -4,6 +4,7 @@ mod mobs;
 mod pages;
 use environment::OUTPUT_DIR;
 use futures::{stream, StreamExt};
+use once_cell::sync::Lazy;
 use ssg::{generate_static_site, Asset, Source};
 use std::{
     collections::BTreeSet,
@@ -15,6 +16,36 @@ use url::Url;
 
 pub(crate) const COPYRIGHT_HOLDER: &str = "Shahar Or";
 pub(crate) const NAME: &str = "Mobus Operandi";
+pub(crate) const MOBS_PATH: &str = "mobs";
+pub(crate) static REPO_URL: Lazy<Url> = Lazy::new(|| {
+    String::from_utf8(
+        std::process::Command::new("gh")
+            .args(["repo", "view", "--json", "url", "--jq", ".url"])
+            .output()
+            .unwrap()
+            .stdout,
+    )
+    .unwrap()
+    .parse()
+    .unwrap()
+});
+pub(crate) static DEFAULT_BRANCH: Lazy<String> = Lazy::new(|| {
+    String::from_utf8(
+        std::process::Command::new("gh")
+            .args([
+                "repo",
+                "view",
+                "--json",
+                "defaultBranchRef",
+                "--jq",
+                ".defaultBranchRef.name",
+            ])
+            .output()
+            .unwrap()
+            .stdout,
+    )
+    .unwrap()
+});
 
 #[tokio::main]
 async fn main() {
