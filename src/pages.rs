@@ -40,16 +40,18 @@ pub(crate) fn base(
           }
         }
         body."min-h-screen"."p-1".flex."flex-col"."gap-1" {
-            div.flex."justify-end"."items-center"."flex-wrap"."gap-x-2"."gap-y-1".uppercase."text-lg" {
+            div.flex."items-center"."flex-wrap"."gap-x-2"."gap-y-1".uppercase."text-lg" {
                 div."flex-1".flex."flex-wrap" {
                     div."flex-initial"."flex"."flex-col"."gap-x-2"."whitespace-nowrap" {
                         p."tracking-widest"."text-center" { (NAME) }
                         p."text-sm"."text-slate-700" { "A mob programming community" }
                     }
                 }
-                a href=(targets.relative("index.html").unwrap().to_str().unwrap()) { "Calendar" }
-                a href=(targets.relative("join.html").unwrap().to_str().unwrap()) { "Join" }
-                a href=(targets.relative("publish.html").unwrap().to_str().unwrap()) { "Publish" }
+                div."flex-auto".flex."justify-end"."flex-wrap"."gap-x-2" {
+                    a href=(targets.relative("index.html").unwrap().to_str().unwrap()) { "Calendar" }
+                    a href=(targets.relative("join.html").unwrap().to_str().unwrap()) { "Join" }
+                    a href=(targets.relative("publish.html").unwrap().to_str().unwrap()) { "Publish" }
+                }
             }
             hr {}
             div class=(content_classes) {
