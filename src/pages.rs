@@ -39,7 +39,17 @@ pub(crate) fn base(
         }
         body."min-h-screen"."p-1".flex."flex-col" {
             div."mb-2".flex."justify-end"."flex-wrap"."gap-2".uppercase."text-lg" {
-                div."flex-auto" { a."whitespace-nowrap" href="/" { (NAME) } }
+                div."flex-1".flex."gap-2"."flex-wrap" {
+                    div."flex-initial"."flex"."gap-x-2"."whitespace-nowrap"."flex-wrap"."text-center" {
+                        a href="/" { (NAME) }
+                        p
+                            ."text-sm"
+                            ."self-center"
+                            ."tracking-widest"
+                            ."text-slate-700"
+                            { "Be harmless" }
+                    }
+                }
                 a href=(targets.relative("calendar.html").unwrap().to_str().unwrap()) { "Calendar" }
                 a href="https://github.com/mobusoperandi" { "GitHub" }
             }
