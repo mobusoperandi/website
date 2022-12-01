@@ -38,8 +38,8 @@ pub(crate) fn base(
           }
         }
         body."min-h-screen"."p-1".flex."flex-col"."gap-1" {
-            div.flex."justify-end"."flex-wrap"."gap-2".uppercase."text-lg" {
-                div."flex-1".flex."gap-2"."flex-wrap" {
+            div.flex."justify-end"."flex-wrap"."gap-x-2"."gap-y-1".uppercase."text-lg" {
+                div."flex-1".flex."flex-wrap" {
                     div."flex-initial"."flex"."gap-x-2"."whitespace-nowrap"."flex-wrap"."text-center" {
                         a href="/" { (NAME) }
                         p
