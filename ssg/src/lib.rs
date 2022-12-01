@@ -137,7 +137,7 @@ impl GoogleFont {
         // TODO: Consider reusing the client ->
         let url = Url::parse_with_params(
             &format!(
-                "https://google-webfonts-helper.herokuapp.com/api/fonts/{}",
+                "https://gwfh.mranftl.com/api/fonts/{}",
                 self.name.to_lowercase(),
             ),
             [
