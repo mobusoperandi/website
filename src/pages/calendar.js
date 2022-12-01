@@ -23,4 +23,8 @@
     eventBorderColor: 'gray'
   })
   calendar.render()
+  document.querySelector('.fc-toolbar-title').prepend(
+    `Time zone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
+    document.createElement('br'),
+  )
 })()

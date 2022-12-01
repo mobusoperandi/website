@@ -11,7 +11,6 @@ pub async fn page() -> Asset {
     Asset::new("calendar.html".into(), async {
         Source::BytesWithAssetSafety(Box::new(move |targets| {
             let content = html! {
-                p { "The following calendar is supposed to be in your current timezone, as it is set in your operating system." }
                 div {}
                 script defer src=(targets.relative(Path::new("fullcalendar.js")).unwrap().display().to_string()) {}
                 script {
