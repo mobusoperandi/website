@@ -80,15 +80,11 @@ async fn main() {
     let generated = stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), files).unwrap())
         .map(|(path, source)| (path, tokio::spawn(source)))
         .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
-            match join_handle.await.unwrap() {
-                Ok(()) => {
-                    println!("generated: {:?}", path);
-                }
-                // TODO know which file errored
-                Err(error) => {
-                    println!("error: {:?}", error);
-                }
-            }
+            println!("generating: {:?}", path);
+            join_handle
+                .await
+                .unwrap()
+                .unwrap_or_else(|error| panic!("{path:?}: {error:?}"));
         });
     tokio::join!(generated);
     produce_css().await;
