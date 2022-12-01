@@ -20,6 +20,8 @@ jobs:
       - run: cargo install cargo-run-bin
       - run: npm ci
       - run: source constants.sh && cargo bin cargo-make ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: JamesIves/github-pages-deploy-action@v4
         if: github.ref == 'refs/heads/master'
         with:
