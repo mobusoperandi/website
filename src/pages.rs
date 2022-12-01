@@ -38,8 +38,8 @@ pub(crate) fn base(
           }
         }
         body."min-h-screen"."p-1".flex."flex-col" {
-            div."mb-2".grid."grid-flow-col"."grid-cols-[auto_1fr]"."gap-2".uppercase."text-lg" {
-                div."col-span-2" { a href="/" { (NAME) } }
+            div."mb-2".flex."justify-end"."flex-wrap"."gap-2".uppercase."text-lg" {
+                div."flex-auto" { a."whitespace-nowrap" href="/" { (NAME) } }
                 a href=(targets.relative("calendar.html").unwrap().to_str().unwrap()) {
                     "Calendar"
                 }
