@@ -30,6 +30,8 @@ pub fn page() -> Asset {
                     "tracking-widest",
                     "text-4xl",
                     "leading-relaxed",
+                    "sm:text-5xl",
+                    "sm:leading-relaxed",
                     "flex",
                     "flex-col",
                     "justify-around",
