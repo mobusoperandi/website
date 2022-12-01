@@ -39,11 +39,11 @@ pub(crate) fn base(
         }
         body."min-h-screen"."p-1".flex."flex-col" {
             div."mb-2".grid."grid-flow-col"."grid-cols-[auto_1fr]"."gap-2".uppercase."text-lg" {
-                a href="/" { (NAME) }
-                a."col-start-3" href=(targets.relative("calendar.html").unwrap().to_str().unwrap()) {
+                div."col-span-2" { a href="/" { (NAME) } }
+                a href=(targets.relative("calendar.html").unwrap().to_str().unwrap()) {
                     "Calendar"
                 }
-                a."col-start-4" href="https://github.com/mobusoperandi" { "GitHub" }
+                a href="https://github.com/mobusoperandi" { "GitHub" }
             }
             div class=(content_classes) {
                 (content)
