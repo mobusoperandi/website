@@ -56,7 +56,6 @@ pub(crate) static DEFAULT_BRANCH: Lazy<String> = Lazy::new(|| {
 
 #[tokio::main]
 async fn main() {
-    //console_subscriber::init();
     let fonts = fonts::assets();
     let pages = pages::all().await;
     let favicon = Asset::new(PathBuf::from("favicon.ico"), async {
