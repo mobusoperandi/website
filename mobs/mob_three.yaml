@@ -1,9 +1,0 @@
-schedule:
-  - recurrence: FREQ=WEEKLY;BYDAY=TU,WE,TH
-    timezone: Etc/UCT
-    start_date: 2022-03-02
-    start_time: 03:00
-    duration: 120
-url: https://docs.google.com/document/d/e/2PACX-1vS-sBKaokzEmPM0wnq7mWEEqlEmQt7iQTvofQM1VcClU1XpXLu3iKWbkw9QMY4u90txOkiz_5ul2k2C/pub
-background_color: brown
-text_color: white

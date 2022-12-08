@@ -1,9 +1,0 @@
-schedule:
-  - recurrence: FREQ=WEEKLY;BYDAY=SA,SU
-    timezone: Etc/UTC
-    start_date: 2022-01-02
-    start_time: 06:00
-    duration: 180
-url: https://docs.google.com/document/d/e/2PACX-1vTVCZdJ3V84EFc4pjFkXlJRuu1rCkxUPBho76o90KbGzrvq6VvLMrzeKF0jbzRVx8ZzP4_kShGehD-k/pub
-background_color: violet
-text_color: black
