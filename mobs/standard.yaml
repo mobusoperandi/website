@@ -2,7 +2,7 @@ schedule:
   - recurrence: FREQ=WEEKLY;BYDAY=TU,TH
     timezone: Etc/UTC
     start_date: 2022-12-13
-    start_time: 13:30
+    start_time: 06:30
     duration: 60
 url: https://docs.google.com/document/d/e/2PACX-1vS9TjrTUmNYO0bySwKyko0-T3IC_q00A6Vi0PcIdYvRN3caqYiI-1mdI5Lj0FO22qETYblDeUhP-J6D/pub
 background_color: fuchsia
