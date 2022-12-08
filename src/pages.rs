@@ -51,6 +51,7 @@ pub(crate) fn base(
                     a href=(targets.relative("index.html").unwrap().to_str().unwrap()) { "Calendar" }
                     a href=(targets.relative("join.html").unwrap().to_str().unwrap()) { "Join" }
                     a href=(targets.relative("publish.html").unwrap().to_str().unwrap()) { "Publish" }
+                    a href="https://twitter.com/mobusoperandi" { "Twitter" }
                 }
             }
             hr {}
