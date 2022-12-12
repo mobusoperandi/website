@@ -53,11 +53,15 @@ pub fn generate_static_site(
                         .to_vec()
                 }
             };
+            let file_path = [output_dir, this_target].into_iter().collect::<PathBuf>();
+            fs::create_dir_all(file_path.parent().unwrap())
+                .await
+                .unwrap();
             let mut file_handle = fs::OpenOptions::new()
                 .write(true)
                 .create(true)
                 .truncate(true)
-                .open([output_dir, this_target].into_iter().collect::<PathBuf>())
+                .open(file_path)
                 .await?;
             file_handle.write_all(&contents).await?;
             Ok(())
@@ -107,6 +111,7 @@ pub enum Source {
     Http(Url),
 }
 
+#[derive(Debug, Clone)]
 pub struct Targets {
     this_target: PathBuf,
     all_targets: BTreeSet<PathBuf>,
@@ -117,7 +122,7 @@ impl Targets {
         diff_paths(
             self.all_targets
                 .get(&path.as_ref().to_path_buf())
-                .ok_or_else(|| anyhow!("No such path"))?,
+                .ok_or_else(|| anyhow!("No such path {:?}", path.as_ref()))?,
             self.this_target.clone(),
         )
         .ok_or_else(|| anyhow!("Failed to obtain relative path"))

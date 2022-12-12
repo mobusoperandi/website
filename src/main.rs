@@ -100,7 +100,7 @@ async fn produce_css() {
             &PathBuf::from(format!("./{OUTPUT_DIR}/index.css")).to_string_lossy(),
             "--content",
             // TODO explicit list instead of pattern
-            &PathBuf::from(format!("./{OUTPUT_DIR}/*.html")).to_string_lossy(),
+            &PathBuf::from(format!("./{OUTPUT_DIR}/**/*.html")).to_string_lossy(),
         ])
         .output()
         .await

@@ -1,33 +1,17 @@
 use super::base;
-use crate::mobs;
-use maud::{html, PreEscaped};
+use crate::{mobs, pages::calendar};
 use ssg::{Asset, Source};
-use std::path::Path;
 
 pub async fn page() -> Asset {
     let mobs = mobs::read_all_mobs().await;
-    let events = mobs.into_iter().fold(Vec::new(), mobs::events);
-    let events = serde_json::to_string(&events).unwrap();
     Asset::new("index.html".into(), async {
         Source::BytesWithAssetSafety(Box::new(move |targets| {
-            let content = html! {
-                div {}
-                script defer src=(targets.relative(Path::new("fullcalendar.js")).unwrap().display().to_string()) {}
-                script {
-                    (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{
-                        const events = JSON.parse('{events}')
-                        {}
-                    }})", include_str!("calendar.js"))))
-                }
-            };
+            let events = mobs.iter().flat_map(|mob| mob.events(&targets)).collect();
+            let (calendar_html, calendar_stylesheet) = calendar(&targets, events);
             Ok(base(
                 "Calendar".to_owned(),
-                content,
-                [targets
-                    .relative("fullcalendar.css")
-                    .unwrap()
-                    .display()
-                    .to_string()],
+                calendar_html,
+                [calendar_stylesheet],
                 "".into(),
                 &targets,
             )

@@ -1,4 +1,4 @@
-use crate::{mobs, MOBS_PATH};
+use crate::MOBS_PATH;
 use chrono::TimeZone;
 use chrono::{DateTime, Duration, Utc};
 use csscolorparser::Color;
@@ -6,6 +6,7 @@ use futures::StreamExt;
 use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
+use ssg::Targets;
 use std::{io, path::Path};
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
@@ -104,35 +105,42 @@ pub struct Event {
     start: DateTime<Utc>,
     end: DateTime<Utc>,
     title: String,
-    url: Url,
+    url: String,
     background_color: Color,
     text_color: Color,
 }
 
-pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
-    mob.schedule
-        .iter()
-        .flat_map(|recurring_session| {
-            let duration = recurring_session.duration;
-            let mob = mob.clone();
-            recurring_session
-                .recurrence
-                .into_iter()
-                .map(move |occurrence| Event {
-                    start: occurrence.with_timezone(&Utc),
-                    end: (occurrence + duration).with_timezone(&Utc),
-                    title: mob.title.clone(),
-                    url: mob.url.clone(),
-                    background_color: mob.background_color.clone(),
-                    text_color: mob.text_color.clone(),
-                })
-        })
-        .take_while(|event| {
-            event.start <= Utc::now().with_timezone(&rrule::Tz::Etc__UTC) + Duration::weeks(10)
-        })
-        .for_each(|event| events.push(event));
-    events
+impl Mob {
+    pub(crate) fn events(&self, targets: &Targets) -> Vec<Event> {
+        self.schedule
+            .iter()
+            .flat_map(|recurring_session| {
+                let duration = recurring_session.duration;
+                let mob = self.clone();
+                recurring_session
+                    .recurrence
+                    .into_iter()
+                    .map(move |occurrence| Event {
+                        start: occurrence.with_timezone(&Utc),
+                        end: (occurrence + duration).with_timezone(&Utc),
+                        title: mob.title.clone(),
+                        url: targets
+                            .relative(format!("mobs/{}.html", mob.id))
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .to_owned(),
+                        background_color: mob.background_color.clone(),
+                        text_color: mob.text_color.clone(),
+                    })
+            })
+            .take_while(|event| {
+                event.start <= Utc::now().with_timezone(&rrule::Tz::Etc__UTC) + Duration::weeks(10)
+            })
+            .collect()
+    }
 }
+
 pub(crate) async fn read_all_mobs() -> Vec<Mob> {
     ReadDirStream::new(fs::read_dir(MOBS_PATH).await.unwrap())
         .then(read_mob)

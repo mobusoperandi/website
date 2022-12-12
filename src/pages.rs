@@ -2,11 +2,15 @@ mod index;
 mod join;
 mod publish;
 use super::COPYRIGHT_HOLDER;
-use crate::{fonts, NAME, REPO_URL};
+use crate::{
+    fonts,
+    mobs::{self, Event, Mob},
+    NAME, REPO_URL,
+};
 use chrono::{Datelike, Utc};
 use maud::{html, Markup, PreEscaped, DOCTYPE};
-use ssg::{Asset, Targets};
-use std::vec;
+use ssg::{Asset, Source, Targets};
+use std::{path::Path, vec};
 
 pub(crate) fn base(
     title: String,
@@ -77,6 +81,58 @@ pub(crate) fn base(
     markup
 }
 
+pub(crate) fn mob_page(mob: Mob) -> Asset {
+    let id = mob.id.clone();
+    Asset::new(
+        ["mobs", &format!("{id}.html")].into_iter().collect(),
+        async move {
+            Source::BytesWithAssetSafety(Box::new(move |targets| {
+                let (calendar_html, calendar_stylesheet) = calendar(&targets, mob.events(&targets));
+                let url = mob.url.clone();
+                Ok(base(
+                    mob.title.clone(),
+                    html! {
+                        h1."text-center"."text-4xl" { (mob.title) }
+                        hr {}
+                        (calendar_html)
+                        iframe."h-[50vh]" src=(format!("{url}?embedded=true")) {}
+                    },
+                    [calendar_stylesheet],
+                    "".to_string(),
+                    &targets,
+                )
+                .0
+                .into_bytes())
+            }))
+        },
+    )
+}
+
 pub(crate) async fn all() -> Vec<Asset> {
-    vec![index::page().await, join::page(), publish::page()]
+    let mobs = mobs::read_all_mobs().await;
+    let mut mob_pages = mobs.iter().cloned().map(mob_page).collect::<Vec<_>>();
+    let mut pages = vec![index::page().await, join::page(), publish::page()];
+    pages.append(&mut mob_pages);
+    pages
+}
+
+pub(crate) fn calendar(targets: &Targets, events: Vec<Event>) -> (Markup, String) {
+    let events = serde_json::to_string(&events).unwrap();
+    let html = html! {
+        div {}
+        script defer src=(targets.relative(Path::new("fullcalendar.js")).unwrap().display().to_string()) {}
+        script {
+            (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{
+                const events = JSON.parse('{events}')
+                {}
+            }})", include_str!("pages/calendar.js"))))
+        }
+    };
+    let stylesheet = targets
+        .relative("fullcalendar.css")
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_owned();
+    (html, stylesheet)
 }
