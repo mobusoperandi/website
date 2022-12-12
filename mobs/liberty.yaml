@@ -1,0 +1,9 @@
+schedule:
+  - recurrence: FREQ=WEEKLY;BYDAY=MO,FR
+    timezone: Etc/UTC
+    start_date: 2022-12-12
+    start_time: 06:00
+    duration: 120
+url: https://docs.google.com/document/d/e/2PACX-1vTQSkqBEwv4ujww0Bq_XhSqd4hbUKs0ibuYm76gQyMsr-hAdvaSNIUoMkJSBrrfOXzf5wkj9dvOiBBy/pub
+background_color: DarkGoldenRod
+text_color: CornSilk
