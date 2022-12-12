@@ -13,7 +13,9 @@ use url::Url;
 
 #[derive(Debug, Clone)]
 pub struct Mob {
+    #[allow(unused)]
     pub(crate) id: String,
+    pub(crate) title: String,
     pub(crate) schedule: Vec<RecurringSession>,
     pub(crate) url: Url,
     pub(crate) background_color: Color,
@@ -28,6 +30,7 @@ pub(crate) struct RecurringSession {
 
 #[derive(Deserialize)]
 struct YAMLMob {
+    title: String,
     schedule: Vec<YAMLRecurringSession>,
     url: Url,
     background_color: Color,
@@ -42,11 +45,12 @@ struct YAMLRecurringSession {
     duration: u16,
 }
 
-async fn read_mob_data_file(path: &Path) -> (Vec<RecurringSession>, Url, Color, Color) {
+async fn read_mob_data_file(path: &Path) -> (String, Vec<RecurringSession>, Url, Color, Color) {
     let data = fs::read_to_string(path).await.unwrap();
     let yaml_mob: YAMLMob = serde_yaml::from_str(&data).unwrap();
     let schedule = yaml_mob.schedule.into_iter().map(Into::into).collect();
     (
+        yaml_mob.title,
         schedule,
         yaml_mob.url,
         yaml_mob.background_color,
@@ -82,8 +86,10 @@ impl From<YAMLRecurringSession> for RecurringSession {
 pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
     let data_file_path = dir_entry.unwrap().path();
     let id = data_file_path.file_stem().unwrap().to_str().unwrap().into();
-    let (schedule, url, background_color, text_color) = read_mob_data_file(&data_file_path).await;
+    let (title, schedule, url, background_color, text_color) =
+        read_mob_data_file(&data_file_path).await;
     Mob {
+        title,
         id,
         schedule,
         url,
@@ -115,7 +121,7 @@ pub(crate) fn events(mut events: Vec<Event>, mob: mobs::Mob) -> Vec<Event> {
                 .map(move |occurrence| Event {
                     start: occurrence.with_timezone(&Utc),
                     end: (occurrence + duration).with_timezone(&Utc),
-                    title: mob.id.clone(),
+                    title: mob.title.clone(),
                     url: mob.url.clone(),
                     background_color: mob.background_color.clone(),
                     text_color: mob.text_color.clone(),

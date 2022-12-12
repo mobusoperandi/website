@@ -1,3 +1,4 @@
+title: Mob Liberty
 schedule:
   - recurrence: FREQ=WEEKLY;BYDAY=MO,FR
     timezone: Etc/UTC
