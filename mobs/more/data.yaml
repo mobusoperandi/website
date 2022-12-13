@@ -1,4 +1,14 @@
 title: Mob More
+participants:
+  - !Public
+    name: Bob Allen
+    social_url: https://twitter.com/curiousagilist
+  - !Public
+    name: Shahar “Dawn” Or
+    social_url: https://twitter.com/mightyiam
+  - !Public
+    name: Warren Wise
+    social_url: https://twitter.com/warren2k
 schedule:
   - recurrence: FREQ=WEEKLY;BYDAY=SA,SU
     timezone: Etc/UTC

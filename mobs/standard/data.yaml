@@ -1,4 +1,11 @@
 title: Mob Standard
+participants:
+  - !Public
+    name: Shahar “Dawn” Or
+    social_url: https://twitter.com/mightyiam
+  - !Public
+    name: Rostislav Simonik
+    social_url: https://github.com/rostislav-simonik
 schedule:
   - recurrence: FREQ=WEEKLY;BYDAY=TU,TH
     timezone: Etc/UTC

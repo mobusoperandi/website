@@ -7,8 +7,9 @@ use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
 use ssg::Targets;
+use std::path::PathBuf;
 use std::{io, path::Path};
-use tokio::fs;
+use tokio::fs::{self, read_to_string};
 use tokio_stream::wrappers::ReadDirStream;
 use url::Url;
 
@@ -17,10 +18,23 @@ pub struct Mob {
     #[allow(unused)]
     pub(crate) id: String,
     pub(crate) title: String,
+    pub(crate) participants: Vec<MobParticipant>,
     pub(crate) schedule: Vec<RecurringSession>,
-    pub(crate) url: Url,
+    pub(crate) freeform_copy_markdown: String,
     pub(crate) background_color: Color,
     pub(crate) text_color: Color,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub(crate) enum MobParticipant {
+    Hidden,
+    Public(Person),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub(crate) struct Person {
+    pub(crate) name: String,
+    pub(crate) social_url: Url,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -32,8 +46,8 @@ pub(crate) struct RecurringSession {
 #[derive(Deserialize)]
 struct YAMLMob {
     title: String,
+    participants: Vec<MobParticipant>,
     schedule: Vec<YAMLRecurringSession>,
-    url: Url,
     background_color: Color,
     text_color: Color,
 }
@@ -46,14 +60,22 @@ struct YAMLRecurringSession {
     duration: u16,
 }
 
-async fn read_mob_data_file(path: &Path) -> (String, Vec<RecurringSession>, Url, Color, Color) {
+async fn read_mob_data_file(
+    path: &Path,
+) -> (
+    String,
+    Vec<MobParticipant>,
+    Vec<RecurringSession>,
+    Color,
+    Color,
+) {
     let data = fs::read_to_string(path).await.unwrap();
     let yaml_mob: YAMLMob = serde_yaml::from_str(&data).unwrap();
     let schedule = yaml_mob.schedule.into_iter().map(Into::into).collect();
     (
         yaml_mob.title,
+        yaml_mob.participants,
         schedule,
-        yaml_mob.url,
         yaml_mob.background_color,
         yaml_mob.text_color,
     )
@@ -85,17 +107,29 @@ impl From<YAMLRecurringSession> for RecurringSession {
 }
 
 pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
-    let data_file_path = dir_entry.unwrap().path();
-    let id = data_file_path.file_stem().unwrap().to_str().unwrap().into();
-    let (title, schedule, url, background_color, text_color) =
-        read_mob_data_file(&data_file_path).await;
+    let data_dir_path = dir_entry.unwrap().path();
+    let id = data_dir_path.file_stem().unwrap().to_str().unwrap().into();
+    let (title, participants, schedule, background_color, text_color) = read_mob_data_file(
+        &[data_dir_path.clone(), "data.yaml".into()]
+            .iter()
+            .collect::<PathBuf>(),
+    )
+    .await;
+    let freeform_copy_markdown = read_to_string(
+        &[data_dir_path, "freeform_copy.md".into()]
+            .iter()
+            .collect::<PathBuf>(),
+    )
+    .await
+    .unwrap();
     Mob {
         title,
         id,
+        participants,
         schedule,
-        url,
         background_color,
         text_color,
+        freeform_copy_markdown,
     }
 }
 
@@ -111,7 +145,7 @@ pub struct Event {
 }
 
 impl Mob {
-    pub(crate) fn events(&self, targets: &Targets) -> Vec<Event> {
+    pub(crate) fn events(&self, targets: &Targets, titles: bool) -> Vec<Event> {
         self.schedule
             .iter()
             .flat_map(|recurring_session| {
@@ -123,7 +157,11 @@ impl Mob {
                     .map(move |occurrence| Event {
                         start: occurrence.with_timezone(&Utc),
                         end: (occurrence + duration).with_timezone(&Utc),
-                        title: mob.title.clone(),
+                        title: if titles {
+                            mob.title.clone()
+                        } else {
+                            "".to_owned()
+                        },
                         url: targets
                             .relative(format!("mobs/{}.html", mob.id))
                             .unwrap()

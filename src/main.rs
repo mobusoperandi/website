@@ -1,5 +1,6 @@
 mod environment;
 mod fonts;
+mod markdown;
 mod mobs;
 mod pages;
 use anyhow::{bail, Result};

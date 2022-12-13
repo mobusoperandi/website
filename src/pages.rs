@@ -4,7 +4,8 @@ mod publish;
 use super::COPYRIGHT_HOLDER;
 use crate::{
     fonts,
-    mobs::{self, Event, Mob},
+    markdown::to_html,
+    mobs::{self, Event, Mob, MobParticipant},
     NAME, REPO_URL,
 };
 use chrono::{Datelike, Utc};
@@ -87,18 +88,40 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
         ["mobs", &format!("{id}.html")].into_iter().collect(),
         async move {
             Source::BytesWithAssetSafety(Box::new(move |targets| {
-                let (calendar_html, calendar_stylesheet) = calendar(&targets, mob.events(&targets));
-                let url = mob.url.clone();
+                let (calendar_html, calendar_stylesheet) =
+                    calendar(&targets, mob.events(&targets, false));
                 Ok(base(
                     mob.title.clone(),
                     html! {
-                        h1."text-center"."text-4xl" { (mob.title) }
+                        div."sm:grid"."grid-cols-2"."text-center"."tracking-wide" {
+                            div."py-12" {
+                                h1."text-4xl" { (mob.title) }
+                                p {
+                                    "A "
+                                    a href=(targets.relative("index.html").unwrap().to_str().unwrap()) { (NAME) }
+                                    " mob"
+                                }
+                            }
+                            div."py-12" {
+                                h2 { "Participants" }
+                                div."font-bold" {
+                                    @for mob_participant in mob.participants {
+                                        @match mob_participant {
+                                            MobParticipant::Hidden => div { "hidden participant" },
+                                            MobParticipant::Public(person) => a.block href=(person.social_url.to_string()) { (person.name) },
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        div.prose {
+                            (PreEscaped(to_html(&mob.freeform_copy_markdown)))
+                        }
                         hr {}
                         (calendar_html)
-                        iframe."h-[50vh]" src=(format!("{url}?embedded=true")) {}
                     },
                     [calendar_stylesheet],
-                    "".to_string(),
+                    "gap-6".to_string(),
                     &targets,
                 )
                 .0

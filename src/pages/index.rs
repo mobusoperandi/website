@@ -6,7 +6,10 @@ pub async fn page() -> Asset {
     let mobs = mobs::read_all_mobs().await;
     Asset::new("index.html".into(), async {
         Source::BytesWithAssetSafety(Box::new(move |targets| {
-            let events = mobs.iter().flat_map(|mob| mob.events(&targets)).collect();
+            let events = mobs
+                .iter()
+                .flat_map(|mob| mob.events(&targets, true))
+                .collect();
             let (calendar_html, calendar_stylesheet) = calendar(&targets, events);
             Ok(base(
                 "Calendar".to_owned(),
