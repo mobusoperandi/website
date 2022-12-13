@@ -17,6 +17,7 @@
     },
     events,
     height: 'auto',
+    contentHeight: 'auto',
     nowIndicator: true,
     eventTextColor: 'black',
     eventBackgroundColor: 'gray',
