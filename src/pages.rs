@@ -44,7 +44,7 @@ pub(crate) fn base(
             ", font.name, fonts::output_filename(&font))))}
           }
         }
-        body."min-h-screen"."p-1".flex."flex-col"."gap-1" {
+        body."min-h-screen"."py-1"."px-1"."md:px-5".flex."flex-col"."gap-1"."max-w-screen-xl"."mx-auto" {
             div.flex."items-center"."flex-wrap"."gap-x-2"."gap-y-1".uppercase."text-lg" {
                 div."flex-1".flex."flex-wrap" {
                     div."flex-initial"."flex"."flex-col"."gap-x-2"."whitespace-nowrap" {
