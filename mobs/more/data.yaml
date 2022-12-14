@@ -15,6 +15,5 @@ schedule:
     start_date: 2022-05-06
     start_time: 13:00
     duration: 120
-url: https://docs.google.com/document/d/e/2PACX-1vRVOhzyiVuAwtsp96J3oBZvk2sIn6gIHt6wkdvYIY0EMr-mc76L-tEgRGmzjZSiRqfPNKx_8T88XIU8/pub
 background_color: green
 text_color: black
