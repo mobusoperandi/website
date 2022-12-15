@@ -15,7 +15,7 @@ pub async fn page() -> Asset {
                 "Calendar".to_owned(),
                 calendar_html,
                 [calendar_stylesheet],
-                "".into(),
+                classes!(),
                 &targets,
             )
             .0

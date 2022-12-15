@@ -4,6 +4,7 @@ mod publish;
 use super::COPYRIGHT_HOLDER;
 use crate::{
     fonts,
+    html::Classes,
     markdown::to_html,
     mobs::{self, Event, Mob, MobParticipant},
     NAME, REPO_URL,
@@ -17,15 +18,14 @@ pub(crate) fn base(
     title: String,
     content: Markup,
     stylesheets: impl IntoIterator<Item = String>,
-    content_classes: String,
+    content_classes: Classes,
     targets: &Targets,
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
-    let content_classes =
-        content_classes + " " + &["grow", "flex", "flex-col", "justify-center"].join(" ");
+    let content_classes = content_classes + classes!["grow", "flex", "flex-col", "justify-center"];
     let markup = html! {
       (DOCTYPE)
-      html lang="en" class=(format!("font-[{}] [font-size:16px]", fonts::VOLLKORN)) {
+      html lang="en" class=(classes![format!("font-[{}]", fonts::VOLLKORN), "[font-size:16px]"]) {
         head {
           title { (format!("{title}; {NAME}")) }
           meta charset="utf-8";
@@ -44,15 +44,15 @@ pub(crate) fn base(
             ", font.name, fonts::output_filename(&font))))}
           }
         }
-        body."min-h-screen"."py-1"."px-1"."md:px-5".flex."flex-col"."gap-1"."max-w-screen-xl"."mx-auto" {
-            div.flex."items-center"."flex-wrap"."gap-x-2"."gap-y-1".uppercase."text-lg" {
-                div."flex-1".flex."flex-wrap" {
-                    div."flex-initial"."flex"."flex-col"."gap-x-2"."whitespace-nowrap" {
-                        p."tracking-widest"."text-center" { (NAME) }
-                        p."text-sm"."text-slate-700" { "A mob programming community" }
+        body class=(classes!("min-h-screen", "py-1", "px-1", "md:px-5", "flex", "flex-col", "gap-1", "max-w-screen-xl", "mx-auto")) {
+            div class=(classes!("flex", "items-center", "flex-wrap", "gap-x-2", "gap-y-1", "uppercase", "text-lg")) {
+                div class=(classes!("flex-1","flex","flex-wrap")) {
+                    div class=(classes!("flex-initial", "flex", "flex-col", "gap-x-2", "whitespace-nowrap")) {
+                        p class=(classes!("tracking-widest", "text-center")) { (NAME) }
+                        p class=(classes!("text-sm", "text-slate-700")) { "A mob programming community" }
                     }
                 }
-                div."flex-auto".flex."justify-end"."flex-wrap"."gap-x-2" {
+                div class=(classes!("flex-auto", "flex", "justify-end", "flex-wrap", "gap-x-2")) {
                     a href=(targets.relative("index.html").unwrap().to_str().unwrap()) { "Calendar" }
                     a href=(targets.relative("join.html").unwrap().to_str().unwrap()) { "Join" }
                     a href=(targets.relative("publish.html").unwrap().to_str().unwrap()) { "Publish" }
@@ -64,7 +64,7 @@ pub(crate) fn base(
                 (content)
             }
             hr {}
-            div.flex."justify-between" {
+            div class=(classes!("flex", "justify-between")) {
                 p {
                     ({
                         let year = chrono::Utc::now().year();
@@ -93,35 +93,35 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                 Ok(base(
                     mob.title.clone(),
                     html! {
-                        div."sm:grid"."grid-cols-2"."text-center"."tracking-wide" {
-                            div."py-12" {
-                                h1."text-4xl" { (mob.title) }
+                        div class=(classes!("sm:grid", "grid-cols-2", "text-center", "tracking-wide")) {
+                            div class=(classes!("py-12")) {
+                                h1 class=(classes!("text-4xl")) { (mob.title) }
                                 p {
                                     "A "
                                     a href=(targets.relative("index.html").unwrap().to_str().unwrap()) { (NAME) }
                                     " mob"
                                 }
                             }
-                            div."py-12" {
+                            div class=(classes!("py-12")) {
                                 h2 { "Participants" }
-                                div."font-bold" {
+                                div class=(classes!("font-bold")) {
                                     @for mob_participant in mob.participants {
                                         @match mob_participant {
                                             MobParticipant::Hidden => div { "hidden participant" },
-                                            MobParticipant::Public(person) => a.block href=(person.social_url.to_string()) { (person.name) },
+                                            MobParticipant::Public(person) => a class=(classes!("block")) href=(person.social_url.to_string()) { (person.name) },
                                         }
                                     }
                                 }
                             }
                         }
-                        div.prose {
+                        div class=(classes!("prose")) {
                             (PreEscaped(to_html(&mob.freeform_copy_markdown)))
                         }
                         hr {}
                         (calendar_html)
                     },
                     [calendar_stylesheet],
-                    "gap-6".to_string(),
+                    classes!("gap-6"),
                     &targets,
                 )
                 .0

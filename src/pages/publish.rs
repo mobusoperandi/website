@@ -25,7 +25,7 @@ pub fn page() -> Asset {
                     }
                 },
                 [],
-                ["prose", "tracking-wide", "text-xl"].join(" "),
+                classes!("prose", "tracking-wide", "text-xl"),
                 &targets,
             )
             .0

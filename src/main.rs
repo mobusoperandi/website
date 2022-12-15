@@ -1,5 +1,7 @@
 mod environment;
 mod fonts;
+#[macro_use]
+mod html;
 mod markdown;
 mod mobs;
 mod pages;
