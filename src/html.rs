@@ -4,8 +4,8 @@ use maud::{html, Render};
 
 pub(crate) struct Class(String);
 
-impl Class {
-    pub(crate) fn new(class: impl Into<String>) -> Self {
+impl<T: Into<String>> From<T> for Class {
+    fn from(class: T) -> Self {
         Self(class.into())
     }
 }
@@ -61,7 +61,7 @@ macro_rules! classes {
     () => { $crate::html::Classes::default() };
     ($($class:expr),*) => {{
         let mut classes = $crate::html::Classes::default();
-        $( classes.push($crate::html::Class::new($class)); )*
+        $( classes.push($crate::html::Class::from($class)); )*
         classes
     }};
 }
