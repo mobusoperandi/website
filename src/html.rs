@@ -59,7 +59,7 @@ impl Render for Classes {
 #[macro_export]
 macro_rules! classes {
     () => { $crate::html::Classes::default() };
-    ($($class:expr),*) => {{
+    ($($class:expr)*) => {{
         let mut classes = $crate::html::Classes::default();
         $( classes.push($crate::html::Class::from($class)); )*
         classes

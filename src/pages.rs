@@ -22,10 +22,10 @@ pub(crate) fn base(
     targets: &Targets,
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
-    let content_classes = content_classes + classes!["grow", "flex", "flex-col", "justify-center"];
+    let content_classes = content_classes + classes!["grow" "flex" "flex-col" "justify-center"];
     let markup = html! {
       (DOCTYPE)
-      html lang="en" class=(classes![format!("font-[{}]", fonts::VOLLKORN), "[font-size:16px]"]) {
+      html lang="en" class=(classes![format!("font-[{}]", fonts::VOLLKORN) "[font-size:16px]"]) {
         head {
           title { (format!("{title}; {NAME}")) }
           meta charset="utf-8";
@@ -44,15 +44,15 @@ pub(crate) fn base(
             ", font.name, fonts::output_filename(&font))))}
           }
         }
-        body class=(classes!("min-h-screen", "py-1", "px-1", "md:px-5", "flex", "flex-col", "gap-1", "max-w-screen-xl", "mx-auto")) {
-            div class=(classes!("flex", "items-center", "flex-wrap", "gap-x-2", "gap-y-1", "uppercase", "text-lg")) {
-                div class=(classes!("flex-1","flex","flex-wrap")) {
-                    div class=(classes!("flex-initial", "flex", "flex-col", "gap-x-2", "whitespace-nowrap")) {
-                        p class=(classes!("tracking-widest", "text-center")) { (NAME) }
-                        p class=(classes!("text-sm", "text-slate-700")) { "A mob programming community" }
+        body class=(classes!("min-h-screen" "py-1" "px-1" "md:px-5" "flex" "flex-col" "gap-1" "max-w-screen-xl" "mx-auto")) {
+            div class=(classes!("flex" "items-center" "flex-wrap" "gap-x-2" "gap-y-1" "uppercase" "text-lg")) {
+                div class=(classes!("flex-1" "flex" "flex-wrap")) {
+                    div class=(classes!("flex-initial" "flex" "flex-col" "gap-x-2" "whitespace-nowrap")) {
+                        p class=(classes!("tracking-widest" "text-center")) { (NAME) }
+                        p class=(classes!("text-sm" "text-slate-700")) { "A mob programming community" }
                     }
                 }
-                div class=(classes!("flex-auto", "flex", "justify-end", "flex-wrap", "gap-x-2")) {
+                div class=(classes!("flex-auto" "flex" "justify-end" "flex-wrap" "gap-x-2")) {
                     a href=(targets.relative("index.html").unwrap().to_str().unwrap()) { "Calendar" }
                     a href=(targets.relative("join.html").unwrap().to_str().unwrap()) { "Join" }
                     a href=(targets.relative("publish.html").unwrap().to_str().unwrap()) { "Publish" }
@@ -64,7 +64,7 @@ pub(crate) fn base(
                 (content)
             }
             hr {}
-            div class=(classes!("flex", "justify-between")) {
+            div class=(classes!("flex" "justify-between")) {
                 p {
                     ({
                         let year = chrono::Utc::now().year();
@@ -93,7 +93,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                 Ok(base(
                     mob.title.clone(),
                     html! {
-                        div class=(classes!("sm:grid", "grid-cols-2", "text-center", "tracking-wide")) {
+                        div class=(classes!("sm:grid" "grid-cols-2" "text-center" "tracking-wide")) {
                             div class=(classes!("py-12")) {
                                 h1 class=(classes!("text-4xl")) { (mob.title) }
                                 p {

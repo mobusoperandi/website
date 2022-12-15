@@ -25,7 +25,7 @@ pub fn page() -> Asset {
                     }
                 },
                 [],
-                classes!("prose", "tracking-wide", "text-xl"),
+                classes!("prose" "tracking-wide" "text-xl"),
                 &targets,
             )
             .0
