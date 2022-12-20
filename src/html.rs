@@ -2,6 +2,7 @@ use std::ops::Add;
 
 use maud::{html, Render};
 
+#[derive(Debug, Clone)]
 pub(crate) struct Class(String);
 
 impl<T: Into<String>> From<T> for Class {
@@ -10,7 +11,7 @@ impl<T: Into<String>> From<T> for Class {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub(crate) struct Classes(Vec<Class>);
 
 impl Classes {

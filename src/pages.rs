@@ -7,7 +7,7 @@ use crate::{
     html::Classes,
     markdown::to_html,
     mobs::{self, Event, Mob, MobParticipant},
-    NAME, REPO_URL,
+    style, NAME, REPO_URL,
 };
 use chrono::{Datelike, Utc};
 use maud::{html, Markup, PreEscaped, DOCTYPE};
@@ -25,7 +25,7 @@ pub(crate) fn base(
     let content_classes = content_classes + classes!["grow" "flex" "flex-col" "justify-center"];
     let markup = html! {
       (DOCTYPE)
-      html lang="en" class=(classes![format!("font-[{}]", fonts::VOLLKORN) "[font-size:16px]"]) {
+      html lang="en" class=(classes![format!("font-[{}]", fonts::VOLLKORN) "[font-size:16px]" format!("bg-{}", style::BACKGROUND_COLOR) format!("text-{}", style::TEXT_COLOR)]) {
         head {
           title { (format!("{title}; {NAME}")) }
           meta charset="utf-8";
@@ -49,7 +49,7 @@ pub(crate) fn base(
                 div class=(classes!("flex-1" "flex" "flex-wrap")) {
                     div class=(classes!("flex-initial" "flex" "flex-col" "gap-x-2" "whitespace-nowrap")) {
                         p class=(classes!("tracking-widest" "text-center")) { (NAME) }
-                        p class=(classes!("text-sm" "text-slate-700")) { "A mob programming community" }
+                        p class=(classes!("text-sm" "opacity-75")) { "A mob programming community" }
                     }
                 }
                 div class=(classes!("flex-auto" "flex" "justify-end" "flex-wrap" "gap-x-2")) {
@@ -114,7 +114,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                                 }
                             }
                         }
-                        div class=(classes!("prose")) {
+                        div class=(*style::PROSE_CLASSES) {
                             (PreEscaped(to_html(&mob.freeform_copy_markdown)))
                         }
                         hr {}
@@ -142,7 +142,7 @@ pub(crate) async fn all() -> Vec<Asset> {
 pub(crate) fn calendar(targets: &Targets, events: Vec<Event>) -> (Markup, String) {
     let events = serde_json::to_string(&events).unwrap();
     let html = html! {
-        div {}
+        div class=(classes!("[--fc-page-bg-color:transparent]")) {}
         script defer src=(targets.relative(Path::new("fullcalendar.js")).unwrap().display().to_string()) {}
         script {
             (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{

@@ -5,6 +5,7 @@ mod html;
 mod markdown;
 mod mobs;
 mod pages;
+mod style;
 use anyhow::{bail, Result};
 use environment::OUTPUT_DIR;
 use futures::{stream, StreamExt};

@@ -9,6 +9,7 @@ edition = "2021"
 anyhow = "1.0.66"
 chrono = { version = "0.4.19", features = ["serde"] }
 chrono-tz = "0.6.1"
+const_format = "0.2.30"
 csscolorparser = { version = "0.6.0", features = ["serde"] }
 futures = "0.3.24"
 maud = "0.24.0"

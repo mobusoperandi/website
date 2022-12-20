@@ -1,5 +1,5 @@
 use super::base;
-use crate::{DEFAULT_BRANCH, MOBS_PATH, REPO_URL};
+use crate::{style, DEFAULT_BRANCH, MOBS_PATH, REPO_URL};
 use maud::html;
 use ssg::{Asset, Source};
 
@@ -25,7 +25,7 @@ pub fn page() -> Asset {
                     }
                 },
                 [],
-                classes!("prose" "tracking-wide" "text-xl"),
+                style::PROSE_CLASSES.clone() + classes!("tracking-wide" "text-xl"),
                 &targets,
             )
             .0

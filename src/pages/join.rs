@@ -1,5 +1,5 @@
 use super::base;
-use crate::NAME;
+use crate::{style, NAME};
 use maud::html;
 use ssg::{Asset, Source};
 
@@ -35,7 +35,7 @@ pub fn page() -> Asset {
                     }
                 },
                 [],
-                classes!("prose" "tracking-wide" "text-xl"),
+                style::PROSE_CLASSES.clone() + classes!("tracking-wide" "text-xl"),
                 &targets,
             )
             .0
