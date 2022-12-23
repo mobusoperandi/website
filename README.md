@@ -1,5 +1,9 @@
 <!-- TOC -->
 # Table of contents
+
+1. [Table of contents](#table-of-contents)
+1. [Requirements](#requirements)
+1. [Local dev server](#local-dev-server)
 <!-- TOC -->
 
 # Requirements
