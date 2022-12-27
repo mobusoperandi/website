@@ -1,0 +1,17 @@
+title: Mob Deno
+subtitle: The Denotational Design Mob
+participants:
+  - !Public
+    name: Conal Elliott
+    social_url: https://twitter.com/conal
+  - !Public
+    name: Shahar “Dawn” Or
+    social_url: https://twitter.com/mightyiam
+schedule:
+  - recurrence: FREQ=WEEKLY;BYDAY=WE
+    timezone: Etc/UTC
+    start_date: 2023-01-11
+    start_time: 01:00
+    duration: 180
+background_color: MediumPurple
+text_color: Azure
