@@ -1,5 +1,5 @@
 /.bin
+/.vercel
 /node_modules
-/output
 /target
 /http-cacache
