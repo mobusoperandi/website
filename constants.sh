@@ -1,2 +1,2 @@
-OUTPUT_DIR=output
+OUTPUT_DIR=.vercel/output/static
 

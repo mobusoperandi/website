@@ -1,6 +1,7 @@
-on: push
+on: [push, pull_request]
 permissions:
   contents: write
+  pull-requests: write
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -23,6 +24,17 @@ jobs:
       - run: cargo bin cargo-make ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - id: deploy
+        run: |
+          vercel pull --yes --environment=preview --scope mobusoperandi --token=${{ secrets.VERCEL_TOKEN }}
+          URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "URL=$URL" >> $GITHUB_OUTPUT
+      - if: github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            Branch deployed for review at:
+            ${{ steps.deploy.outputs.URL }}
       - uses: JamesIves/github-pages-deploy-action@v4
         if: github.ref == 'refs/heads/master'
         with:
