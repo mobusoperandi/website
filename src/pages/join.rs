@@ -24,14 +24,6 @@ pub fn page() -> Asset {
                                 { "See existing mobs" }
                             "."
                         }
-                        li {
-                            a
-                                href=(targets.relative("publish.html")?
-                                      .display()
-                                      .to_string())
-                                { "Publish a new mob" }
-                            "."
-                        }
                     }
                 },
                 [],

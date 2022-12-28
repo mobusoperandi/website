@@ -1,11 +1,18 @@
 use super::base;
-use crate::{mobs, pages::calendar, style::BUTTON_CLASSES};
+use crate::{mobs, pages::calendar, style::BUTTON_CLASSES, DEFAULT_BRANCH, MOBS_PATH, REPO_URL};
 use maud::html;
 use ssg::{Asset, Source};
 
 pub async fn page() -> Asset {
     let mobs = mobs::read_all_mobs().await;
     Asset::new("index.html".into(), async {
+        let mut existing_mobs_url = REPO_URL.clone();
+        existing_mobs_url
+            .path_segments_mut()
+            .unwrap()
+            .push("tree")
+            .push(&DEFAULT_BRANCH)
+            .push(MOBS_PATH);
         Source::BytesWithAssetSafety(Box::new(move |targets| {
             let events = mobs
                 .iter()
@@ -19,7 +26,7 @@ pub async fn page() -> Asset {
                     div class=(classes!("flex" "flex-wrap" "gap-2")) {
                         a
                             class=(*BUTTON_CLASSES)
-                            href=(targets.relative("publish.html").unwrap().to_str().unwrap())
+                            href=(existing_mobs_url.to_string())
                             { "Add mob to calendar" }
                     }
                 },

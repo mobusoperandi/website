@@ -1,6 +1,5 @@
 mod index;
 mod join;
-mod publish;
 use crate::{
     fonts,
     html::Classes,
@@ -143,7 +142,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
 pub(crate) async fn all() -> Vec<Asset> {
     let mobs = mobs::read_all_mobs().await;
     let mut mob_pages = mobs.iter().cloned().map(mob_page).collect::<Vec<_>>();
-    let mut pages = vec![index::page().await, join::page(), publish::page()];
+    let mut pages = vec![index::page().await, join::page()];
     pages.append(&mut mob_pages);
     pages
 }
