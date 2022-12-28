@@ -121,6 +121,13 @@ impl Targets {
                     .map(|path| path.to_owned())
             })
             .flatten()
+            .map(|path| {
+                if path == "/index.html" {
+                    String::from("/")
+                } else {
+                    path
+                }
+            })
             .ok_or_else(|| anyhow!("no target with path: {path:?}"))
     }
 }
