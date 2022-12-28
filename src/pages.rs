@@ -82,9 +82,9 @@ pub(crate) fn base(
                 (content)
             }
             hr {}
-            div class=(classes!("flex" "justify-between" "flex-wrap")) {
-                pre { code { (*COMMIT_HASH) } }
-                a href=(REPO_URL.to_string()) { "Source"}
+            div class=(classes!("flex" "justify-between" "flex-wrap" "items-end")) {
+                pre class=(classes!("text-xs")) { code { (*COMMIT_HASH) } }
+                a class=(classes!("text-sm")) href=(REPO_URL.to_string()) { "Source"}
             }
         }
       }
