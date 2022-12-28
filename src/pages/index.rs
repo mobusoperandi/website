@@ -27,7 +27,7 @@ pub async fn page() -> Asset {
                         a
                             class=(*BUTTON_CLASSES)
                             href=(existing_mobs_url.to_string())
-                            { "Add mob to calendar" }
+                            { "Add your mob" }
                     }
                 },
                 [calendar_stylesheet],
