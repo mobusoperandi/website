@@ -6,7 +6,7 @@ use crate::{
     html::Classes,
     markdown::to_html,
     mobs::{self, Event, Mob, MobParticipant},
-    style, COMMIT_HASH, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
+    style, COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
 };
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
@@ -29,6 +29,7 @@ pub(crate) fn base(
         head {
           title { (format!("{title}; {NAME}")) }
           meta charset="utf-8";
+          meta description=(DESCRIPTION);
           meta name="viewport" content="width=device-width, initial-scale=1.0";
           link rel="stylesheet" href={ "/index.css?v=" (version) };
           @for stylesheet in stylesheets {
@@ -48,7 +49,7 @@ pub(crate) fn base(
             div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" "gap-x-2" "gap-y-1" "uppercase" "text-lg")) {
                 div class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap")) {
                     p class=(classes!("tracking-widest" "text-center")) { (NAME) }
-                    p class=(classes!("text-sm" "opacity-75")) { "A mob programming community" }
+                    p class=(classes!("text-sm" "opacity-75")) { (DESCRIPTION) }
                 }
                 div class=(classes!("flex" "flex-wrap" "gap-x-2")) {
                     a href=(targets.relative("index.html").unwrap().to_str().unwrap()) { "Calendar" }

@@ -21,6 +21,7 @@ use tokio::process::Command;
 use url::Url;
 
 pub(crate) const NAME: &str = "Mobus Operandi";
+pub(crate) const DESCRIPTION: &str = "A mob programming community";
 pub(crate) const MOBS_PATH: &str = "mobs";
 pub(crate) static ZULIP_URL: Lazy<Url> =
     Lazy::new(|| "https://mobusoperandi.zulipchat.com".parse().unwrap());
