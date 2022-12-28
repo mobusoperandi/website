@@ -107,7 +107,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                                 div class=(classes!("font-bold")) {
                                     @for mob_participant in mob.participants {
                                         @match mob_participant {
-                                            MobParticipant::Hidden => div { "hidden participant" },
+                                            MobParticipant::Hidden => div { "(Anonymous participant)" },
                                             MobParticipant::Public(person) => a class=(classes!("block")) href=(person.social_url.to_string()) { (person.name) },
                                         }
                                     }
