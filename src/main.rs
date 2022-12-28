@@ -41,6 +41,9 @@ pub(crate) static GITHUB_ORGANIZATION_URL: Lazy<Url> = Lazy::new(|| {
     url
 });
 
+pub(crate) static COMMIT_HASH: Lazy<String> =
+    Lazy::new(|| string_from_command("git", ["rev-parse", "HEAD"]).unwrap());
+
 fn string_from_command<I: AsRef<OsStr>>(
     program: impl AsRef<OsStr>,
     args: impl IntoIterator<Item = I>,
