@@ -20,8 +20,6 @@
     contentHeight: 'auto',
     eventMinHeight: 40,
     nowIndicator: true,
-    eventTextColor: 'black',
-    eventBackgroundColor: 'gray',
     eventBorderColor: 'gray'
   })
   calendar.render()
