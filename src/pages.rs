@@ -6,7 +6,7 @@ use crate::{
     html::Classes,
     markdown::to_html,
     mobs::{self, Event, Mob, MobParticipant},
-    style, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
+    style, COMMIT_HASH, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
 };
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
@@ -82,6 +82,7 @@ pub(crate) fn base(
             }
             hr {}
             div class=(classes!("flex" "justify-between")) {
+                pre { code { (*COMMIT_HASH) } }
                 a href=(REPO_URL.to_string()) { "Source"}
             }
         }
