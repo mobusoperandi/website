@@ -54,7 +54,6 @@ pub(crate) fn base(
                 div class=(classes!("flex" "flex-wrap" "gap-x-2")) {
                     a href=(targets.relative("index.html").unwrap().to_str().unwrap()) { "Calendar" }
                     a href=(targets.relative("join.html").unwrap().to_str().unwrap()) { "Join" }
-                    a href=(targets.relative("publish.html").unwrap().to_str().unwrap()) { "Publish" }
                 }
                 div class=(classes!("flex" "items-center" "gap-x-2")) {
                     a href=(ZULIP_URL.to_string()) {

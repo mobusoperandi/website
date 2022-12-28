@@ -1,5 +1,6 @@
 use super::base;
-use crate::{mobs, pages::calendar};
+use crate::{mobs, pages::calendar, style::BUTTON_CLASSES};
+use maud::html;
 use ssg::{Asset, Source};
 
 pub async fn page() -> Asset {
@@ -13,9 +14,17 @@ pub async fn page() -> Asset {
             let (calendar_html, calendar_stylesheet) = calendar(&targets, events);
             Ok(base(
                 "Calendar".to_owned(),
-                calendar_html,
+                html! {
+                    (calendar_html)
+                    div class=(classes!("flex" "flex-wrap" "gap-2")) {
+                        a
+                            class=(*BUTTON_CLASSES)
+                            href=(targets.relative("publish.html").unwrap().to_str().unwrap())
+                            { "Add mob to calendar" }
+                    }
+                },
                 [calendar_stylesheet],
-                classes!(),
+                classes!("flex" "flex-col" "gap-1"),
                 &targets,
             )
             .0
