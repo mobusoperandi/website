@@ -18,6 +18,7 @@
     events,
     height: 'auto',
     contentHeight: 'auto',
+    eventMinHeight: 40,
     nowIndicator: true,
     eventTextColor: 'black',
     eventBackgroundColor: 'gray',
