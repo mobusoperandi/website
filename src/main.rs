@@ -23,6 +23,8 @@ use url::Url;
 pub(crate) const COPYRIGHT_HOLDER: &str = "Shahar Or";
 pub(crate) const NAME: &str = "Mobus Operandi";
 pub(crate) const MOBS_PATH: &str = "mobs";
+pub(crate) static CHAT_URL: Lazy<Url> =
+    Lazy::new(|| "https://mobusoperandi.zulipchat.com".parse().unwrap());
 
 fn string_from_command<I: AsRef<OsStr>>(
     program: impl AsRef<OsStr>,
