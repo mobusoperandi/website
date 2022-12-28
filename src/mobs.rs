@@ -18,6 +18,7 @@ pub struct Mob {
     #[allow(unused)]
     pub(crate) id: String,
     pub(crate) title: String,
+    pub(crate) subtitle: Option<String>,
     pub(crate) participants: Vec<MobParticipant>,
     pub(crate) schedule: Vec<RecurringSession>,
     pub(crate) freeform_copy_markdown: String,
@@ -46,6 +47,7 @@ pub(crate) struct RecurringSession {
 #[derive(Deserialize)]
 struct YAMLMob {
     title: String,
+    subtitle: Option<String>,
     participants: Vec<MobParticipant>,
     schedule: Vec<YAMLRecurringSession>,
     background_color: Color,
@@ -64,6 +66,7 @@ async fn read_mob_data_file(
     path: &Path,
 ) -> (
     String,
+    Option<String>,
     Vec<MobParticipant>,
     Vec<RecurringSession>,
     Color,
@@ -74,6 +77,7 @@ async fn read_mob_data_file(
     let schedule = yaml_mob.schedule.into_iter().map(Into::into).collect();
     (
         yaml_mob.title,
+        yaml_mob.subtitle,
         yaml_mob.participants,
         schedule,
         yaml_mob.background_color,
@@ -109,12 +113,13 @@ impl From<YAMLRecurringSession> for RecurringSession {
 pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
     let data_dir_path = dir_entry.unwrap().path();
     let id = data_dir_path.file_stem().unwrap().to_str().unwrap().into();
-    let (title, participants, schedule, background_color, text_color) = read_mob_data_file(
-        &[data_dir_path.clone(), "data.yaml".into()]
-            .iter()
-            .collect::<PathBuf>(),
-    )
-    .await;
+    let (title, subtitle, participants, schedule, background_color, text_color) =
+        read_mob_data_file(
+            &[data_dir_path.clone(), "data.yaml".into()]
+                .iter()
+                .collect::<PathBuf>(),
+        )
+        .await;
     let freeform_copy_markdown = read_to_string(
         &[data_dir_path, "freeform_copy.md".into()]
             .iter()
@@ -124,6 +129,7 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
     .unwrap();
     Mob {
         title,
+        subtitle,
         id,
         participants,
         schedule,

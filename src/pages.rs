@@ -104,10 +104,8 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                         div class=(classes!("sm:grid" "grid-cols-2" "text-center" "tracking-wide")) {
                             div class=(classes!("py-12")) {
                                 h1 class=(classes!("text-4xl")) { (mob.title) }
-                                p {
-                                    "A "
-                                    a href=(targets.relative("index.html").unwrap().to_str().unwrap()) { (NAME) }
-                                    " mob"
+                                @if let Some(subtitle) = mob.subtitle {
+                                    p { (subtitle) }
                                 }
                             }
                             div class=(classes!("py-12")) {

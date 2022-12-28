@@ -1,4 +1,5 @@
 title: Mob Liberty
+subtitle: An open source Rust mob
 participants:
   - !Public
     name: Roland Fredenhagen
