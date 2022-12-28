@@ -23,7 +23,7 @@ use url::Url;
 pub(crate) const COPYRIGHT_HOLDER: &str = "Shahar Or";
 pub(crate) const NAME: &str = "Mobus Operandi";
 pub(crate) const MOBS_PATH: &str = "mobs";
-pub(crate) static CHAT_URL: Lazy<Url> =
+pub(crate) static ZULIP_URL: Lazy<Url> =
     Lazy::new(|| "https://mobusoperandi.zulipchat.com".parse().unwrap());
 
 fn string_from_command<I: AsRef<OsStr>>(
@@ -77,11 +77,29 @@ async fn main() {
             Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js").unwrap(),
         )
     });
-    let files: BTreeSet<Asset> = [favicon, fullcalendar_css, fullcalendar_js]
-        .into_iter()
-        .chain(fonts)
-        .chain(pages)
-        .collect();
+    let twitter_logo = Asset::new(PathBuf::from("twitter_logo.svg"), async {
+        Source::Http(
+            Url::parse("https://upload.wikimedia.org/wikipedia/commons/4/4f/Twitter-logo.svg")
+                .unwrap(),
+        )
+    });
+    let zulip_logo = Asset::new(PathBuf::from("zulip_logo.svg"), async {
+        Source::Http(
+            Url::parse("https://raw.githubusercontent.com/zulip/zulip/main/static/images/logo/zulip-icon-square.svg")
+                .unwrap(),
+        )
+    });
+    let files: BTreeSet<Asset> = [
+        favicon,
+        fullcalendar_css,
+        fullcalendar_js,
+        twitter_logo,
+        zulip_logo,
+    ]
+    .into_iter()
+    .chain(fonts)
+    .chain(pages)
+    .collect();
     // TODO exit code
     let generated = stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), files).unwrap())
         .map(|(path, source)| (path, tokio::spawn(source)))

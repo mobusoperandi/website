@@ -1,5 +1,5 @@
 use super::base;
-use crate::{style, CHAT_URL, NAME};
+use crate::{style, NAME, ZULIP_URL};
 use maud::html;
 use ssg::{Asset, Source};
 
@@ -12,7 +12,7 @@ pub fn page() -> Asset {
                     h1 { (format!("Join {NAME}")) }
                     ul {
                         li {
-                            a href=(CHAT_URL.to_string())
+                            a href=(ZULIP_URL.to_string())
                             { "Join our chat platform" }
                             "."
                         }

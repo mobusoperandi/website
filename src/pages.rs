@@ -7,7 +7,7 @@ use crate::{
     html::Classes,
     markdown::to_html,
     mobs::{self, Event, Mob, MobParticipant},
-    style, CHAT_URL, NAME, REPO_URL,
+    style, NAME, REPO_URL, ZULIP_URL,
 };
 use chrono::{Datelike, Utc};
 use maud::{html, Markup, PreEscaped, DOCTYPE};
@@ -23,6 +23,7 @@ pub(crate) fn base(
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
     let content_classes = content_classes + classes!["grow" "flex" "flex-col" "justify-center"];
+    const NAV_ICON_SIZE: u8 = 32;
     let markup = html! {
       (DOCTYPE)
       html lang="en" class=(classes![format!("font-[{}]", fonts::VOLLKORN) "[font-size:16px]" format!("bg-{}", style::BACKGROUND_COLOR) format!("text-{}", style::TEXT_COLOR)]) {
@@ -56,8 +57,18 @@ pub(crate) fn base(
                     a href=(targets.relative("publish.html").unwrap().to_str().unwrap()) { "Publish" }
                 }
                 div class=(classes!("flex" "items-center" "gap-x-2")) {
-                    a href=(CHAT_URL.to_string()) { "Chat" }
-                    a href="https://twitter.com/mobusoperandi" { "Twitter" }
+                    a href=(ZULIP_URL.to_string()) {
+                        img
+                            width=(NAV_ICON_SIZE)
+                            alt="Zulip"
+                            src=(targets.relative("zulip_logo.svg").unwrap().to_str().unwrap());
+                    }
+                    a href="https://twitter.com/mobusoperandi" {
+                        img
+                            width=(NAV_ICON_SIZE)
+                            alt="Twitter"
+                            src=(targets.relative("twitter_logo.svg").unwrap().to_str().unwrap());
+                    }
                 }
             }
             hr {}
