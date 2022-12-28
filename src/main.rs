@@ -20,7 +20,6 @@ use std::{
 use tokio::process::Command;
 use url::Url;
 
-pub(crate) const COPYRIGHT_HOLDER: &str = "Shahar Or";
 pub(crate) const NAME: &str = "Mobus Operandi";
 pub(crate) const MOBS_PATH: &str = "mobs";
 pub(crate) static ZULIP_URL: Lazy<Url> =

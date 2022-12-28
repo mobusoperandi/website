@@ -1,7 +1,6 @@
 mod index;
 mod join;
 mod publish;
-use super::COPYRIGHT_HOLDER;
 use crate::{
     fonts,
     html::Classes,
@@ -9,7 +8,7 @@ use crate::{
     mobs::{self, Event, Mob, MobParticipant},
     style, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
 };
-use chrono::{Datelike, Utc};
+use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 use ssg::{Asset, Source, Targets};
 use std::{path::Path, vec};
@@ -84,11 +83,7 @@ pub(crate) fn base(
             hr {}
             div class=(classes!("flex" "justify-between")) {
                 p {
-                    ({
-                        let year = chrono::Utc::now().year();
-                        format!("© {year} {COPYRIGHT_HOLDER}")
-                    })
-                    ", licensed "
+                    "Licensed "
                     a href="https://tldrlegal.com/license/mit-license" { "MIT" }
                     "."
                 }
