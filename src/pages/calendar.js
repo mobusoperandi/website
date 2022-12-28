@@ -20,7 +20,7 @@
     contentHeight: 'auto',
     eventMinHeight: 40,
     nowIndicator: true,
-    eventBorderColor: 'gray'
+    eventBorderColor: 'transparent'
   })
   calendar.render()
   document.querySelector('.fc-toolbar-title').prepend(
