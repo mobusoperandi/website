@@ -25,6 +25,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: deploy
+        if: github.ref =! 'refs/heads/master'
         run: |
           vercel pull --yes --environment=preview --scope mobusoperandi --token=${{ secrets.VERCEL_TOKEN }}
           URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
