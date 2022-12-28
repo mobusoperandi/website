@@ -82,11 +82,6 @@ pub(crate) fn base(
             }
             hr {}
             div class=(classes!("flex" "justify-between")) {
-                p {
-                    "Licensed "
-                    a href="https://tldrlegal.com/license/mit-license" { "MIT" }
-                    "."
-                }
                 a href=(REPO_URL.to_string()) { "Source"}
             }
         }
