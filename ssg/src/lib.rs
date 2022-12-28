@@ -2,7 +2,6 @@ mod disk_caching_http_client;
 
 use anyhow::{anyhow, Result};
 use futures::{future::BoxFuture, Future, FutureExt};
-use pathdiff::diff_paths;
 use readext::ReadExt;
 use reqwest::Url;
 use std::{
@@ -35,10 +34,7 @@ pub fn generate_static_site(
             let contents = match source {
                 Source::Bytes(bytes) => bytes.clone(),
                 Source::BytesWithAssetSafety(function) => {
-                    let targets = Targets {
-                        this_target: this_target.clone(),
-                        all_targets: targets,
-                    };
+                    let targets = Targets(targets);
                     function(targets)?
                 }
                 Source::GoogleFont(google_font) => google_font.download().await?,
@@ -112,20 +108,20 @@ pub enum Source {
 }
 
 #[derive(Debug, Clone)]
-pub struct Targets {
-    this_target: PathBuf,
-    all_targets: BTreeSet<PathBuf>,
-}
+pub struct Targets(BTreeSet<PathBuf>);
 
 impl Targets {
-    pub fn relative(&self, path: impl AsRef<Path>) -> Result<PathBuf> {
-        diff_paths(
-            self.all_targets
-                .get(&path.as_ref().to_path_buf())
-                .ok_or_else(|| anyhow!("No such path {:?}", path.as_ref()))?,
-            self.this_target.clone(),
-        )
-        .ok_or_else(|| anyhow!("Failed to obtain relative path"))
+    pub fn path_of(&self, path: impl AsRef<Path>) -> Result<String> {
+        let path = path.as_ref();
+        self.0
+            .contains(path)
+            .then(|| {
+                PathBuf::from_iter([PathBuf::from("/"), path.to_owned()])
+                    .to_str()
+                    .map(|path| path.to_owned())
+            })
+            .flatten()
+            .ok_or_else(|| anyhow!("no target with path: {path:?}"))
     }
 }
 

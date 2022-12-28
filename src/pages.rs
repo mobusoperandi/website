@@ -47,32 +47,32 @@ pub(crate) fn base(
         body class=(classes!("min-h-screen" "py-1" "px-1" "md:px-5" "flex" "flex-col" "gap-1" "max-w-screen-xl" "mx-auto")) {
             div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" "gap-x-2" "gap-y-1" "uppercase" "text-lg")) {
                 a
-                    href=(targets.relative("index.html").unwrap().to_str().unwrap())
+                    href=(targets.path_of("index.html").unwrap())
                     class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap")) {
                     p class=(classes!("tracking-widest" "text-center")) { (NAME) }
                     p class=(classes!("text-sm" "opacity-75")) { (DESCRIPTION) }
                 }
                 div class=(classes!("flex" "flex-wrap" "gap-x-2")) {
-                    a href=(targets.relative("join.html").unwrap().to_str().unwrap()) { "Join" }
+                    a href=(targets.path_of("join.html").unwrap()) { "Join" }
                 }
                 div class=(classes!("flex" "items-center" "gap-x-2")) {
                     a href=(ZULIP_URL.to_string()) {
                         img
                             width=(NAV_ICON_SIZE)
                             alt="Zulip"
-                            src=(targets.relative("zulip_logo.svg").unwrap().to_str().unwrap());
+                            src=(targets.path_of("zulip_logo.svg").unwrap());
                     }
                     a class=(classes!("invert")) href=(GITHUB_ORGANIZATION_URL.to_string()) {
                         img
                             width=(NAV_ICON_SIZE)
                             alt="GitHub"
-                            src=(targets.relative("inverticat.svg").unwrap().to_str().unwrap());
+                            src=(targets.path_of("inverticat.svg").unwrap());
                     }
                     a href="https://twitter.com/mobusoperandi" {
                         img
                             width=(NAV_ICON_SIZE)
                             alt="Twitter"
-                            src=(targets.relative("twitter_logo.svg").unwrap().to_str().unwrap());
+                            src=(targets.path_of("twitter_logo.svg").unwrap());
                     }
                 }
             }
@@ -150,7 +150,7 @@ pub(crate) fn calendar(targets: &Targets, events: Vec<Event>) -> (Markup, String
     let events = serde_json::to_string(&events).unwrap();
     let html = html! {
         div class=(classes!("[--fc-page-bg-color:transparent]")) {}
-        script defer src=(targets.relative(Path::new("fullcalendar.js")).unwrap().display().to_string()) {}
+        script defer src=(targets.path_of(Path::new("fullcalendar.js")).unwrap()) {}
         script {
             (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{
                 const events = JSON.parse('{events}')
@@ -158,11 +158,6 @@ pub(crate) fn calendar(targets: &Targets, events: Vec<Event>) -> (Markup, String
             }})", include_str!("pages/calendar.js"))))
         }
     };
-    let stylesheet = targets
-        .relative("fullcalendar.css")
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .to_owned();
+    let stylesheet = targets.path_of("fullcalendar.css").unwrap();
     (html, stylesheet)
 }

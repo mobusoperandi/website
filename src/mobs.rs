@@ -168,12 +168,7 @@ impl Mob {
                         } else {
                             "".to_owned()
                         },
-                        url: targets
-                            .relative(format!("mobs/{}.html", mob.id))
-                            .unwrap()
-                            .to_str()
-                            .unwrap()
-                            .to_owned(),
+                        url: targets.path_of(format!("mobs/{}.html", mob.id)).unwrap(),
                         background_color: mob.background_color.clone(),
                         text_color: mob.text_color.clone(),
                     })
