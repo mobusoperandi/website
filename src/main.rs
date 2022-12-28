@@ -26,6 +26,22 @@ pub(crate) const MOBS_PATH: &str = "mobs";
 pub(crate) static ZULIP_URL: Lazy<Url> =
     Lazy::new(|| "https://mobusoperandi.zulipchat.com".parse().unwrap());
 
+pub(crate) static GITHUB_ORGANIZATION: Lazy<String> = Lazy::new(|| {
+    string_from_command(
+        "gh",
+        ["repo", "view", "--json", "owner", "--jq", ".owner.login"],
+    )
+    .unwrap()
+    .parse()
+    .unwrap()
+});
+
+pub(crate) static GITHUB_ORGANIZATION_URL: Lazy<Url> = Lazy::new(|| {
+    let mut url = Url::parse("https://github.com/").unwrap();
+    url.set_path(GITHUB_ORGANIZATION.as_str());
+    url
+});
+
 fn string_from_command<I: AsRef<OsStr>>(
     program: impl AsRef<OsStr>,
     args: impl IntoIterator<Item = I>,
@@ -89,12 +105,21 @@ async fn main() {
                 .unwrap(),
         )
     });
+    let inverticat_logo = Asset::new(PathBuf::from("inverticat.svg"), async {
+        Source::Http(
+            Url::parse(
+                "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg",
+            )
+            .unwrap(),
+        )
+    });
     let files: BTreeSet<Asset> = [
         favicon,
         fullcalendar_css,
         fullcalendar_js,
         twitter_logo,
         zulip_logo,
+        inverticat_logo,
     ]
     .into_iter()
     .chain(fonts)

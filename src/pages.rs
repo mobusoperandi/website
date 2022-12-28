@@ -7,7 +7,7 @@ use crate::{
     html::Classes,
     markdown::to_html,
     mobs::{self, Event, Mob, MobParticipant},
-    style, NAME, REPO_URL, ZULIP_URL,
+    style, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
 };
 use chrono::{Datelike, Utc};
 use maud::{html, Markup, PreEscaped, DOCTYPE};
@@ -62,6 +62,12 @@ pub(crate) fn base(
                             width=(NAV_ICON_SIZE)
                             alt="Zulip"
                             src=(targets.relative("zulip_logo.svg").unwrap().to_str().unwrap());
+                    }
+                    a class=(classes!("invert")) href=(GITHUB_ORGANIZATION_URL.to_string()) {
+                        img
+                            width=(NAV_ICON_SIZE)
+                            alt="GitHub"
+                            src=(targets.relative("inverticat.svg").unwrap().to_str().unwrap());
                     }
                     a href="https://twitter.com/mobusoperandi" {
                         img
