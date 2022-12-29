@@ -15,7 +15,6 @@ use url::Url;
 
 #[derive(Debug, Clone)]
 pub struct Mob {
-    #[allow(unused)]
     pub(crate) id: String,
     pub(crate) title: String,
     pub(crate) subtitle: Option<String>,
