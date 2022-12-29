@@ -1,5 +1,4 @@
 mod index;
-mod join;
 use crate::{
     fonts,
     html::Classes,
@@ -51,9 +50,6 @@ pub(crate) fn base(
                     class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap")) {
                     p class=(classes!("tracking-widest" "text-center")) { (NAME) }
                     p class=(classes!("text-sm" "opacity-75")) { (DESCRIPTION) }
-                }
-                div class=(classes!("flex" "flex-wrap" "gap-x-2")) {
-                    a href=(targets.path_of("join.html").unwrap()) { "Join" }
                 }
                 div class=(classes!("flex" "items-center" "gap-x-2")) {
                     a href=(ZULIP_URL.to_string()) {
@@ -141,7 +137,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
 pub(crate) async fn all() -> Vec<Asset> {
     let mobs = mobs::read_all_mobs().await;
     let mut mob_pages = mobs.iter().cloned().map(mob_page).collect::<Vec<_>>();
-    let mut pages = vec![index::page().await, join::page()];
+    let mut pages = vec![index::page().await];
     pages.append(&mut mob_pages);
     pages
 }
