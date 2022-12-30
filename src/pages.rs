@@ -24,70 +24,73 @@ pub(crate) fn base(
     let content_classes = content_classes + classes!["grow" "flex" "flex-col" "justify-center"];
     const NAV_ICON_SIZE: u8 = 32;
     let markup = html! {
-      (DOCTYPE)
-      html lang="en" class=(classes![format!("font-[{}]", fonts::VOLLKORN) "[font-size:16px]" format!("bg-{}", style::BACKGROUND_COLOR) format!("text-{}", style::TEXT_COLOR)]) {
-        head {
-          title { (format!("{title}; {NAME}")) }
-          meta charset="utf-8";
-          meta name="description" content=(DESCRIPTION);
-          meta name="viewport" content="width=device-width, initial-scale=1.0";
-          link rel="stylesheet" href={ "/index.css?v=" (version) };
-          @for stylesheet in stylesheets {
-              link rel="stylesheet" href=(stylesheet);
-          }
-          style {
-            // TODO extract as font utility
-            @for font in fonts::ALL {(PreEscaped(format!("
-              @font-face {{
-                font-family: '{}';
-                src: url('/{}') format('truetype');
-              }}
-            ", font.name, fonts::output_filename(&font))))}
-          }
-        }
-        body class=(classes!("min-h-screen" "py-1" "px-1" "md:px-5" "flex" "flex-col" "gap-1" "max-w-screen-xl" "mx-auto")) {
-            div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" "gap-x-2" "gap-y-1" "uppercase" "text-lg")) {
-                div
-                    class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap"))
-                    {
-                        a
-                            href=(targets.path_of("index.html").unwrap())
-                            class=(classes!("tracking-widest" "text-center"))
-                            { (NAME) }
-                        p class=(classes!("text-sm" "opacity-75")) { (DESCRIPTION) }
-                    }
-                div class=(classes!("flex" "items-center" "gap-x-2")) {
-                    a href=(ZULIP_URL.to_string()) {
-                        img
-                            width=(NAV_ICON_SIZE)
-                            alt="Zulip"
-                            src=(targets.path_of("zulip_logo.svg").unwrap());
-                    }
-                    a class=(classes!("invert")) href=(GITHUB_ORGANIZATION_URL.to_string()) {
-                        img
-                            width=(NAV_ICON_SIZE)
-                            alt="GitHub"
-                            src=(targets.path_of("inverticat.svg").unwrap());
-                    }
-                    a href="https://twitter.com/mobusoperandi" {
-                        img
-                            width=(NAV_ICON_SIZE)
-                            alt="Twitter"
-                            src=(targets.path_of("twitter_logo.svg").unwrap());
+        (DOCTYPE)
+        html
+        lang="en"
+        class=(classes![format!("font-[{}]", fonts::VOLLKORN) "[font-size:16px]" format!("bg-{}", style::BACKGROUND_COLOR) format!("text-{}", style::TEXT_COLOR)])
+        {
+            head {
+              title { (format!("{title}; {NAME}")) }
+              meta charset="utf-8";
+              meta name="description" content=(DESCRIPTION);
+              meta name="viewport" content="width=device-width, initial-scale=1.0";
+              link rel="stylesheet" href={ "/index.css?v=" (version) };
+              @for stylesheet in stylesheets {
+                  link rel="stylesheet" href=(stylesheet);
+              }
+              style {
+                // TODO extract as font utility
+                @for font in fonts::ALL {(PreEscaped(format!("
+                  @font-face {{
+                    font-family: '{}';
+                    src: url('/{}') format('truetype');
+                  }}
+                ", font.name, fonts::output_filename(&font))))}
+              }
+            }
+            body class=(classes!("min-h-screen" "py-1" "px-1" "md:px-5" "flex" "flex-col" "gap-1" "max-w-screen-xl" "mx-auto")) {
+                div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" "gap-x-2" "gap-y-1" "uppercase" "text-lg")) {
+                    div
+                        class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap"))
+                        {
+                            a
+                                href=(targets.path_of("index.html").unwrap())
+                                class=(classes!("tracking-widest" "text-center"))
+                                { (NAME) }
+                            p class=(classes!("text-sm" "opacity-75")) { (DESCRIPTION) }
+                        }
+                    div class=(classes!("flex" "items-center" "gap-x-2")) {
+                        a href=(ZULIP_URL.to_string()) {
+                            img
+                                width=(NAV_ICON_SIZE)
+                                alt="Zulip"
+                                src=(targets.path_of("zulip_logo.svg").unwrap());
+                        }
+                        a class=(classes!("invert")) href=(GITHUB_ORGANIZATION_URL.to_string()) {
+                            img
+                                width=(NAV_ICON_SIZE)
+                                alt="GitHub"
+                                src=(targets.path_of("inverticat.svg").unwrap());
+                        }
+                        a href="https://twitter.com/mobusoperandi" {
+                            img
+                                width=(NAV_ICON_SIZE)
+                                alt="Twitter"
+                                src=(targets.path_of("twitter_logo.svg").unwrap());
+                        }
                     }
                 }
-            }
-            hr;
-            div class=(content_classes) {
-                (content)
-            }
-            hr;
-            div class=(classes!("flex" "justify-between" "flex-wrap" "items-end")) {
-                pre class=(classes!("text-xs")) { code { (*COMMIT_HASH) } }
-                a class=(classes!("text-sm")) href=(REPO_URL.to_string()) { "Source"}
+                hr;
+                div class=(content_classes) {
+                    (content)
+                }
+                hr;
+                div class=(classes!("flex" "justify-between" "flex-wrap" "items-end")) {
+                    pre class=(classes!("text-xs")) { code { (*COMMIT_HASH) } }
+                    a class=(classes!("text-sm")) href=(REPO_URL.to_string()) { "Source"}
+                }
             }
         }
-      }
     };
     markup
 }
