@@ -111,45 +111,46 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     })
                     .collect::<Vec<_>>();
                 let mob_links = (!mob_links.is_empty()).then_some(mob_links);
+                let content = html! {
+                    div class=(classes!("sm:grid" "grid-cols-2" "items-center" "text-center" "tracking-wide")) {
+                        div class=(classes!("py-12")) {
+                            h1 class=(classes!("text-4xl")) { (mob.title) }
+                            @if let Some(subtitle) = mob.subtitle {
+                                p { (subtitle) }
+                            }
+                        }
+                        div class=(classes!("py-12")) {
+                            h2 { "Participants" }
+                            div class=(classes!("font-bold")) {
+                                @for mob_participant in mob.participants {
+                                    @match mob_participant {
+                                        MobParticipant::Hidden => div { "(Anonymous participant)" },
+                                        MobParticipant::Public(person) => a class=(classes!("block")) href=(person.social_url.to_string()) { (person.name) },
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    div class=(classes!("sm:grid" "grid-cols-[1fr_100px]" "gap-1" "divide-y" "sm:divide-y-0" "sm:divide-x" format!("divide-{TEXT_COLOR}"))) {
+                        div class=(*style::PROSE_CLASSES) {
+                            (PreEscaped(to_html(&mob.freeform_copy_markdown)))
+                        }
+                        @if let Some(mob_links) = mob_links {
+                            div class=(classes!("p-4" "flex" "flex-col" "gap-2")) {
+                                @for (url, image_path) in mob_links {
+                                    a href=(url.to_string()) {
+                                        img src=(image_path);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    hr {}
+                    (calendar_html)
+                };
                 Ok(base(
                     mob.title.clone(),
-                    html! {
-                        div class=(classes!("sm:grid" "grid-cols-2" "items-center" "text-center" "tracking-wide")) {
-                            div class=(classes!("py-12")) {
-                                h1 class=(classes!("text-4xl")) { (mob.title) }
-                                @if let Some(subtitle) = mob.subtitle {
-                                    p { (subtitle) }
-                                }
-                            }
-                            div class=(classes!("py-12")) {
-                                h2 { "Participants" }
-                                div class=(classes!("font-bold")) {
-                                    @for mob_participant in mob.participants {
-                                        @match mob_participant {
-                                            MobParticipant::Hidden => div { "(Anonymous participant)" },
-                                            MobParticipant::Public(person) => a class=(classes!("block")) href=(person.social_url.to_string()) { (person.name) },
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        div class=(classes!("sm:grid" "grid-cols-[1fr_100px]" "gap-1" "divide-y" "sm:divide-y-0" "sm:divide-x" format!("divide-{TEXT_COLOR}"))) {
-                            div class=(*style::PROSE_CLASSES) {
-                                (PreEscaped(to_html(&mob.freeform_copy_markdown)))
-                            }
-                            @if let Some(mob_links) = mob_links {
-                                div class=(classes!("p-4" "flex" "flex-col" "gap-2")) {
-                                    @for (url, image_path) in mob_links {
-                                        a href=(url.to_string()) {
-                                            img src=(image_path);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        hr {}
-                        (calendar_html)
-                    },
+                    content,
                     [calendar_stylesheet],
                     classes!("gap-6"),
                     &targets,

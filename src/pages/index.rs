@@ -19,17 +19,18 @@ pub async fn page() -> Asset {
                 .flat_map(|mob| mob.events(&targets, true))
                 .collect();
             let (calendar_html, calendar_stylesheet) = calendar(&targets, events);
+            let content = html! {
+                (calendar_html)
+                div class=(classes!("flex" "flex-wrap" "gap-2")) {
+                    a
+                        class=(*BUTTON_CLASSES)
+                        href=(existing_mobs_url.to_string())
+                        { "Add your mob" }
+                }
+            };
             Ok(base(
                 "Calendar".to_owned(),
-                html! {
-                    (calendar_html)
-                    div class=(classes!("flex" "flex-wrap" "gap-2")) {
-                        a
-                            class=(*BUTTON_CLASSES)
-                            href=(existing_mobs_url.to_string())
-                            { "Add your mob" }
-                    }
-                },
+                content,
                 [calendar_stylesheet],
                 classes!("flex" "flex-col" "gap-1"),
                 &targets,
