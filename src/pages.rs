@@ -114,7 +114,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                 Ok(base(
                     mob.title.clone(),
                     html! {
-                        div class=(classes!("sm:grid" "grid-cols-2" "text-center" "tracking-wide")) {
+                        div class=(classes!("sm:grid" "grid-cols-2" "items-center" "text-center" "tracking-wide")) {
                             div class=(classes!("py-12")) {
                                 h1 class=(classes!("text-4xl")) { (mob.title) }
                                 @if let Some(subtitle) = mob.subtitle {
