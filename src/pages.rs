@@ -138,7 +138,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                                 (PreEscaped(to_html(&mob.freeform_copy_markdown)))
                             }
                             @if let Some(mob_links) = mob_links {
-                                div class=(classes!("px-4" "flex" "flex-col" "gap-2")) {
+                                div class=(classes!("p-4" "flex" "flex-col" "gap-2")) {
                                     @for (url, image_path) in mob_links {
                                         a href=(url.to_string()) {
                                             img src=(image_path);
