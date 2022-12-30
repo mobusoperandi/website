@@ -15,3 +15,5 @@ schedule:
     duration: 120
 background_color: Peru
 text_color: SeaShell
+links:
+  - !YouTube "@mobpangolin"

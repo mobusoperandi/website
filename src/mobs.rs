@@ -23,6 +23,12 @@ pub struct Mob {
     pub(crate) freeform_copy_markdown: String,
     pub(crate) background_color: Color,
     pub(crate) text_color: Color,
+    pub(crate) links: Vec<Link>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Link {
+    YouTube(String),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -51,6 +57,7 @@ struct YAMLMob {
     schedule: Vec<YAMLRecurringSession>,
     background_color: Color,
     text_color: Color,
+    links: Option<Vec<Link>>,
 }
 #[derive(Deserialize)]
 struct YAMLRecurringSession {
@@ -70,6 +77,7 @@ async fn read_mob_data_file(
     Vec<RecurringSession>,
     Color,
     Color,
+    Vec<Link>,
 ) {
     let data = fs::read_to_string(path).await.unwrap();
     let yaml_mob: YAMLMob = serde_yaml::from_str(&data).unwrap();
@@ -81,6 +89,7 @@ async fn read_mob_data_file(
         schedule,
         yaml_mob.background_color,
         yaml_mob.text_color,
+        yaml_mob.links.unwrap_or_default(),
     )
 }
 
@@ -112,7 +121,7 @@ impl From<YAMLRecurringSession> for RecurringSession {
 pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
     let data_dir_path = dir_entry.unwrap().path();
     let id = data_dir_path.file_stem().unwrap().to_str().unwrap().into();
-    let (title, subtitle, participants, schedule, background_color, text_color) =
+    let (title, subtitle, participants, schedule, background_color, text_color, links) =
         read_mob_data_file(
             &[data_dir_path.clone(), "data.yaml".into()]
                 .iter()
@@ -135,6 +144,7 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
         background_color,
         text_color,
         freeform_copy_markdown,
+        links,
     }
 }
 

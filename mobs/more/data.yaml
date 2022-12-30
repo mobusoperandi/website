@@ -18,3 +18,5 @@ schedule:
     duration: 120
 background_color: green
 text_color: black
+links:
+  - !YouTube "@mobmore"

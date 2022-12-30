@@ -4,12 +4,14 @@ use crate::{
     html::Classes,
     markdown::to_html,
     mobs::{self, Event, Mob, MobParticipant},
-    style, COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
+    style::{self, TEXT_COLOR},
+    COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
 };
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 use ssg::{Asset, Source, Targets};
 use std::{path::Path, vec};
+use url::Url;
 
 pub(crate) fn base(
     title: String,
@@ -95,6 +97,20 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
             Source::BytesWithAssetSafety(Box::new(move |targets| {
                 let (calendar_html, calendar_stylesheet) =
                     calendar(&targets, mob.events(&targets, false));
+                let mob_links = mob
+                    .links
+                    .into_iter()
+                    .map(|link| -> (Url, String) {
+                        match link {
+                            mobs::Link::YouTube(path) => {
+                                let mut url = Url::parse("https://www.youtube.com").unwrap();
+                                url.set_path(&path);
+                                (url, targets.path_of("youtube_logo.svg").unwrap())
+                            }
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                let mob_links = (!mob_links.is_empty()).then_some(mob_links);
                 Ok(base(
                     mob.title.clone(),
                     html! {
@@ -117,8 +133,19 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                                 }
                             }
                         }
-                        div class=(*style::PROSE_CLASSES) {
-                            (PreEscaped(to_html(&mob.freeform_copy_markdown)))
+                        div class=(classes!("sm:grid" "grid-cols-[1fr_100px]" "gap-1" "divide-x" format!("divide-{TEXT_COLOR}"))) {
+                            div class=(*style::PROSE_CLASSES) {
+                                (PreEscaped(to_html(&mob.freeform_copy_markdown)))
+                            }
+                            @if let Some(mob_links) = mob_links {
+                                div class=(classes!("px-4" "flex" "flex-col" "gap-2")) {
+                                    @for (url, image_path) in mob_links {
+                                        a href=(url.to_string()) {
+                                            img src=(image_path);
+                                        }
+                                    }
+                                }
+                            }
                         }
                         hr {}
                         (calendar_html)

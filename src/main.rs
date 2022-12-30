@@ -116,6 +116,12 @@ async fn main() {
             .unwrap(),
         )
     });
+    let youtube_logo = Asset::new(PathBuf::from("youtube_logo.svg"), async {
+        Source::Http(
+            Url::parse("https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg")
+                .unwrap(),
+        )
+    });
     let files: BTreeSet<Asset> = [
         favicon,
         fullcalendar_css,
@@ -123,6 +129,7 @@ async fn main() {
         twitter_logo,
         zulip_logo,
         inverticat_logo,
+        youtube_logo,
     ]
     .into_iter()
     .chain(fonts)

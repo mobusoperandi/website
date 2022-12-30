@@ -18,3 +18,5 @@ schedule:
     duration: 120
 background_color: DarkGoldenRod
 text_color: CornSilk
+links:
+  - !YouTube "@mobliberty"
