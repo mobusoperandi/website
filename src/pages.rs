@@ -47,12 +47,15 @@ pub(crate) fn base(
         }
         body class=(classes!("min-h-screen" "py-1" "px-1" "md:px-5" "flex" "flex-col" "gap-1" "max-w-screen-xl" "mx-auto")) {
             div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" "gap-x-2" "gap-y-1" "uppercase" "text-lg")) {
-                a
-                    href=(targets.path_of("index.html").unwrap())
-                    class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap")) {
-                    p class=(classes!("tracking-widest" "text-center")) { (NAME) }
-                    p class=(classes!("text-sm" "opacity-75")) { (DESCRIPTION) }
-                }
+                div
+                    class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap"))
+                    {
+                        a
+                            href=(targets.path_of("index.html").unwrap())
+                            class=(classes!("tracking-widest" "text-center"))
+                            { (NAME) }
+                        p class=(classes!("text-sm" "opacity-75")) { (DESCRIPTION) }
+                    }
                 div class=(classes!("flex" "items-center" "gap-x-2")) {
                     a href=(ZULIP_URL.to_string()) {
                         img
