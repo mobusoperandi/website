@@ -157,7 +157,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     mob.title.clone(),
                     content,
                     [calendar_stylesheet],
-                    classes!("gap-6"),
+                    classes!("flex" "flex-col" "gap-6"),
                     &targets,
                 )
                 .0
