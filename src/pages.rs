@@ -144,7 +144,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                             div class=(classes!("p-4" "flex" "flex-col" "gap-2")) {
                                 @for (url, image_path) in mob_links {
                                     a href=(url.to_string()) {
-                                        img src=(image_path);
+                                        img alt="YouTube" src=(image_path);
                                     }
                                 }
                             }
