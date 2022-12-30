@@ -133,7 +133,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                                 }
                             }
                         }
-                        div class=(classes!("sm:grid" "grid-cols-[1fr_100px]" "gap-1" "sm:divide-x" format!("divide-{TEXT_COLOR}"))) {
+                        div class=(classes!("sm:grid" "grid-cols-[1fr_100px]" "gap-1" "divide-y" "sm:divide-y-0" "sm:divide-x" format!("divide-{TEXT_COLOR}"))) {
                             div class=(*style::PROSE_CLASSES) {
                                 (PreEscaped(to_html(&mob.freeform_copy_markdown)))
                             }
