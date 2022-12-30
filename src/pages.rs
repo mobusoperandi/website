@@ -47,7 +47,7 @@ pub(crate) fn base(
                 ", font.name, fonts::output_filename(&font))))}
               }
             }
-            body class=(classes!("min-h-screen" "py-1" "px-1" "md:px-5" "flex" "flex-col" "gap-1" "max-w-screen-xl" "mx-auto")) {
+            body class=(classes!("min-h-screen" "py-1" "px-1" "md:px-5" "grid" "grid-rows-[auto_auto_1fr_auto_auto]" "gap-1" "max-w-screen-xl" "mx-auto")) {
                 div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" "gap-x-2" "gap-y-1" "uppercase" "text-lg")) {
                     div
                         class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap"))
@@ -80,7 +80,7 @@ pub(crate) fn base(
                     }
                 }
                 hr;
-                div class=({classes!("grow") + content_classes}) {
+                div class=(content_classes) {
                     (content)
                 }
                 hr;
