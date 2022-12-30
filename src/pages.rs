@@ -150,7 +150,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                             }
                         }
                     }
-                    hr {}
+                    hr;
                     (calendar_html)
                 };
                 Ok(base(
