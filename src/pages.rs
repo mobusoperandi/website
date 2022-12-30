@@ -21,7 +21,6 @@ pub(crate) fn base(
     targets: &Targets,
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
-    let content_classes = content_classes + classes!["grow" "flex" "flex-col" "justify-center"];
     const NAV_ICON_SIZE: u8 = 32;
     let markup = html! {
         (DOCTYPE)
@@ -81,7 +80,7 @@ pub(crate) fn base(
                     }
                 }
                 hr;
-                div class=(content_classes) {
+                div class=({classes!("grow") + content_classes}) {
                     (content)
                 }
                 hr;
