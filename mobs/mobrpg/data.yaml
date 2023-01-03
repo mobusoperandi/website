@@ -1,4 +1,4 @@
-title: Mob Programming RPG Webapp
+title: Mob RPG
 participants:
   - !Public
     name: Gregor Riegler
@@ -7,9 +7,9 @@ participants:
     name: Nitsan Avni
     social_url: https://twitter.com/NitsanAvni
 schedule:
-  - recurrence: FREQ=WEEKLY;BYDAY=TU
+  - recurrence: FREQ=WEEKLY;BYDAY=TH
     timezone: Europe/Vienna
-    start_date: 2022-12-29
+    start_date: 2023-01-05
     start_time: 17:00
     duration: 180
 background_color: aqua
