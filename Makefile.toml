@@ -54,7 +54,6 @@ fi
 script = '''
 #!/usr/bin/env bash
 set -euxo pipefail
-mkdir --parents ${OUTPUT_DIR}
 cargo run
 '''
 
