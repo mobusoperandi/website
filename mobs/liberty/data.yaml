@@ -17,7 +17,7 @@ schedule:
   - recurrence: FREQ=WEEKLY;BYDAY=MO,FR
     timezone: Etc/UTC
     start_date: 2022-12-12
-    start_time: 06:00
+    start_time: 07:00
     duration: 120
 background_color: DarkGoldenRod
 text_color: CornSilk
