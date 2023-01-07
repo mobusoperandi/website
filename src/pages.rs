@@ -4,8 +4,7 @@ use crate::{
     html::Classes,
     markdown::to_html,
     mobs::{self, Event, Mob, MobParticipant},
-    style::{self, TEXT_COLOR},
-    COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
+    style, COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
 };
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
@@ -115,11 +114,20 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     .collect::<Vec<_>>();
                 let mob_links = (!mob_links.is_empty()).then_some(mob_links);
                 let content = html! {
-                    div class=(classes!("sm:grid" "grid-cols-2" "items-center" "text-center" "tracking-wide")) {
+                    div class=(classes!("flex" "flex-col" "sm:flex-row" "sm:justify-around" "text-center" "tracking-wide")) {
                         div class=(classes!("py-12")) {
                             h1 class=(classes!("text-4xl")) { (mob.title) }
                             @if let Some(subtitle) = mob.subtitle {
                                 p { (subtitle) }
+                            }
+                        }
+                        @if let Some(mob_links) = mob_links {
+                            div class=(classes!("flex" "sm:flex-col" "justify-center" "gap-2")) {
+                                @for (url, image_path, alt) in mob_links {
+                                    a href=(url.to_string()) {
+                                        img class=(classes!("h-8")) alt=(alt) src=(image_path);
+                                    }
+                                }
                             }
                         }
                         div class=(classes!("py-12")) {
@@ -134,19 +142,8 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                             }
                         }
                     }
-                    div class=(classes!("sm:grid" "grid-cols-[1fr_100px]" "gap-1" "divide-y" "sm:divide-y-0" "sm:divide-x" format!("divide-{TEXT_COLOR}"))) {
-                        div class=(*style::PROSE_CLASSES) {
-                            (PreEscaped(to_html(&mob.freeform_copy_markdown)))
-                        }
-                        @if let Some(mob_links) = mob_links {
-                            div class=(classes!("p-4" "flex" "flex-col" "gap-2")) {
-                                @for (url, image_path, alt) in mob_links {
-                                    a href=(url.to_string()) {
-                                        img alt=(alt) src=(image_path);
-                                    }
-                                }
-                            }
-                        }
+                    div class=(*style::PROSE_CLASSES) {
+                        (PreEscaped(to_html(&mob.freeform_copy_markdown)))
                     }
                     hr;
                     (calendar_html)
