@@ -105,13 +105,11 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                 let mob_links = mob
                     .links
                     .into_iter()
-                    .map(|link| -> (Url, String) {
-                        match link {
-                            mobs::Link::YouTube(path) => {
-                                let mut url = Url::parse("https://www.youtube.com").unwrap();
-                                url.set_path(&path);
-                                (url, targets.path_of("youtube_logo.svg").unwrap())
-                            }
+                    .map(|link| match link {
+                        mobs::Link::YouTube(path) => {
+                            let mut url = Url::parse("https://www.youtube.com").unwrap();
+                            url.set_path(&path);
+                            (url, targets.path_of("youtube_logo.svg").unwrap(), "YouTube")
                         }
                     })
                     .collect::<Vec<_>>();
@@ -142,9 +140,9 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                         }
                         @if let Some(mob_links) = mob_links {
                             div class=(classes!("p-4" "flex" "flex-col" "gap-2")) {
-                                @for (url, image_path) in mob_links {
+                                @for (url, image_path, alt) in mob_links {
                                     a href=(url.to_string()) {
-                                        img alt="YouTube" src=(image_path);
+                                        img alt=(alt) src=(image_path);
                                     }
                                 }
                             }
