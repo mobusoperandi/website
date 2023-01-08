@@ -1,4 +1,5 @@
 use crate::MOBS_PATH;
+use anyhow::anyhow;
 use chrono::TimeZone;
 use chrono::{DateTime, Duration, Utc};
 use csscolorparser::Color;
@@ -24,6 +25,14 @@ pub struct Mob {
     pub(crate) background_color: Color,
     pub(crate) text_color: Color,
     pub(crate) links: Vec<Link>,
+    pub(crate) status: Status,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub(crate) enum Status {
+    Short(String),
+    Open(String),
+    Full(Option<String>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -58,6 +67,7 @@ struct YAMLMob {
     background_color: Color,
     text_color: Color,
     links: Option<Vec<Link>>,
+    status: Status,
 }
 #[derive(Deserialize)]
 struct YAMLRecurringSession {
@@ -78,9 +88,12 @@ async fn read_mob_data_file(
     Color,
     Color,
     Vec<Link>,
+    Status,
 ) {
     let data = fs::read_to_string(path).await.unwrap();
-    let yaml_mob: YAMLMob = serde_yaml::from_str(&data).unwrap();
+    let yaml_mob: YAMLMob = serde_yaml::from_str(&data)
+        .map_err(|e| anyhow!("{:?} {:?}", path, e))
+        .unwrap();
     let schedule = yaml_mob.schedule.into_iter().map(Into::into).collect();
     (
         yaml_mob.title,
@@ -90,6 +103,7 @@ async fn read_mob_data_file(
         yaml_mob.background_color,
         yaml_mob.text_color,
         yaml_mob.links.unwrap_or_default(),
+        yaml_mob.status,
     )
 }
 
@@ -121,7 +135,7 @@ impl From<YAMLRecurringSession> for RecurringSession {
 pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
     let data_dir_path = dir_entry.unwrap().path();
     let id = data_dir_path.file_stem().unwrap().to_str().unwrap().into();
-    let (title, subtitle, participants, schedule, background_color, text_color, links) =
+    let (title, subtitle, participants, schedule, background_color, text_color, links, status) =
         read_mob_data_file(
             &[data_dir_path.clone(), "data.yaml".into()]
                 .iter()
@@ -145,6 +159,7 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
         text_color,
         freeform_copy_markdown,
         links,
+        status,
     }
 }
 
