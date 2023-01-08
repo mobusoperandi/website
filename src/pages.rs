@@ -94,11 +94,23 @@ pub(crate) fn base(
 }
 
 pub(crate) fn mob_page(mob: Mob) -> Asset {
+    type WrapperFn = fn(&str) -> Markup;
+    fn status_wrapper_false(content: &str) -> Markup {
+        html!(s class=(classes!("opacity-70")) { (content) })
+    }
+    fn status_wrapper_true(content: &str) -> Markup {
+        html!(span { (content) })
+    }
     let id = mob.id.clone();
     Asset::new(
         ["mobs", &format!("{id}.html")].into_iter().collect(),
         async move {
             Source::BytesWithAssetSafety(Box::new(move |targets| {
+                let join_content = match &mob.status {
+                    mobs::Status::Short(join_content) => Some(join_content.clone()),
+                    mobs::Status::Open(join_content) => Some(join_content.clone()),
+                    mobs::Status::Full(join_content) => join_content.clone(),
+                };
                 let (calendar_html, calendar_stylesheet) =
                     calendar(&targets, mob.events(&targets, false));
                 let mob_links = mob
@@ -113,6 +125,31 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     })
                     .collect::<Vec<_>>();
                 let mob_links = (!mob_links.is_empty()).then_some(mob_links);
+                let (short_wrapper, open_wrapper, full_wrapper, status_explanation): (
+                    WrapperFn,
+                    WrapperFn,
+                    WrapperFn,
+                    Markup,
+                ) = match mob.status {
+                    mobs::Status::Short(_) => (
+                        status_wrapper_true,
+                        status_wrapper_false,
+                        status_wrapper_false,
+                        html!("This mob needs more participants to become active."),
+                    ),
+                    mobs::Status::Open(_) => (
+                        status_wrapper_false,
+                        status_wrapper_true,
+                        status_wrapper_false,
+                        html!("This mob is open to more participants."),
+                    ),
+                    mobs::Status::Full(_) => (
+                        status_wrapper_false,
+                        status_wrapper_false,
+                        status_wrapper_true,
+                        html!("This mob is not interested in more participants at this time."),
+                    ),
+                };
                 let content = html! {
                     div class=(classes!("flex" "flex-col" "sm:flex-row" "sm:justify-around" "text-center" "tracking-wide")) {
                         div class=(classes!("py-12")) {
@@ -142,8 +179,21 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                             }
                         }
                     }
-                    div class=(*style::PROSE_CLASSES) {
-                        (PreEscaped(to_html(&mob.freeform_copy_markdown)))
+                    div class=(classes!("flex" "flex-col" "items-center" "gap-1" "text-lg")) {
+                        div class=(classes!("flex" "gap-4" "uppercase" "tracking-widest")) {
+                            (short_wrapper("short")) (open_wrapper("open")) (full_wrapper("full"))
+                        }
+                        p class="tracking-wide" { (status_explanation) }
+                    }
+                    div class=(classes!("grid" "grid-flow-row" "sm:grid-flow-col" "auto-cols-fr" "gap-[1.25em]")) {
+                        div class=(*style::PROSE_CLASSES) {
+                            (PreEscaped(to_html(&mob.freeform_copy_markdown)))
+                        }
+                        div class=(*style::PROSE_CLASSES) {
+                            @if let Some(join_content) = join_content {
+                                (PreEscaped(to_html(&join_content)))
+                            }
+                        }
                     }
                     hr;
                     (calendar_html)

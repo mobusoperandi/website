@@ -20,3 +20,10 @@ background_color: green
 text_color: black
 links:
   - !YouTube "@mobmore"
+status: !Open |
+  ## Join us
+  
+  Please consider joining our mob.
+  You’ll need at least entry-level experience with programming in any language (experience with functional programming is a plus).
+  
+  To apply, please contact [Dawn](https://twitter.com/mightyiam) and let him know that you’re interested.
