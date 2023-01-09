@@ -14,7 +14,7 @@ schedule:
     duration: 180
 background_color: aqua
 text_color: black
-status: !Open |
+status: !Public |
   ## How to join
   
   Just show up. We're happy to onboard new contributors.  

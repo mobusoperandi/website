@@ -110,6 +110,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     mobs::Status::Short(join_content) => Some(join_content.clone()),
                     mobs::Status::Open(join_content) => Some(join_content.clone()),
                     mobs::Status::Full(join_content) => join_content.clone(),
+                    mobs::Status::Public(join_content) => Some(join_content.clone()),
                 };
                 let (calendar_html, calendar_stylesheet) =
                     calendar(&targets, mob.events(&targets, false));
@@ -125,7 +126,8 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     })
                     .collect::<Vec<_>>();
                 let mob_links = (!mob_links.is_empty()).then_some(mob_links);
-                let (short_wrapper, open_wrapper, full_wrapper, status_explanation): (
+                let (short_wrapper, open_wrapper, full_wrapper, public_wrapper, status_explanation): (
+                    WrapperFn,
                     WrapperFn,
                     WrapperFn,
                     WrapperFn,
@@ -135,11 +137,13 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                         status_wrapper_true,
                         status_wrapper_false,
                         status_wrapper_false,
+                        status_wrapper_false,
                         html!("This mob needs more participants to become active."),
                     ),
                     mobs::Status::Open(_) => (
                         status_wrapper_false,
                         status_wrapper_true,
+                        status_wrapper_false,
                         status_wrapper_false,
                         html!("This mob is open to more participants."),
                     ),
@@ -147,7 +151,15 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                         status_wrapper_false,
                         status_wrapper_false,
                         status_wrapper_true,
+                        status_wrapper_false,
                         html!("This mob is not interested in more participants at this time."),
+                    ),
+                    mobs::Status::Public(_) => (
+                        status_wrapper_false,
+                        status_wrapper_false,
+                        status_wrapper_false,
+                        status_wrapper_true,
+                        html!("This mob is public, so anyone can join."),
                     ),
                 };
                 let content = html! {
@@ -181,7 +193,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     }
                     div class=(classes!("flex" "flex-col" "items-center" "gap-1" "text-lg")) {
                         div class=(classes!("flex" "gap-4" "uppercase" "tracking-widest")) {
-                            (short_wrapper("short")) (open_wrapper("open")) (full_wrapper("full"))
+                            (short_wrapper("short")) (open_wrapper("open")) (full_wrapper("full")) (public_wrapper("public"))
                         }
                         p class="tracking-wide" { (status_explanation) }
                     }
