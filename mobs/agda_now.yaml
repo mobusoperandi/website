@@ -1,0 +1,28 @@
+title: Agda Now
+subtitle: Learning Agda, a dependently typed functional programming language
+participants:
+  - !Public
+    name: Shahar “Dawn” Or
+    social_url: https://twitter.com/mightyiam
+schedule:
+  - recurrence: FREQ=WEEKLY;BYDAY=MO,WE,FR
+    timezone: Etc/UTC
+    start_date: 2022-05-06
+    start_time: 13:00
+    duration: 120
+background_color: darkorange
+text_color: darkblue
+freeform_copy: |
+  ## What we'd like to do
+
+  We'd like to go on a serious and fun journey of learning [Agda](https://wiki.portal.chalmers.se/agda/pmwiki.php).
+
+  Mob programming facilitated by [Dawn](https://twitter.com/mightyiam).
+
+  ## Schedule
+
+  The schedule is merely a suggestion.
+status: !Short |
+  ## Join us
+
+  To apply, please contact [Dawn](https://github.com/mightyiam).
