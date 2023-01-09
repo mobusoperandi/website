@@ -21,6 +21,12 @@
     contentHeight: 'auto',
     eventMinHeight: 40,
     nowIndicator: true,
+    eventTimeFormat: {
+      hour: 'numeric',
+      minute: '2-digit',
+      omitZeroMinute: true,
+      meridiem: 'narrow',
+    },
     eventBorderColor: 'transparent'
   })
   calendar.render()
