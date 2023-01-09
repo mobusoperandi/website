@@ -8,9 +8,8 @@ use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
 use ssg::Targets;
-use std::path::PathBuf;
 use std::{io, path::Path};
-use tokio::fs::{self, read_to_string};
+use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
 use url::Url;
 
@@ -68,6 +67,7 @@ struct YAMLMob {
     background_color: Color,
     text_color: Color,
     links: Option<Vec<Link>>,
+    freeform_copy: String,
     status: Status,
 }
 #[derive(Deserialize)]
@@ -89,6 +89,7 @@ async fn read_mob_data_file(
     Color,
     Color,
     Vec<Link>,
+    String,
     Status,
 ) {
     let data = fs::read_to_string(path).await.unwrap();
@@ -104,6 +105,7 @@ async fn read_mob_data_file(
         yaml_mob.background_color,
         yaml_mob.text_color,
         yaml_mob.links.unwrap_or_default(),
+        yaml_mob.freeform_copy,
         yaml_mob.status,
     )
 }
@@ -134,22 +136,19 @@ impl From<YAMLRecurringSession> for RecurringSession {
 }
 
 pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
-    let data_dir_path = dir_entry.unwrap().path();
-    let id = data_dir_path.file_stem().unwrap().to_str().unwrap().into();
-    let (title, subtitle, participants, schedule, background_color, text_color, links, status) =
-        read_mob_data_file(
-            &[data_dir_path.clone(), "data.yaml".into()]
-                .iter()
-                .collect::<PathBuf>(),
-        )
-        .await;
-    let freeform_copy_markdown = read_to_string(
-        &[data_dir_path, "freeform_copy.md".into()]
-            .iter()
-            .collect::<PathBuf>(),
-    )
-    .await
-    .unwrap();
+    let data_file_path = dir_entry.unwrap().path();
+    let id = data_file_path.file_stem().unwrap().to_str().unwrap().into();
+    let (
+        title,
+        subtitle,
+        participants,
+        schedule,
+        background_color,
+        text_color,
+        links,
+        freeform_copy,
+        status,
+    ) = read_mob_data_file(&data_file_path).await;
     Mob {
         title,
         subtitle,
@@ -158,7 +157,7 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
         schedule,
         background_color,
         text_color,
-        freeform_copy_markdown,
+        freeform_copy_markdown: freeform_copy,
         links,
         status,
     }

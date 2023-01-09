@@ -17,6 +17,10 @@ background_color: Peru
 text_color: SeaShell
 links:
   - !YouTube "@mobpangolin"
+freeform_copy: |
+  ## What we do
+
+  We are working on the [Mobus Operandi website](https://github.com/mobusoperandi/website).
 status: !Open |
   ## Join us
   
