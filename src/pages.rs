@@ -15,7 +15,6 @@ use url::Url;
 pub(crate) fn base(
     title: String,
     content: Markup,
-    stylesheets: impl IntoIterator<Item = String>,
     content_classes: Classes,
     targets: &Targets,
 ) -> Markup {
@@ -33,9 +32,6 @@ pub(crate) fn base(
               meta name="description" content=(DESCRIPTION);
               meta name="viewport" content="width=device-width, initial-scale=1.0";
               link rel="stylesheet" href={ "/index.css?v=" (version) };
-              @for stylesheet in stylesheets {
-                  link rel="stylesheet" href=(stylesheet);
-              }
               style {
                 // TODO extract as font utility
                 @for font in fonts::ALL {(PreEscaped(format!("
@@ -112,8 +108,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     mobs::Status::Full(join_content) => join_content.clone(),
                     mobs::Status::Public(join_content) => Some(join_content.clone()),
                 };
-                let (calendar_html, calendar_stylesheet) =
-                    calendar(&targets, mob.events(&targets, false));
+                let calendar_html = calendar(&targets, mob.events(&targets, false));
                 let mob_links = mob
                     .links
                     .into_iter()
@@ -213,7 +208,6 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                 Ok(base(
                     mob.title.clone(),
                     content,
-                    [calendar_stylesheet],
                     classes!("flex" "flex-col" "gap-6"),
                     &targets,
                 )
@@ -232,9 +226,9 @@ pub(crate) async fn all() -> Vec<Asset> {
     pages
 }
 
-pub(crate) fn calendar(targets: &Targets, events: Vec<Event>) -> (Markup, String) {
+pub(crate) fn calendar(targets: &Targets, events: Vec<Event>) -> Markup {
     let events = serde_json::to_string(&events).unwrap();
-    let html = html! {
+    html! {
         div class=(classes!("[--fc-page-bg-color:transparent]")) {}
         script defer src=(targets.path_of(Path::new("fullcalendar.js")).unwrap()) {}
         script {
@@ -243,7 +237,5 @@ pub(crate) fn calendar(targets: &Targets, events: Vec<Event>) -> (Markup, String
                 {}
             }})", include_str!("pages/calendar.js"))))
         }
-    };
-    let stylesheet = targets.path_of("fullcalendar.css").unwrap();
-    (html, stylesheet)
+    }
 }

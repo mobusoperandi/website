@@ -86,14 +86,10 @@ async fn main() {
     let favicon = Asset::new(PathBuf::from("favicon.ico"), async {
         Source::Bytes(vec![])
     });
-    let fullcalendar_css = Asset::new(PathBuf::from("fullcalendar.css"), async {
-        Source::Http(
-            Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css").unwrap(),
-        )
-    });
     let fullcalendar_js = Asset::new(PathBuf::from("fullcalendar.js"), async {
         Source::Http(
-            Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js").unwrap(),
+            Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@6.0.2/index.global.min.js")
+                .unwrap(),
         )
     });
     let twitter_logo = Asset::new(PathBuf::from("twitter_logo.svg"), async {
@@ -124,7 +120,6 @@ async fn main() {
     });
     let files: BTreeSet<Asset> = [
         favicon,
-        fullcalendar_css,
         fullcalendar_js,
         twitter_logo,
         zulip_logo,

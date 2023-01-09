@@ -18,7 +18,7 @@ pub async fn page() -> Asset {
                 .iter()
                 .flat_map(|mob| mob.events(&targets, true))
                 .collect();
-            let (calendar_html, calendar_stylesheet) = calendar(&targets, events);
+            let calendar_html = calendar(&targets, events);
             let content = html! {
                 (calendar_html)
                 div class=(classes!("flex" "flex-wrap" "gap-2")) {
@@ -31,7 +31,6 @@ pub async fn page() -> Asset {
             Ok(base(
                 "Calendar".to_owned(),
                 content,
-                [calendar_stylesheet],
                 classes!("flex" "flex-col" "gap-1"),
                 &targets,
             )
