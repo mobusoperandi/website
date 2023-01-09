@@ -33,6 +33,7 @@ pub(crate) enum Status {
     Short(String),
     Open(String),
     Full(Option<String>),
+    Public(String),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
