@@ -14,6 +14,10 @@ schedule:
     duration: 180
 background_color: aqua
 text_color: black
+freeform_copy: |
+  ## What we do
+
+  We work on an [open source webapp](https://github.com/gregorriegler/mob-programming-rpg) for the Mob Programming RPG.  
 status: !Public |
   ## How to join
   
