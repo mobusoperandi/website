@@ -11,7 +11,7 @@ schedule:
   - recurrence: FREQ=WEEKLY;BYDAY=TU,TH
     timezone: Etc/UTC
     start_date: 2022-12-13
-    start_time: 06:30
+    start_time: 07:00
     duration: 60
 background_color: fuchsia
 text_color: navy
