@@ -229,12 +229,16 @@ pub(crate) async fn all() -> Vec<Asset> {
 
 pub(crate) fn calendar(targets: &Targets, events: Vec<Event>, display_event_time: bool) -> Markup {
     const CALENDAR_FN_SNIPPET: &str = include_str!("pages/calendar.js");
+    const CALENDAR_CONTAINER_CLASS: &str = "calendar-container";
     let calendar_fn_input = json!({
         "events": events,
         "displayEventTime": display_event_time,
+        "selectors": {
+            "calendarContainer": format!(".{CALENDAR_CONTAINER_CLASS}"),
+        },
     });
     html! {
-        div class=(classes!("[--fc-page-bg-color:transparent]")) {}
+        div class=(classes!(CALENDAR_CONTAINER_CLASS "[--fc-page-bg-color:transparent]")) {}
         script defer src=(targets.path_of(Path::new("fullcalendar.js")).unwrap()) {}
         script {
             (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{

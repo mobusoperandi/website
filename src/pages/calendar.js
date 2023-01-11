@@ -1,5 +1,5 @@
 /* global FullCalendar */
-; (function initCalendar ({ events, displayEventTime }) {
+; (function initCalendar ({ events, displayEventTime, selectors }) {
   const styleElm = document.createElement('style');
   document.head.append(styleElm);
   styleElm.sheet.insertRule('.fc .fc-toolbar .fc-toolbar-title { font-size: inherit }')
@@ -7,8 +7,8 @@
   styleElm.sheet.insertRule('.fc .fc-timegrid-slot { height: 2.5em; }')
   styleElm.sheet.insertRule('.fc .fc-event-time { white-space: normal; }')
   styleElm.sheet.insertRule('.fc .fc-event-main-frame { overflow-wrap: break-word; }')
-  const calendarEl = document.querySelector('div:empty')
-  const calendar = new FullCalendar.Calendar(calendarEl, {
+  const calendarContainerElm = document.querySelector(selectors.calendarContainer)
+  const calendar = new FullCalendar.Calendar(calendarContainerElm, {
     initialView: 'timeGridWeek',
     slotDuration: '01:00:00',
     expandRows: true,
