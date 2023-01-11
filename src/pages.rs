@@ -8,6 +8,7 @@ use crate::{
 };
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
+use serde_json::json;
 use ssg::{Asset, Source, Targets};
 use std::{path::Path, vec};
 use url::Url;
@@ -227,15 +228,18 @@ pub(crate) async fn all() -> Vec<Asset> {
 }
 
 pub(crate) fn calendar(targets: &Targets, events: Vec<Event>) -> Markup {
-    let events = serde_json::to_string(&events).unwrap();
+    const CALENDAR_FN_SNIPPET: &str = include_str!("pages/calendar.js");
+    let calendar_fn_input = json!({
+        "events": events,
+    });
     html! {
         div class=(classes!("[--fc-page-bg-color:transparent]")) {}
         script defer src=(targets.path_of(Path::new("fullcalendar.js")).unwrap()) {}
         script {
             (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{
-                const events = JSON.parse('{events}')
-                {}
-            }})", include_str!("pages/calendar.js"))))
+                const input = JSON.parse('{calendar_fn_input}')
+                {CALENDAR_FN_SNIPPET}(input)
+            }})")))
         }
     }
 }

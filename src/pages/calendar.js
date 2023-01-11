@@ -1,5 +1,5 @@
 /* global FullCalendar */
-; (() => {
+; (function initCalendar ({ events }) {
   const styleElm = document.createElement('style');
   document.head.append(styleElm);
   styleElm.sheet.insertRule('.fc .fc-toolbar .fc-toolbar-title { font-size: inherit }')
@@ -36,4 +36,4 @@
     `Time zone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
     document.createElement('br'),
   )
-})()
+})
