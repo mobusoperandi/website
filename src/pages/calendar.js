@@ -1,5 +1,5 @@
 /* global FullCalendar */
-; (function initCalendar ({ events }) {
+; (function initCalendar ({ events, displayEventTime }) {
   const styleElm = document.createElement('style');
   document.head.append(styleElm);
   styleElm.sheet.insertRule('.fc .fc-toolbar .fc-toolbar-title { font-size: inherit }')
@@ -23,12 +23,7 @@
     contentHeight: 'auto',
     eventMinHeight: 40,
     nowIndicator: true,
-    eventTimeFormat: {
-      hour: 'numeric',
-      minute: '2-digit',
-      omitZeroMinute: true,
-      meridiem: 'narrow',
-    },
+    displayEventTime,
     eventBorderColor: 'transparent'
   })
   calendar.render()

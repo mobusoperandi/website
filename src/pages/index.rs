@@ -18,7 +18,7 @@ pub async fn page() -> Asset {
                 .iter()
                 .flat_map(|mob| mob.events(&targets, true))
                 .collect();
-            let calendar_html = calendar(&targets, events);
+            let calendar_html = calendar(&targets, events, false);
             let content = html! {
                 (calendar_html)
                 div class=(classes!("flex" "flex-wrap" "gap-2")) {

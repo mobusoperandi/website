@@ -109,7 +109,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     mobs::Status::Full(join_content) => join_content.clone(),
                     mobs::Status::Public(join_content) => Some(join_content.clone()),
                 };
-                let calendar_html = calendar(&targets, mob.events(&targets, false));
+                let calendar_html = calendar(&targets, mob.events(&targets, false), true);
                 let mob_links = mob
                     .links
                     .into_iter()
@@ -227,10 +227,11 @@ pub(crate) async fn all() -> Vec<Asset> {
     pages
 }
 
-pub(crate) fn calendar(targets: &Targets, events: Vec<Event>) -> Markup {
+pub(crate) fn calendar(targets: &Targets, events: Vec<Event>, display_event_time: bool) -> Markup {
     const CALENDAR_FN_SNIPPET: &str = include_str!("pages/calendar.js");
     let calendar_fn_input = json!({
         "events": events,
+        "displayEventTime": display_event_time,
     });
     html! {
         div class=(classes!("[--fc-page-bg-color:transparent]")) {}
