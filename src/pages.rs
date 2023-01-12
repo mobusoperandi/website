@@ -4,7 +4,8 @@ use crate::{
     html::Classes,
     markdown::to_html,
     mobs::{self, Event, Mob, MobParticipant},
-    style, COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
+    style::{self, BUTTON_CLASSES, BUTTON_GAP},
+    COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
 };
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
@@ -230,14 +231,35 @@ pub(crate) async fn all() -> Vec<Asset> {
 pub(crate) fn calendar(targets: &Targets, events: Vec<Event>, display_event_time: bool) -> Markup {
     const CALENDAR_FN_SNIPPET: &str = include_str!("pages/calendar.js");
     const CALENDAR_CONTAINER_CLASS: &str = "calendar-container";
+    const DATE_RANGE_CLASS: &str = "date-range";
+    const TIMEZONE_CLASS: &str = "timezone";
+    const BUTTON_PREV_CLASS: &str = "button-prev";
+    const BUTTON_NEXT_CLASS: &str = "button-next";
+    const BUTTON_TODAY_CLASS: &str = "button-today";
     let calendar_fn_input = json!({
         "events": events,
         "displayEventTime": display_event_time,
         "selectors": {
             "calendarContainer": format!(".{CALENDAR_CONTAINER_CLASS}"),
+            "dateRange": format!(".{DATE_RANGE_CLASS}"),
+            "timezone": format!(".{TIMEZONE_CLASS}"),
+            "buttonPrev": format!(".{BUTTON_PREV_CLASS}"),
+            "buttonNext": format!(".{BUTTON_NEXT_CLASS}"),
+            "buttonToday": format!(".{BUTTON_TODAY_CLASS}"),
         },
     });
     html! {
+        div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" format!("gap-x-{BUTTON_GAP}"))) {
+            div class=(classes!("flex" "flex-wrap" "gap-x-[1ch]" "whitespace-nowrap" "flex-1")) {
+                p class=(classes!(TIMEZONE_CLASS)) {}
+                p class=(classes!(DATE_RANGE_CLASS)) {}
+            }
+            div class=(classes!("flex" format!("gap-x-{BUTTON_GAP}"))) {
+                button class=({BUTTON_CLASSES.clone() + classes!(BUTTON_PREV_CLASS)}) { "🡄" }
+                button class=({BUTTON_CLASSES.clone() + classes!(BUTTON_NEXT_CLASS)}) { "🡆" }
+                button class=({BUTTON_CLASSES.clone() + classes!(BUTTON_TODAY_CLASS)}) { "Today" }
+            }
+        }
         div class=(classes!(CALENDAR_CONTAINER_CLASS "[--fc-page-bg-color:transparent]")) {}
         script defer src=(targets.path_of(Path::new("fullcalendar.js")).unwrap()) {}
         script {

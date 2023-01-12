@@ -11,3 +11,4 @@ pub(crate) static PROSE_CLASSES: Lazy<Classes> =
 pub(crate) static BUTTON_CLASSES: Lazy<Classes> = Lazy::new(
     || classes!("block" "p-3" "text-lg" format!("bg-{GRAYS}-700") "rounded" "no-underline" "uppercase"),
 );
+pub(crate) const BUTTON_GAP: &str = "2";
