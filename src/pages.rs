@@ -15,12 +15,13 @@ use std::{path::Path, vec};
 use url::Url;
 
 pub(crate) fn base(
-    title: String,
+    title: Option<String>,
     content: Markup,
     content_classes: Classes,
     targets: &Targets,
 ) -> Markup {
     let version = Utc::now().timestamp_millis();
+    let title = title.map_or(NAME.to_owned(), |title| format!("{title}; {NAME}"));
     const NAV_ICON_SIZE: u8 = 32;
     let markup = html! {
         (DOCTYPE)
@@ -29,7 +30,7 @@ pub(crate) fn base(
         class=(classes![format!("font-[{}]", fonts::VOLLKORN) "[font-size:16px]" format!("bg-{}", style::BACKGROUND_COLOR) format!("text-{}", style::TEXT_COLOR)])
         {
             head {
-              title { (format!("{title}; {NAME}")) }
+              title { (title) }
               meta charset="utf-8";
               meta name="description" content=(DESCRIPTION);
               meta name="viewport" content="width=device-width, initial-scale=1.0";
@@ -208,7 +209,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     (calendar_html)
                 };
                 Ok(base(
-                    mob.title.clone(),
+                    Some(mob.title.clone()),
                     content,
                     classes!("flex" "flex-col" "gap-6"),
                     &targets,

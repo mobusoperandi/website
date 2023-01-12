@@ -33,14 +33,11 @@ pub async fn page() -> Asset {
                         { "Add your mob" }
                 }
             };
-            Ok(base(
-                "Calendar".to_owned(),
-                content,
-                classes!("flex" "flex-col" "gap-1"),
-                &targets,
+            Ok(
+                base(None, content, classes!("flex" "flex-col" "gap-1"), &targets)
+                    .0
+                    .into_bytes(),
             )
-            .0
-            .into_bytes())
         }))
     })
 }
