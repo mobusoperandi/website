@@ -23,6 +23,8 @@ pub(crate) fn base(
     let version = Utc::now().timestamp_millis();
     let title = title.map_or(NAME.to_owned(), |title| format!("{title}; {NAME}"));
     const NAV_ICON_SIZE: u8 = 32;
+    let brand_classes = classes!("tracking-widest" "text-center");
+    let target_index = targets.path_of("index.html").unwrap();
     let markup = html! {
         (DOCTYPE)
         html
@@ -50,10 +52,16 @@ pub(crate) fn base(
                     div
                         class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap"))
                         {
-                            a
-                                href=(targets.path_of("index.html").unwrap())
-                                class=(classes!("tracking-widest" "text-center"))
-                                { (NAME) }
+                            @if target_index == targets.current_path() {
+                                p
+                                    class=(brand_classes)
+                                    { (NAME) }
+                            } @else {
+                                a
+                                    href=(target_index)
+                                    class=(brand_classes)
+                                    { (NAME) }
+                            }
                             p class=(classes!("text-sm" "opacity-75")) { (DESCRIPTION) }
                         }
                     div class=(classes!("flex" "items-center" "gap-x-2")) {

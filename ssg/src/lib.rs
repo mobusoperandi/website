@@ -34,7 +34,10 @@ pub fn generate_static_site(
             let contents = match source {
                 Source::Bytes(bytes) => bytes.clone(),
                 Source::BytesWithAssetSafety(function) => {
-                    let targets = Targets(targets);
+                    let targets = Targets {
+                        all: targets,
+                        current: this_target.clone(),
+                    };
                     function(targets)?
                 }
                 Source::GoogleFont(google_font) => google_font.download().await?,
@@ -108,12 +111,15 @@ pub enum Source {
 }
 
 #[derive(Debug, Clone)]
-pub struct Targets(BTreeSet<PathBuf>);
+pub struct Targets {
+    current: PathBuf,
+    all: BTreeSet<PathBuf>,
+}
 
 impl Targets {
     pub fn path_of(&self, path: impl AsRef<Path>) -> Result<String> {
         let path = path.as_ref();
-        self.0
+        self.all
             .contains(path)
             .then(|| {
                 PathBuf::from_iter([PathBuf::from("/"), path.to_owned()])
@@ -129,6 +135,9 @@ impl Targets {
                 }
             })
             .ok_or_else(|| anyhow!("no target with path: {path:?}"))
+    }
+    pub fn current_path(&self) -> String {
+        self.path_of(&self.current).unwrap()
     }
 }
 
