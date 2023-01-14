@@ -1,13 +1,18 @@
-use std::ops::Add;
+use std::{ops::Add, str::FromStr};
 
 use maud::{html, Render};
 
 #[derive(Debug, Clone)]
 pub(crate) struct Class(String);
 
-impl<T: Into<String>> From<T> for Class {
-    fn from(class: T) -> Self {
-        Self(class.into())
+impl FromStr for Class {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.chars().any(|char| char.is_ascii_whitespace()) {
+            return Err(s.to_owned());
+        }
+        Ok(Self(s.to_owned()))
     }
 }
 
@@ -62,7 +67,11 @@ macro_rules! classes {
     () => { $crate::html::Classes::default() };
     ($($class:expr)*) => {{
         let mut classes = $crate::html::Classes::default();
-        $( classes.push($crate::html::Class::from($class)); )*
+        $(
+            let class = <$crate::html::Class as ::std::str::FromStr>::from_str(&$class)
+                .unwrap();
+            classes.push(class);
+        )*
         classes
     }};
 }
