@@ -4,7 +4,7 @@ use crate::{
     html::Classes,
     markdown::to_html,
     mobs::{self, Event, Mob, MobParticipant},
-    style::{self, BUTTON_CLASSES, BUTTON_GAP},
+    style::{self, BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR},
     COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
 };
 use chrono::Utc;
@@ -238,6 +238,25 @@ pub(crate) async fn all() -> Vec<Asset> {
 }
 
 pub(crate) fn calendar(targets: &Targets, events: Vec<Event>, display_event_time: bool) -> Markup {
+    #[derive(Debug, PartialEq, Eq)]
+    enum Direction {
+        Left,
+        Right,
+    }
+    fn arrow(direction: Direction) -> Markup {
+        let mut classes = classes!("w-[1em]" format!("fill-{TEXT_COLOR}"));
+        if direction == Direction::Right {
+            classes.push("rotate-180".parse().unwrap());
+        }
+        html! {
+            svg
+               xmlns="http://www.w3.org/2000/svg"
+               viewBox="0 0 32 32"
+               class=(classes) {
+                   path d="M13,25.6c-0.5,0-1-0.2-1.4-0.6l-8.3-8.3c-0.4-0.4-0.4-1,0-1.4L11.6,7c0.6-0.6,1.4-0.7,2.2-0.4c0.8,0.3,1.2,1,1.2,1.8V12h12 c1.1,0,2,0.9,2,2v4c0,1.1-0.9,2-2,2H15v3.6c0,0.8-0.5,1.5-1.2,1.8C13.5,25.5,13.3,25.6,13,25.6z" {}
+                               }
+        }
+    }
     const CALENDAR_FN_SNIPPET: &str = include_str!("pages/calendar.js");
     const CALENDAR_CONTAINER_CLASS: &str = "calendar-container";
     const DATE_RANGE_CLASS: &str = "date-range";
@@ -264,8 +283,12 @@ pub(crate) fn calendar(targets: &Targets, events: Vec<Event>, display_event_time
                 p class=(classes!(DATE_RANGE_CLASS)) {}
             }
             div class=(classes!("flex" format!("gap-x-{BUTTON_GAP}"))) {
-                button class=({BUTTON_CLASSES.clone() + classes!(BUTTON_PREV_CLASS)}) { "🡄" }
-                button class=({BUTTON_CLASSES.clone() + classes!(BUTTON_NEXT_CLASS)}) { "🡆" }
+                div class=({BUTTON_CLASSES.clone() + classes!(BUTTON_PREV_CLASS)}) {
+                    (arrow(Direction::Left))
+                }
+                div class=({BUTTON_CLASSES.clone() + classes!(BUTTON_NEXT_CLASS)}) {
+                    (arrow(Direction::Right))
+                }
                 button class=({BUTTON_CLASSES.clone() + classes!(BUTTON_TODAY_CLASS)}) { "Today" }
             }
         }
