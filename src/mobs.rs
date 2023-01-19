@@ -28,14 +28,18 @@ pub struct Mob {
 }
 
 impl TryFrom<(String, YAMLMob)> for Mob {
-    type Error = ();
+    type Error = anyhow::Error;
     fn try_from((id, yaml): (String, YAMLMob)) -> Result<Self, Self::Error> {
         Ok(Mob {
             id,
             title: yaml.title,
             subtitle: yaml.subtitle,
             participants: yaml.participants,
-            schedule: yaml.schedule.into_iter().map(Into::into).collect(),
+            schedule: yaml
+                .schedule
+                .into_iter()
+                .map(TryInto::try_into)
+                .collect::<Result<Vec<_>, _>>()?,
             freeform_copy_markdown: yaml.freeform_copy,
             background_color: yaml.background_color,
             text_color: yaml.text_color,
@@ -97,8 +101,9 @@ struct YAMLRecurringSession {
     duration: u16,
 }
 
-impl From<YAMLRecurringSession> for RecurringSession {
-    fn from(yaml_recurring_session: YAMLRecurringSession) -> Self {
+impl TryFrom<YAMLRecurringSession> for RecurringSession {
+    type Error = anyhow::Error;
+    fn try_from(yaml_recurring_session: YAMLRecurringSession) -> Result<Self, Self::Error> {
         let YAMLRecurringSession {
             recurrence,
             timezone,
@@ -107,18 +112,18 @@ impl From<YAMLRecurringSession> for RecurringSession {
             duration,
         } = yaml_recurring_session;
         let recurrence = format!("RRULE:{recurrence}");
-        let rrule: RRule<Unvalidated> = recurrence.parse().unwrap();
-        let timezone: chrono_tz::Tz = timezone.parse().unwrap();
+        let rrule: RRule<Unvalidated> = recurrence.parse()?;
+        let timezone: chrono_tz::Tz = timezone.parse().map_err(|e: String| anyhow!(e))?;
         let timezone: rrule::Tz = timezone.into();
         let start_date_time = timezone
             .datetime_from_str(&(start_date + &start_time), "%F%R")
             .unwrap();
         let recurrence = rrule.build(start_date_time).unwrap();
         let duration = Duration::minutes(duration.into());
-        RecurringSession {
+        Ok(RecurringSession {
             recurrence,
             duration,
-        }
+        })
     }
 }
 
