@@ -8,7 +8,7 @@ use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
 use ssg::Targets;
-use std::{io, path::Path};
+use std::io;
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
 use url::Url;
@@ -25,6 +25,24 @@ pub struct Mob {
     pub(crate) text_color: Color,
     pub(crate) links: Vec<Link>,
     pub(crate) status: Status,
+}
+
+impl TryFrom<(String, YAMLMob)> for Mob {
+    type Error = ();
+    fn try_from((id, yaml): (String, YAMLMob)) -> Result<Self, Self::Error> {
+        Ok(Mob {
+            id,
+            title: yaml.title,
+            subtitle: yaml.subtitle,
+            participants: yaml.participants,
+            schedule: yaml.schedule.into_iter().map(Into::into).collect(),
+            freeform_copy_markdown: yaml.freeform_copy,
+            background_color: yaml.background_color,
+            text_color: yaml.text_color,
+            links: yaml.links.unwrap_or_default(),
+            status: yaml.status,
+        })
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -79,37 +97,6 @@ struct YAMLRecurringSession {
     duration: u16,
 }
 
-async fn read_mob_data_file(
-    path: &Path,
-) -> (
-    String,
-    Option<String>,
-    Vec<MobParticipant>,
-    Vec<RecurringSession>,
-    Color,
-    Color,
-    Vec<Link>,
-    String,
-    Status,
-) {
-    let data = fs::read_to_string(path).await.unwrap();
-    let yaml_mob: YAMLMob = serde_yaml::from_str(&data)
-        .map_err(|e| anyhow!("{:?} {:?}", path, e))
-        .unwrap();
-    let schedule = yaml_mob.schedule.into_iter().map(Into::into).collect();
-    (
-        yaml_mob.title,
-        yaml_mob.subtitle,
-        yaml_mob.participants,
-        schedule,
-        yaml_mob.background_color,
-        yaml_mob.text_color,
-        yaml_mob.links.unwrap_or_default(),
-        yaml_mob.freeform_copy,
-        yaml_mob.status,
-    )
-}
-
 impl From<YAMLRecurringSession> for RecurringSession {
     fn from(yaml_recurring_session: YAMLRecurringSession) -> Self {
         let YAMLRecurringSession {
@@ -138,29 +125,11 @@ impl From<YAMLRecurringSession> for RecurringSession {
 pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
     let data_file_path = dir_entry.unwrap().path();
     let id = data_file_path.file_stem().unwrap().to_str().unwrap().into();
-    let (
-        title,
-        subtitle,
-        participants,
-        schedule,
-        background_color,
-        text_color,
-        links,
-        freeform_copy,
-        status,
-    ) = read_mob_data_file(&data_file_path).await;
-    Mob {
-        title,
-        subtitle,
-        id,
-        participants,
-        schedule,
-        background_color,
-        text_color,
-        freeform_copy_markdown: freeform_copy,
-        links,
-        status,
-    }
+    let data = fs::read_to_string(data_file_path.clone()).await.unwrap();
+    let yaml_mob: YAMLMob = serde_yaml::from_str(&data)
+        .map_err(|e| anyhow!("{:?} {:?}", data_file_path, e))
+        .unwrap();
+    (id, yaml_mob).try_into().unwrap()
 }
 
 #[derive(Serialize)]
