@@ -1,7 +1,7 @@
 mod index;
 use crate::{
     fonts,
-    html::Classes,
+    html::{css_class, Classes},
     markdown::to_html,
     mobs::{self, Event, Mob, MobParticipant},
     style::{self, BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR},
@@ -258,41 +258,41 @@ pub(crate) fn calendar(targets: &Targets, events: Vec<Event>, display_event_time
         }
     }
     const CALENDAR_FN_SNIPPET: &str = include_str!("pages/calendar.js");
-    const CALENDAR_CONTAINER_CLASS: &str = "calendar-container";
-    const DATE_RANGE_CLASS: &str = "date-range";
-    const TIMEZONE_CLASS: &str = "timezone";
-    const BUTTON_PREV_CLASS: &str = "button-prev";
-    const BUTTON_NEXT_CLASS: &str = "button-next";
-    const BUTTON_TODAY_CLASS: &str = "button-today";
+    let calendar_container_class = css_class();
+    let date_range_class = css_class();
+    let timezone_class = css_class();
+    let button_prev_class = css_class();
+    let button_next_class = css_class();
+    let button_today_class = css_class();
     let calendar_fn_input = json!({
         "events": events,
         "displayEventTime": display_event_time,
         "selectors": {
-            "calendarContainer": format!(".{CALENDAR_CONTAINER_CLASS}"),
-            "dateRange": format!(".{DATE_RANGE_CLASS}"),
-            "timezone": format!(".{TIMEZONE_CLASS}"),
-            "buttonPrev": format!(".{BUTTON_PREV_CLASS}"),
-            "buttonNext": format!(".{BUTTON_NEXT_CLASS}"),
-            "buttonToday": format!(".{BUTTON_TODAY_CLASS}"),
+            "calendarContainer": format!(".{calendar_container_class}"),
+            "dateRange": format!(".{date_range_class}"),
+            "timezone": format!(".{timezone_class}"),
+            "buttonPrev": format!(".{button_prev_class}"),
+            "buttonNext": format!(".{button_next_class}"),
+            "buttonToday": format!(".{button_today_class}"),
         },
     });
     html! {
         div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" format!("gap-x-{BUTTON_GAP}"))) {
             div class=(classes!("flex" "flex-wrap" "gap-x-[1ch]" "whitespace-nowrap" "flex-1")) {
-                p class=(classes!(TIMEZONE_CLASS)) {}
-                p class=(classes!(DATE_RANGE_CLASS)) {}
+                p class=(classes!(timezone_class)) {}
+                p class=(classes!(date_range_class)) {}
             }
             div class=(classes!("flex" format!("gap-x-{BUTTON_GAP}"))) {
-                div class=({BUTTON_CLASSES.clone() + classes!(BUTTON_PREV_CLASS)}) {
+                div class=({BUTTON_CLASSES.clone() + classes!(button_prev_class)}) {
                     (arrow(Direction::Left))
                 }
-                div class=({BUTTON_CLASSES.clone() + classes!(BUTTON_NEXT_CLASS)}) {
+                div class=({BUTTON_CLASSES.clone() + classes!(button_next_class)}) {
                     (arrow(Direction::Right))
                 }
-                button class=({BUTTON_CLASSES.clone() + classes!(BUTTON_TODAY_CLASS)}) { "Today" }
+                button class=({BUTTON_CLASSES.clone() + classes!(button_today_class)}) { "Today" }
             }
         }
-        div class=(classes!(CALENDAR_CONTAINER_CLASS "[--fc-page-bg-color:transparent]")) {}
+        div class=(classes!(calendar_container_class "[--fc-page-bg-color:transparent]")) {}
         script defer src=(targets.path_of(Path::new("fullcalendar.js")).unwrap()) {}
         script {
             (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{

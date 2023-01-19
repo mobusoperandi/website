@@ -1,5 +1,6 @@
-use std::{ops::Add, str::FromStr};
+use std::{fmt::Display, ops::Add, str::FromStr};
 
+use global_counter::primitive::exact::CounterU8;
 use maud::{html, Render};
 
 #[derive(Debug, Clone)]
@@ -13,6 +14,34 @@ impl FromStr for Class {
             return Err(s.to_owned());
         }
         Ok(Self(s.to_owned()))
+    }
+}
+
+impl TryFrom<&str> for Class {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+
+impl TryFrom<String> for Class {
+    type Error = String;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+
+impl Display for Class {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl Render for Class {
+    fn render(&self) -> maud::Markup {
+        maud::PreEscaped(self.0.clone())
     }
 }
 
@@ -43,6 +72,15 @@ impl Add<Self> for Classes {
     }
 }
 
+impl Add<Class> for Classes {
+    type Output = Self;
+
+    fn add(mut self, rhs: Class) -> Self::Output {
+        self.0.push(rhs);
+        self
+    }
+}
+
 impl FromIterator<Class> for Classes {
     fn from_iter<T: IntoIterator<Item = Class>>(iter: T) -> Self {
         Self(iter.into_iter().collect())
@@ -68,10 +106,16 @@ macro_rules! classes {
     ($($class:expr)*) => {{
         let mut classes = $crate::html::Classes::default();
         $(
-            let class = <$crate::html::Class as ::std::str::FromStr>::from_str(&$class)
+            let class = <$crate::html::Class as ::std::convert::TryFrom<_>>::try_from($class)
                 .unwrap();
             classes.push(class);
         )*
         classes
     }};
+}
+
+static CLASS_COUNTER: CounterU8 = CounterU8::new(0);
+pub(crate) fn css_class() -> Class {
+    let count = CLASS_COUNTER.inc().to_string();
+    format!("_{count}").parse().unwrap()
 }
