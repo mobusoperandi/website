@@ -7,7 +7,6 @@ use futures::StreamExt;
 use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
-use ssg::Targets;
 use std::io;
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
@@ -137,19 +136,16 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
     (id, yaml_mob).try_into().unwrap()
 }
 
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Event {
-    start: DateTime<Utc>,
-    end: DateTime<Utc>,
-    title: String,
-    url: String,
-    background_color: Color,
-    text_color: Color,
+    pub(crate) start: DateTime<Utc>,
+    pub(crate) end: DateTime<Utc>,
+    pub(crate) title: String,
+    pub(crate) background_color: Color,
+    pub(crate) text_color: Color,
 }
 
 impl Mob {
-    pub(crate) fn events(&self, targets: &Targets, titles: bool) -> Vec<Event> {
+    pub(crate) fn events(&self, titles: bool) -> Vec<Event> {
         self.schedule
             .iter()
             .flat_map(|recurring_session| {
@@ -166,7 +162,6 @@ impl Mob {
                         } else {
                             "".to_owned()
                         },
-                        url: targets.path_of(format!("mobs/{}.html", mob.id)).unwrap(),
                         background_color: mob.background_color.clone(),
                         text_color: mob.text_color.clone(),
                     })

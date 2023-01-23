@@ -21,7 +21,11 @@ pub async fn page() -> Asset {
         Source::BytesWithAssetSafety(Box::new(move |targets| {
             let events = mobs
                 .iter()
-                .flat_map(|mob| mob.events(&targets, true))
+                .flat_map(|mob| {
+                    mob.events(true)
+                        .into_iter()
+                        .map(|event| (event, Some(format!("/mobs/{}.html", mob.id))))
+                })
                 .collect();
             let calendar_html = calendar(&targets, events, false);
             let content = html! {

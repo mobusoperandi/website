@@ -7,8 +7,10 @@ use crate::{
     style::{self, BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR},
     COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
 };
-use chrono::Utc;
+use chrono::{DateTime, Utc};
+use csscolorparser::Color;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
+use serde::Serialize;
 use serde_json::json;
 use ssg::{Asset, Source, Targets};
 use std::{path::Path, vec};
@@ -119,7 +121,12 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     mobs::Status::Full(join_content) => join_content.clone(),
                     mobs::Status::Public(join_content) => Some(join_content.clone()),
                 };
-                let calendar_html = calendar(&targets, mob.events(&targets, false), true);
+                let events = mob
+                    .events(false)
+                    .into_iter()
+                    .map(|event| (event, None))
+                    .collect();
+                let calendar_html = calendar(&targets, events, true);
                 let mob_links = mob
                     .links
                     .into_iter()
@@ -237,7 +244,11 @@ pub(crate) async fn all() -> Vec<Asset> {
     pages
 }
 
-pub(crate) fn calendar(targets: &Targets, events: Vec<Event>, display_event_time: bool) -> Markup {
+pub(crate) fn calendar(
+    targets: &Targets,
+    events: Vec<(Event, Option<String>)>,
+    display_event_time: bool,
+) -> Markup {
     #[derive(Debug, PartialEq, Eq)]
     enum Direction {
         Left,
@@ -264,6 +275,36 @@ pub(crate) fn calendar(targets: &Targets, events: Vec<Event>, display_event_time
     let button_prev_class = css_class();
     let button_next_class = css_class();
     let button_today_class = css_class();
+    #[derive(Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct FullCalendarEvent {
+        start: DateTime<Utc>,
+        end: DateTime<Utc>,
+        title: String,
+        background_color: Color,
+        text_color: Color,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        url: Option<String>,
+    }
+    impl From<(Event, Option<String>)> for FullCalendarEvent {
+        fn from((event, path): (Event, Option<String>)) -> Self {
+            FullCalendarEvent {
+                start: event.start,
+                end: event.end,
+                title: event.title,
+                background_color: event.background_color,
+                text_color: event.text_color,
+                url: path,
+            }
+        }
+    }
+    let events = events
+        .into_iter()
+        .map(|(event, path)| {
+            let path = path.map(|path| targets.path_of(path).unwrap());
+            FullCalendarEvent::from((event, path))
+        })
+        .collect::<Vec<FullCalendarEvent>>();
     let calendar_fn_input = json!({
         "events": events,
         "displayEventTime": display_event_time,
