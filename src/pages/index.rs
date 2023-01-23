@@ -24,7 +24,7 @@ pub async fn page() -> Asset {
                 .flat_map(|mob| {
                     mob.events(true)
                         .into_iter()
-                        .map(|event| (event, Some(format!("/mobs/{}.html", mob.id))))
+                        .map(|event| (event, Some(format!("mobs/{}.html", mob.id))))
                 })
                 .collect();
             let calendar_html = calendar(&targets, events, false);
