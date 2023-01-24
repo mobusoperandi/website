@@ -32,8 +32,6 @@ pub(crate) static GITHUB_ORGANIZATION: Lazy<String> = Lazy::new(|| {
         ["repo", "view", "--json", "owner", "--jq", ".owner.login"],
     )
     .unwrap()
-    .parse()
-    .unwrap()
 });
 
 pub(crate) static GITHUB_ORGANIZATION_URL: Lazy<Url> = Lazy::new(|| {
