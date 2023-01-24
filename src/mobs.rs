@@ -145,7 +145,7 @@ pub struct Event {
 }
 
 impl Mob {
-    pub(crate) fn events(&self, titles: bool) -> Vec<Event> {
+    pub(crate) fn events(&self, include_titles: bool) -> Vec<Event> {
         self.schedule
             .iter()
             .flat_map(|recurring_session| {
@@ -157,7 +157,7 @@ impl Mob {
                     .map(move |occurrence| Event {
                         start: occurrence.with_timezone(&Utc),
                         end: (occurrence + duration).with_timezone(&Utc),
-                        title: if titles {
+                        title: if include_titles {
                             mob.title.clone()
                         } else {
                             "".to_owned()
