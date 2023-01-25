@@ -1,0 +1,30 @@
+title: Bass
+subtitle: Yet another Mobus Operandi website mob
+participants:
+  - !Public
+    name: Shahar “Dawn” Or
+    social_url: https://twitter.com/mightyiam
+  - !Public
+    name: Kelly Rankin
+    social_url: https://twitter.com/kellyrankin19
+schedule:
+  - recurrence: FREQ=WEEKLY;BYDAY=MO,TU,WE
+    timezone: Etc/UTC
+    start_date: 2023-01-23
+    start_time: 04:00
+    duration: 120
+background_color: firebrick
+text_color: floralwhite
+freeform_copy: |
+  ## What we do
+
+  We are currently working on the Mobus Operandi website which is [statically generated using Rust](https://github.com/mobusoperandi/website).
+status: !Open |
+  ## Join us
+  
+  We're currently only two, so we're definitely interested in expanding.
+  You'll be learning/practicing web development using Rust.
+
+  The current schedule works for us, but we could possibly select different weekdays.
+  
+  To apply, please contact [Dawn](https://twitter.com/mightyiam) and let him know that you’re interested.
