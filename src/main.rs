@@ -134,7 +134,7 @@ async fn main() {
     let generated = stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), files).unwrap())
         .map(|(path, source)| (path, tokio::spawn(source)))
         .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
-            println!("generating: {:?}", path);
+            println!("generating: {path:?}");
             join_handle
                 .await
                 .unwrap()
