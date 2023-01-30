@@ -8,9 +8,6 @@ participants:
     name: Shahar “Dawn” Or
     social_url: https://twitter.com/mightyiam
   - !Public
-    name: Vasiliy Kevroletin
-    social_url: https://github.com/kevroletin
-  - !Public
     name: Vimal Patel
     social_url: https://github.com/101v
 schedule:
