@@ -7,6 +7,7 @@ use futures::StreamExt;
 use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::BTreeSet;
 use std::io;
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
@@ -67,10 +68,11 @@ pub(crate) enum MobParticipant {
     Public(Person),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct Person {
     pub(crate) name: String,
     pub(crate) social_url: Url,
+    pub(crate) avatar_url: Option<Url>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -178,4 +180,16 @@ pub(crate) async fn read_all_mobs() -> Vec<Mob> {
         .then(read_mob)
         .collect::<Vec<_>>()
         .await
+}
+
+pub(crate) async fn get_all_participants() -> BTreeSet<Person> {
+    read_all_mobs()
+        .await
+        .into_iter()
+        .flat_map(|mob| mob.participants)
+        .filter_map(|participant| match participant {
+            MobParticipant::Hidden => None,
+            MobParticipant::Public(person) => Some(person),
+        })
+        .collect()
 }

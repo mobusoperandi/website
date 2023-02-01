@@ -4,9 +4,11 @@ participants:
   - !Public
     name: Shahar “Dawn” Or
     social_url: https://twitter.com/mightyiam
+    avatar_url: https://avatars.githubusercontent.com/u/635591?v=4
   - !Public
     name: Kelly Rankin
     social_url: https://twitter.com/kellyrankin19
+    avatar_url: https://avatars.githubusercontent.com/u/1892611?v=4
 schedule:
   - recurrence: FREQ=WEEKLY;BYDAY=MO,TU,WE
     timezone: Etc/UTC

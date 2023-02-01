@@ -4,12 +4,15 @@ participants:
   - !Public
     name: Roland Fredenhagen
     social_url: https://github.com/ModProg
+    avatar_url: https://avatars.githubusercontent.com/u/11978847?v=4
   - !Public
     name: Shahar “Dawn” Or
     social_url: https://twitter.com/mightyiam
+    avatar_url: https://avatars.githubusercontent.com/u/635591?v=4
   - !Public
     name: Vimal Patel
     social_url: https://github.com/101v
+    avatar_url: https://avatars.githubusercontent.com/u/364244?v=4
 schedule:
   - recurrence: FREQ=WEEKLY;BYDAY=MO,FR
     timezone: Etc/UTC

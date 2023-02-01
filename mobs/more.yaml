@@ -4,12 +4,15 @@ participants:
   - !Public
     name: Bob Allen
     social_url: https://twitter.com/curiousagilist
+    avatar_url: https://avatars.githubusercontent.com/u/832680?v=4
   - !Public
     name: Shahar “Dawn” Or
     social_url: https://twitter.com/mightyiam
+    avatar_url: https://avatars.githubusercontent.com/u/635591?v=4
   - !Public
     name: Warren Wise
     social_url: https://twitter.com/warren2k
+    avatar_url: https://avatars.githubusercontent.com/u/846021?v=4
 schedule:
   - recurrence: FREQ=WEEKLY;BYDAY=SA,SU
     timezone: Etc/UTC
