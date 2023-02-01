@@ -2,24 +2,16 @@
 CARGO_TERM_COLOR = "always"
 
 [tasks.pre-commit]
-run_task = { name = ["clippy", "check_fmt"], parallel = true }
+command = "./git_hooks/pre-commit"
 
 [tasks.ci_main]
-run_task = { name = ["clippy", "check_fmt", "produce_output"], parallel = true }
+run_task = { name = ["pre-commit", "produce_output"], parallel = true }
 
 [tasks.ci_post]
 run_task = { name = ["no_untracked", "no_modified"] }
 
 [tasks.ci]
 run_task = { name = ["ci_main", "ci_post"] }
-
-[tasks.clippy]
-command = "cargo"
-args = ["clippy", "--", "--deny", "warnings"]
-
-[tasks.check_fmt]
-command = "cargo"
-args = ["fmt", "--check"]
 
 [tasks.table_of_contents]
 script = '''

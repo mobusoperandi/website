@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+cargo clippy -- --deny warnings
+cargo fmt --check
