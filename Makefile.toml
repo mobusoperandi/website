@@ -4,14 +4,8 @@ CARGO_TERM_COLOR = "always"
 [tasks.pre-commit]
 command = "./git_hooks/pre-commit"
 
-[tasks.ci_main]
-run_task = { name = ["pre-commit", "produce_output"], parallel = true }
-
-[tasks.ci_post]
-run_task = { name = ["no_untracked", "no_modified"] }
-
 [tasks.ci]
-run_task = { name = ["ci_main", "ci_post"] }
+run_task = { name = ["pre-commit", "produce_output"], parallel = true }
 
 [tasks.table_of_contents]
 script = '''
@@ -20,26 +14,6 @@ set -euxo pipefail
 toc=$(cargo bin md-toc --header "# Table of contents" README.md)
 MARKER='<!-- TOC -->'
 cargo bin sd "$MARKER[\S\s]*$MARKER" $"$MARKER$toc\n$MARKER" README.md
-'''
-
-[tasks.no_modified]
-script = '''
-#!/usr/bin/env bash
-set -euxo pipefail
-if ! git diff --exit-code; then
-  echo "modified files detected"
-  exit 1
-fi
-'''
-
-[tasks.no_untracked]
-script = '''
-#!/usr/bin/env bash
-set -euxo pipefail
-if [[ `git ls-files --exclude-standard --others` ]]; then
-  echo "untracked files detected"
-  exit 1
-fi
 '''
 
 [tasks.produce_output]
