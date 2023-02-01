@@ -24,6 +24,7 @@ jobs:
       - run: cargo bin cargo-make ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: ./generate_table_of_contents.sh
       - name: no_untracked
         run: |
           set -euxo pipefail
