@@ -1,0 +1,25 @@
+title: Malaga
+subtitle: The Malaga All Tech Flock
+participants:
+  - !Public
+    name: Ian Moss
+    social_url: https://twitter.com/mightyiam
+    avatar_url: https://avatars.githubusercontent.com/u/635591?v=4  
+schedule:
+  - recurrence: FREQ=WEEKLY;BYDAY=MO
+    timezone: Etc/UTC
+    start_date: 2022-11-01
+    start_time: 17:00
+    duration: 120
+background_color: Peru
+text_color: SeaShell
+links:  
+freeform_copy: |
+  ## What we do
+  We are working on a simple way to get people collaborating by extending helloworld.
+status: !Open |
+  ## Join us
+  
+  We welcome all who are able to join regardless of ruby ability. From newbies onwards. All friendly humans are welcome.
+  Please contact [Ian](https://twitter.com/alterisian) with any questions about mobs/ensembles/flocks.
+  Will post the join url here.
