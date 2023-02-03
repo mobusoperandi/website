@@ -24,6 +24,21 @@ jobs:
       - run: cargo bin cargo-make ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: ./generate_table_of_contents.sh
+      - name: no_untracked
+        run: |
+          set -euxo pipefail
+          if [[ `git ls-files --exclude-standard --others` ]]; then
+            echo "untracked files detected"
+            exit 1
+          fi
+      - name: no_modified
+        run: |
+          set -euxo pipefail
+          if ! git diff --exit-code; then
+            echo "modified files detected"
+            exit 1
+          fi
       - id: deploy
         if: github.event_name == 'pull_request'
         run: |
