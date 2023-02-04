@@ -22,7 +22,7 @@ jobs:
       - run: npm ci
       - run: cat constants.sh >> $GITHUB_ENV
       - run: ./git_hooks/pre-commit
-      - run: cargo bin cargo-make produce_output
+      - run: cargo run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: ./generate_table_of_contents.sh
