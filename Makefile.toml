@@ -1,12 +1,6 @@
 [env]
 CARGO_TERM_COLOR = "always"
 
-[tasks.pre-commit]
-command = "./git_hooks/pre-commit"
-
-[tasks.ci]
-run_task = { name = ["pre-commit", "produce_output"], parallel = true }
-
 [tasks.produce_output]
 script = '''
 #!/usr/bin/env bash
