@@ -16,7 +16,7 @@ pub async fn page() -> Asset {
             .path_segments_mut()
             .unwrap()
             .push("tree")
-            .push(&DEFAULT_BRANCH)
+            .push(DEFAULT_BRANCH)
             .push(MOBS_PATH);
 
         let participants = get_all_participants().await;
