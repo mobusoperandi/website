@@ -1,10 +1,8 @@
-use std::collections::BTreeSet;
-
 use ssg::Asset;
 
 use crate::{calendar, fonts, graphic_assets, pages};
 
-pub(crate) async fn get() -> BTreeSet<Asset> {
+pub(crate) async fn get() -> impl Iterator<Item = Asset> {
     let fonts = fonts::assets();
     let pages = pages::all().await;
 
@@ -13,5 +11,4 @@ pub(crate) async fn get() -> BTreeSet<Asset> {
         .chain(fonts)
         .chain(graphic_assets::get())
         .chain(pages)
-        .collect()
 }
