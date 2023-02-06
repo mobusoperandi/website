@@ -2,6 +2,7 @@ mod environment;
 mod fonts;
 #[macro_use]
 mod html;
+mod assets;
 mod calendar;
 mod graphic_assets;
 mod markdown;
@@ -12,9 +13,8 @@ use anyhow::{bail, Result};
 use environment::OUTPUT_DIR;
 use futures::{stream, StreamExt};
 use once_cell::sync::Lazy;
-use ssg::{generate_static_site, Asset};
+use ssg::generate_static_site;
 use std::{
-    collections::BTreeSet,
     ffi::OsStr,
     io::{stdout, Write},
     path::PathBuf,
@@ -83,24 +83,18 @@ pub(crate) static DEFAULT_BRANCH: Lazy<String> = Lazy::new(|| {
 
 #[tokio::main]
 async fn main() {
-    let fonts = fonts::assets();
-    let pages = pages::all().await;
-    let files: BTreeSet<Asset> = [calendar::js_library_asset()]
-        .into_iter()
-        .chain(fonts)
-        .chain(graphic_assets::get())
-        .chain(pages)
-        .collect();
     // TODO exit code
-    let generated = stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), files).unwrap())
-        .map(|(path, source)| (path, tokio::spawn(source)))
-        .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
-            println!("generating: {path:?}");
-            join_handle
-                .await
-                .unwrap()
-                .unwrap_or_else(|error| panic!("{path:?}: {error:?}"));
-        });
+    let assets = assets::get().await;
+    let generated =
+        stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), assets).unwrap())
+            .map(|(path, source)| (path, tokio::spawn(source)))
+            .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
+                println!("generating: {path:?}");
+                join_handle
+                    .await
+                    .unwrap()
+                    .unwrap_or_else(|error| panic!("{path:?}: {error:?}"));
+            });
     tokio::join!(generated);
     produce_css().await;
 }
