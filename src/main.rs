@@ -1,5 +1,6 @@
 mod environment;
 mod fonts;
+mod tailwind;
 #[macro_use]
 mod html;
 mod assets;
@@ -14,12 +15,8 @@ use environment::OUTPUT_DIR;
 use futures::{stream, StreamExt};
 use once_cell::sync::Lazy;
 use ssg::generate_static_site;
-use std::{
-    ffi::OsStr,
-    io::{stdout, Write},
-    path::PathBuf,
-};
-use tokio::process::Command;
+use std::ffi::OsStr;
+
 use url::Url;
 
 pub(crate) const NAME: &str = "Mobus Operandi";
@@ -94,25 +91,7 @@ async fn main() {
                     .unwrap()
                     .unwrap_or_else(|error| panic!("{path:?}: {error:?}"));
             });
-    tokio::join!(generated);
-    produce_css().await;
-}
 
-async fn produce_css() {
-    let output = Command::new("npx")
-        .args([
-            "tailwindcss",
-            "--input",
-            &PathBuf::from("src/input.css").to_string_lossy(),
-            "--output",
-            &PathBuf::from(format!("./{OUTPUT_DIR}/index.css")).to_string_lossy(),
-            "--content",
-            // TODO explicit list instead of pattern
-            &PathBuf::from(format!("./{OUTPUT_DIR}/**/*.html")).to_string_lossy(),
-        ])
-        .output()
-        .await
-        .unwrap();
-    stdout().write_all(&output.stderr).unwrap();
-    assert!(output.status.success());
+    tokio::join!(generated);
+    tailwind::execute().await;
 }
