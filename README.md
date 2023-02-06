@@ -13,11 +13,18 @@
 1. [GitHub CLI](https://cli.github.com/).
 1. [Node.js](https://nodejs.org) and an `$ npm install`.
 
-# Local dev server
+# Local development static web server
 
 ```
-$ cargo bin cargo-make dev
+$ ./server.sh
 ```
+
+# Watch for changes and regenerate website when they occur
+
+```
+$ ./watch.sh
+```
+
 
 And wait for quite a while, even though there might be no progress output.
 
