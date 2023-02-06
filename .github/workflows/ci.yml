@@ -14,7 +14,7 @@ jobs:
             .bin/
             target/
             ~/.cargo/
-          key: ${{ hashFiles('rust-toolchain.toml', 'Cargo.toml', 'Cargo.lock') }}
+          key: ${{ runner.os }}_cargo-run-bin_${{ hashFiles('rust-toolchain.toml', 'Cargo.toml', 'Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}_cargo-run-bin_
             ${{ runner.os }}_
