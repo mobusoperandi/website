@@ -2,6 +2,7 @@ mod environment;
 mod fonts;
 #[macro_use]
 mod html;
+mod calendar;
 mod graphic_assets;
 mod markdown;
 mod mobs;
@@ -11,7 +12,7 @@ use anyhow::{bail, Result};
 use environment::OUTPUT_DIR;
 use futures::{stream, StreamExt};
 use once_cell::sync::Lazy;
-use ssg::{generate_static_site, Asset, Source};
+use ssg::{generate_static_site, Asset};
 use std::{
     collections::BTreeSet,
     ffi::OsStr,
@@ -84,13 +85,7 @@ pub(crate) static DEFAULT_BRANCH: Lazy<String> = Lazy::new(|| {
 async fn main() {
     let fonts = fonts::assets();
     let pages = pages::all().await;
-    let fullcalendar_js = Asset::new(PathBuf::from("fullcalendar.js"), async {
-        Source::Http(
-            Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@6.0.2/index.global.min.js")
-                .unwrap(),
-        )
-    });
-    let files: BTreeSet<Asset> = [fullcalendar_js]
+    let files: BTreeSet<Asset> = [calendar::js_library_asset()]
         .into_iter()
         .chain(fonts)
         .chain(graphic_assets::get())

@@ -30,7 +30,7 @@ pub async fn page() -> Asset {
                         .map(|event| (event, Some(format!("mobs/{}.html", mob.id))))
                 })
                 .collect();
-            let calendar_html = calendar(&targets, events, false);
+            let calendar_html = calendar::markup(&targets, events, false);
             let content = html! {
                 (calendar_html)
                 div class=(classes!("flex" "flex-wrap" format!("gap-x-{BUTTON_GAP}"))) {
