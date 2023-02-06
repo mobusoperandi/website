@@ -2,6 +2,7 @@ mod environment;
 mod fonts;
 #[macro_use]
 mod html;
+mod graphic_assets;
 mod markdown;
 mod mobs;
 mod pages;
@@ -83,53 +84,18 @@ pub(crate) static DEFAULT_BRANCH: Lazy<String> = Lazy::new(|| {
 async fn main() {
     let fonts = fonts::assets();
     let pages = pages::all().await;
-    let favicon = Asset::new(PathBuf::from("favicon.ico"), async {
-        Source::Bytes(vec![])
-    });
     let fullcalendar_js = Asset::new(PathBuf::from("fullcalendar.js"), async {
         Source::Http(
             Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@6.0.2/index.global.min.js")
                 .unwrap(),
         )
     });
-    let twitter_logo = Asset::new(PathBuf::from("twitter_logo.svg"), async {
-        Source::Http(
-            Url::parse("https://upload.wikimedia.org/wikipedia/commons/4/4f/Twitter-logo.svg")
-                .unwrap(),
-        )
-    });
-    let zulip_logo = Asset::new(PathBuf::from("zulip_logo.svg"), async {
-        Source::Http(
-            Url::parse("https://raw.githubusercontent.com/zulip/zulip/main/static/images/logo/zulip-icon-square.svg")
-                .unwrap(),
-        )
-    });
-    let inverticat_logo = Asset::new(PathBuf::from("inverticat.svg"), async {
-        Source::Http(
-            Url::parse(
-                "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg",
-            )
-            .unwrap(),
-        )
-    });
-    let youtube_logo = Asset::new(PathBuf::from("youtube_logo.svg"), async {
-        Source::Http(
-            Url::parse("https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg")
-                .unwrap(),
-        )
-    });
-    let files: BTreeSet<Asset> = [
-        favicon,
-        fullcalendar_js,
-        twitter_logo,
-        zulip_logo,
-        inverticat_logo,
-        youtube_logo,
-    ]
-    .into_iter()
-    .chain(fonts)
-    .chain(pages)
-    .collect();
+    let files: BTreeSet<Asset> = [fullcalendar_js]
+        .into_iter()
+        .chain(fonts)
+        .chain(graphic_assets::get())
+        .chain(pages)
+        .collect();
     // TODO exit code
     let generated = stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), files).unwrap())
         .map(|(path, source)| (path, tokio::spawn(source)))
