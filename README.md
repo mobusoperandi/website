@@ -4,6 +4,7 @@
 1. [Table of contents](#table-of-contents)
 1. [Requirements](#requirements)
 1. [Get help from the CLI](#get-help-from-the-cli)
+1. [If there's no output for a while](#if-there's-no-output-for-a-while)
 <!-- TOC -->
 
 # Requirements
@@ -18,7 +19,10 @@
 $ cargo run -- --help
 ```
 
-And wait for quite a while, even though there might be no progress output.
+# If there's no output for a while
 
-If you're not certain whether compilation is in progress, consider examining your list of running processes and their CPU usage.
+That may be [because of `cargo-run-bin`](https://github.com/dustinblackman/cargo-run-bin/issues/2).
+It's compiling executable depenedencies in the background and does not pass the output through.
+
+If you're not certain whether compilation is in progress, consider looking for a `rustc` process.
 
