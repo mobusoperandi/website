@@ -1,4 +1,3 @@
-use crate::MOBS_PATH;
 use anyhow::anyhow;
 use chrono::TimeZone;
 use chrono::{DateTime, Duration, Utc};
@@ -12,6 +11,8 @@ use std::io;
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
 use url::Url;
+
+use crate::constants::MOBS_PATH;
 
 #[derive(Debug, Clone)]
 pub struct Mob {

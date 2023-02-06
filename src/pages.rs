@@ -1,10 +1,12 @@
 mod index;
 use crate::{
-    calendar, fonts,
+    calendar,
+    constants::{COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL},
+    fonts,
     html::Classes,
     markdown::to_html,
     mobs::{self, Mob, MobParticipant},
-    style, COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL,
+    style,
 };
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};

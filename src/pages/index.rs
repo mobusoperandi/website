@@ -1,9 +1,9 @@
 use super::base;
 use crate::{
+    constants::{DEFAULT_BRANCH, MOBS_PATH, REPO_URL},
     mobs::{self, get_all_participants},
     pages::calendar,
     style::{BUTTON_CLASSES, BUTTON_GAP},
-    DEFAULT_BRANCH, MOBS_PATH, REPO_URL,
 };
 use maud::html;
 use ssg::{Asset, Source};
