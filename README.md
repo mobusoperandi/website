@@ -3,8 +3,7 @@
 
 1. [Table of contents](#table-of-contents)
 1. [Requirements](#requirements)
-1. [Local development static web server](#local-development-static-web-server)
-1. [Watch for changes and regenerate website when they occur](#watch-for-changes-and-regenerate-website-when-they-occur)
+1. [Get help from the CLI](#get-help-from-the-cli)
 <!-- TOC -->
 
 # Requirements
