@@ -33,6 +33,8 @@ enum Mode {
     /// watch for changes and rebuild the website
     /// and start a development web server
     Dev,
+    /// print the output directory path
+    PrintOutputDir,
 }
 
 #[tokio::main]
@@ -42,6 +44,7 @@ async fn main() {
     match cli.mode {
         Mode::Build => build().await,
         Mode::Dev => dev(),
+        Mode::PrintOutputDir => print!("{OUTPUT_DIR}"),
     }
 }
 

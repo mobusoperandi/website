@@ -20,7 +20,6 @@ jobs:
             ${{ runner.os }}_
       - run: cargo install cargo-run-bin
       - run: npm ci
-      - run: cat constants.sh >> $GITHUB_ENV
       - run: ./git_hooks/pre-commit
       - run: cargo run
         env:
@@ -52,7 +51,9 @@ jobs:
           message: |
             Branch deployed for review at:
             ${{ steps.deploy.outputs.URL }}
+      - id: get_output_dir
+        run: echo "OUTPUT_DIR=$(cargo run -- print-output-dir)" >> $GITHUB_OUTPUT
       - uses: JamesIves/github-pages-deploy-action@v4
         if: github.ref == 'refs/heads/master'
         with:
-          folder: ${{ env.OUTPUT_DIR }}
+          folder: ${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
