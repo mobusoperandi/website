@@ -37,3 +37,5 @@ pub(crate) static REPO_URL: Lazy<Url> = Lazy::new(|| {
 });
 
 pub(crate) const DEFAULT_BRANCH: &str = "master";
+
+pub(crate) const OUTPUT_DIR: &str = ".vercel/output/static";

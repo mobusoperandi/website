@@ -13,18 +13,11 @@
 1. [cargo-run-bin](https://crates.io/crates/cargo-run-bin).
 1. [Node.js](https://nodejs.org) and an `$ npm install`.
 
-# Local development static web server
+# Get help from the CLI
 
 ```
-$ ./server.sh
+$ cargo run -- --help
 ```
-
-# Watch for changes and regenerate website when they occur
-
-```
-$ ./watch.sh
-```
-
 
 And wait for quite a while, even though there might be no progress output.
 

@@ -1,5 +1,4 @@
 mod constants;
-mod environment;
 mod fonts;
 mod tailwind;
 #[macro_use]
@@ -12,12 +11,41 @@ mod mobs;
 mod pages;
 mod style;
 
-use environment::OUTPUT_DIR;
+use std::thread;
+
+use clap::{Parser, ValueEnum};
 use futures::{stream, StreamExt};
 use ssg::generate_static_site;
+use tokio::process::Command;
+
+use crate::constants::OUTPUT_DIR;
+
+#[derive(Debug, Parser)]
+struct Cli {
+    #[arg(value_enum, default_value_t = Mode::Build)]
+    mode: Mode,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+enum Mode {
+    /// build the website into the output directory and exit
+    Build,
+    /// watch for changes and rebuild the website
+    /// and start a development web server
+    Dev,
+}
 
 #[tokio::main]
 async fn main() {
+    let cli = Cli::parse();
+
+    match cli.mode {
+        Mode::Build => build().await,
+        Mode::Dev => dev(),
+    }
+}
+
+async fn build() {
     let assets = assets::get().await;
     let generated =
         stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), assets).unwrap())
@@ -32,4 +60,24 @@ async fn main() {
 
     tokio::join!(generated);
     tailwind::execute().await;
+}
+
+fn dev() {
+    watch_for_changes_and_rebuild();
+    start_development_web_server();
+    thread::park();
+}
+
+fn start_development_web_server() {
+    Command::new("cargo")
+        .args(["bin", "live-server", "--host", "localhost", OUTPUT_DIR])
+        .spawn()
+        .unwrap();
+}
+
+fn watch_for_changes_and_rebuild() {
+    Command::new("cargo")
+        .args(["watch", "--exec", "run -- build"])
+        .spawn()
+        .unwrap();
 }
