@@ -83,7 +83,6 @@ pub(crate) static DEFAULT_BRANCH: Lazy<String> = Lazy::new(|| {
 
 #[tokio::main]
 async fn main() {
-    // TODO exit code
     let assets = assets::get().await;
     let generated =
         stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), assets).unwrap())
