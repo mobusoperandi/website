@@ -13,7 +13,7 @@ reqwest = { version = "0.11.11", features = ["blocking"] }
 reqwest-middleware = "0.2.0"
 task-local-extensions = "0.1.3"
 # TODO less features
-tokio = { version = "1.21.0", features = ["fs", "tokio-macros", "full"] }
+tokio = { version = "1.24.2", features = ["fs", "tokio-macros", "full"] }
 url = "2.3.1"
 zip = "0.6.2"
 
