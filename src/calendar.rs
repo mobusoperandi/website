@@ -23,11 +23,7 @@ pub(crate) fn js_library_asset() -> Asset {
     })
 }
 
-pub(crate) fn markup(
-    targets: &Targets,
-    events: Vec<(Event, Option<String>)>,
-    display_event_time: bool,
-) -> Markup {
+pub(crate) fn markup(targets: &Targets, events: Vec<Event>, display_event_time: bool) -> Markup {
     #[derive(Debug, PartialEq, Eq)]
     enum Direction {
         Left,
@@ -65,24 +61,21 @@ pub(crate) fn markup(
         #[serde(skip_serializing_if = "Option::is_none")]
         url: Option<String>,
     }
-    impl From<(Event, Option<String>)> for FullCalendarEvent {
-        fn from((event, path): (Event, Option<String>)) -> Self {
+    impl From<Event> for FullCalendarEvent {
+        fn from(event: Event) -> Self {
             FullCalendarEvent {
                 start: event.start,
                 end: event.end,
                 title: event.title,
                 background_color: event.background_color,
                 text_color: event.text_color,
-                url: path,
+                url: event.target_path,
             }
         }
     }
     let events = events
         .into_iter()
-        .map(|(event, path)| {
-            let path = path.map(|path| targets.path_of(path).unwrap());
-            FullCalendarEvent::from((event, path))
-        })
+        .map(FullCalendarEvent::from)
         .collect::<Vec<FullCalendarEvent>>();
     let calendar_fn_input = json!({
         "events": events,

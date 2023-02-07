@@ -119,11 +119,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     mobs::Status::Full(join_content) => join_content.clone(),
                     mobs::Status::Public(join_content) => Some(join_content.clone()),
                 };
-                let events = mob
-                    .events(false)
-                    .into_iter()
-                    .map(|event| (event, None))
-                    .collect();
+                let events = mob.events(false, false);
                 let calendar_html = calendar::markup(&targets, events, true);
                 let mob_links = mob
                     .links

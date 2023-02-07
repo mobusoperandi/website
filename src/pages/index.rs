@@ -22,14 +22,7 @@ pub async fn page() -> Asset {
         let participants = get_all_participants().await;
 
         Source::BytesWithAssetSafety(Box::new(move |targets| {
-            let events = mobs
-                .iter()
-                .flat_map(|mob| {
-                    mob.events(true)
-                        .into_iter()
-                        .map(|event| (event, Some(format!("mobs/{}.html", mob.id))))
-                })
-                .collect();
+            let events = mobs.iter().flat_map(|mob| mob.events(true, true)).collect();
             let calendar_html = calendar::markup(&targets, events, false);
             let content = html! {
                 (calendar_html)

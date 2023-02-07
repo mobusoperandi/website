@@ -143,12 +143,17 @@ pub struct Event {
     pub(crate) start: DateTime<Utc>,
     pub(crate) end: DateTime<Utc>,
     pub(crate) title: String,
+    pub(crate) target_path: Option<String>,
     pub(crate) background_color: Color,
     pub(crate) text_color: Color,
 }
 
 impl Mob {
-    pub(crate) fn events(&self, include_titles: bool) -> Vec<Event> {
+    pub(crate) fn events(
+        &self,
+        include_titles: bool,
+        include_links_to_mob_pages: bool,
+    ) -> Vec<Event> {
         self.schedule
             .iter()
             .flat_map(|recurring_session| {
@@ -165,6 +170,8 @@ impl Mob {
                         } else {
                             "".to_owned()
                         },
+                        target_path: include_links_to_mob_pages
+                            .then(|| format!("mobs/{}.html", mob.id)),
                         background_color: mob.background_color.clone(),
                         text_color: mob.text_color.clone(),
                     })
