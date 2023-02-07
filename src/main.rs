@@ -81,7 +81,7 @@ fn start_development_web_server() {
 
 fn watch_for_changes_and_rebuild() {
     Command::new("cargo")
-        .args(["bin", "watch", "--exec", "run -- build"])
+        .args(["bin", "cargo-watch", "--exec", "run -- build"])
         .spawn()
         .unwrap();
 }
