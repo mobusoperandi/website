@@ -6,17 +6,19 @@ use maud::{html, Markup, PreEscaped};
 use serde::Serialize;
 use serde_json::json;
 use ssg::{Asset, Source, Targets};
-use url::Url;
 
 use crate::html::css_class;
 use crate::mobs::Event;
 use crate::style::{BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR};
+use crate::url::Url;
 
 pub(crate) fn js_library_asset() -> Asset {
     Asset::new(PathBuf::from("fullcalendar.js"), async {
         Source::Http(
             Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@6.0.2/index.global.min.js")
-                .unwrap(),
+                .unwrap()
+                .to_inner()
+                .clone(),
         )
     })
 }

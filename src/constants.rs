@@ -1,5 +1,6 @@
 use once_cell::sync::Lazy;
-use url::Url;
+
+use crate::url::Url;
 
 pub(crate) const NAME: &str = "Mobus Operandi";
 pub(crate) const DESCRIPTION: &str = "A mob programming community";

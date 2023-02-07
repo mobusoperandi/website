@@ -10,9 +10,9 @@ use std::collections::BTreeSet;
 use std::io;
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
-use url::Url;
 
 use crate::constants::MOBS_PATH;
+use crate::url::Url;
 
 #[derive(Debug, Clone)]
 pub struct Mob {

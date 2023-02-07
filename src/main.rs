@@ -10,6 +10,7 @@ mod markdown;
 mod mobs;
 mod pages;
 mod style;
+mod url;
 
 use std::thread;
 

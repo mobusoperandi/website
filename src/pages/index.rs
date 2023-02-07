@@ -36,14 +36,14 @@ pub async fn page() -> Asset {
                 div class=(classes!("flex" "flex-wrap" format!("gap-x-{BUTTON_GAP}"))) {
                     a
                         class=(*BUTTON_CLASSES)
-                        href=(existing_mobs_url.to_string())
+                        href=(existing_mobs_url)
                         { "Add your mob" }
                 }
                 div class=(classes!("flex" "flex-wrap")) {
                     @for person in participants {
                         @if let Some(avatar_url) = &person.avatar_url {
-                            a href=(person.social_url.to_string()) class=(classes!("w-20")) {
-                                img alt=(person.name) src=(avatar_url.to_string());
+                            a href=(person.social_url) class=(classes!("w-20")) {
+                                img alt=(person.name) src=(avatar_url);
                             }
                         }
                     }

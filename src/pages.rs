@@ -7,12 +7,12 @@ use crate::{
     markdown::to_html,
     mobs::{self, Mob, MobParticipant},
     style,
+    url::Url,
 };
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 use ssg::{Asset, Source, Targets};
 use std::vec;
-use url::Url;
 
 pub(crate) fn base(
     title: Option<String>,
@@ -65,13 +65,13 @@ pub(crate) fn base(
                             p class=(classes!("text-sm" "opacity-75")) { (DESCRIPTION) }
                         }
                     div class=(classes!("flex" "items-center" "gap-x-2")) {
-                        a href=(ZULIP_URL.to_string()) {
+                        a href=(*ZULIP_URL) {
                             img
                                 width=(NAV_ICON_SIZE)
                                 alt="Zulip"
                                 src=(targets.path_of("zulip_logo.svg").unwrap());
                         }
-                        a class=(classes!("invert")) href=(GITHUB_ORGANIZATION_URL.to_string()) {
+                        a class=(classes!("invert")) href=(*GITHUB_ORGANIZATION_URL) {
                             img
                                 width=(NAV_ICON_SIZE)
                                 alt="GitHub"
@@ -92,7 +92,7 @@ pub(crate) fn base(
                 hr;
                 div class=(classes!("flex" "justify-between" "flex-wrap" "items-end")) {
                     pre class=(classes!("text-xs")) { code { (*COMMIT_HASH) } }
-                    a class=(classes!("text-sm")) href=(REPO_URL.to_string()) { "Source"}
+                    a class=(classes!("text-sm")) href=(*REPO_URL) { "Source"}
                 }
             }
         }
@@ -184,7 +184,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                         @if let Some(mob_links) = mob_links {
                             div class=(classes!("flex" "sm:flex-col" "justify-center" "gap-2")) {
                                 @for (url, image_path, alt) in mob_links {
-                                    a href=(url.to_string()) {
+                                    a href=(url) {
                                         img class=(classes!("h-8")) alt=(alt) src=(image_path);
                                     }
                                 }
@@ -196,7 +196,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                                 @for mob_participant in mob.participants {
                                     @match mob_participant {
                                         MobParticipant::Hidden => div { "(Anonymous participant)" },
-                                        MobParticipant::Public(person) => a class=(classes!("block")) href=(person.social_url.to_string()) { (person.name) },
+                                        MobParticipant::Public(person) => a class=(classes!("block")) href=(person.social_url) { (person.name) },
                                     }
                                 }
                             }
