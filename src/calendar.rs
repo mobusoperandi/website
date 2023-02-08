@@ -86,10 +86,10 @@ pub(crate) fn markup(
         div class=(classes!(calendar_container_class "[--fc-page-bg-color:transparent]")) {}
         script defer src=(targets.path_of(Path::new("/fullcalendar.js")).unwrap()) {}
         script data-input=(calendar_fn_input.to_string()) {
-            (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{
+            (PreEscaped(format!("
                 const input = JSON.parse(document.querySelector('{input_selector}').getAttribute('{INPUT_ATTR}'))
                 {CALENDAR_FN_SNIPPET}(input)
-            }})")))
+            ")))
         }
     }
 }
