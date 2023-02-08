@@ -13,7 +13,7 @@ use crate::style::{BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR};
 use crate::url::Url;
 
 pub(crate) fn js_library_asset() -> Asset {
-    Asset::new(PathBuf::from("fullcalendar.js"), async {
+    Asset::new(PathBuf::from("/fullcalendar.js"), async {
         Source::Http(
             Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@6.0.2/index.global.min.js")
                 .unwrap()
@@ -107,7 +107,7 @@ pub(crate) fn markup(targets: &Targets, events: Vec<Event>, display_event_time: 
             }
         }
         div class=(classes!(calendar_container_class "[--fc-page-bg-color:transparent]")) {}
-        script defer src=(targets.path_of(Path::new("fullcalendar.js")).unwrap()) {}
+        script defer src=(targets.path_of(Path::new("/fullcalendar.js")).unwrap()) {}
         script {
             (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{
                 const input = JSON.parse('{calendar_fn_input}')

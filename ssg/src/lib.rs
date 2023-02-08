@@ -30,7 +30,7 @@ pub fn generate_static_site(
         let this_target = target.to_owned();
         let targets = paths.clone();
         let output_dir = output_dir.clone();
-        let result = source.then(|source| async {
+        let result = source.then(|source| async move {
             let contents = match source {
                 Source::Bytes(bytes) => bytes.clone(),
                 Source::BytesWithAssetSafety(function) => {
@@ -52,7 +52,10 @@ pub fn generate_static_site(
                         .to_vec()
                 }
             };
-            let file_path = [output_dir, this_target].into_iter().collect::<PathBuf>();
+            let this_target_relative = this_target.iter().skip(1).collect();
+            let file_path = [output_dir, this_target_relative]
+                .into_iter()
+                .collect::<PathBuf>();
             fs::create_dir_all(file_path.parent().unwrap())
                 .await
                 .unwrap();
@@ -76,6 +79,8 @@ pub struct Asset {
 
 impl Asset {
     pub fn new(target: PathBuf, source: impl Future<Output = Source> + Send + 'static) -> Self {
+        assert!(target.is_absolute(), "path not absolute: {target:?}");
+
         Self {
             source: source.boxed(),
             target,
@@ -119,6 +124,9 @@ pub struct Targets {
 impl Targets {
     pub fn path_of(&self, path: impl AsRef<Path>) -> Result<String> {
         let path = path.as_ref();
+
+        assert!(path.is_absolute(), "path not absolute: {path:?}");
+
         self.all
             .contains(path)
             .then(|| {

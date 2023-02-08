@@ -14,7 +14,7 @@ pub(crate) const ALL: [GoogleFont; 1] = [VOLLKORN];
 pub(crate) fn assets() -> [Asset; 1] {
     ALL.map(|font| {
         Asset::new(
-            PathBuf::from(format!("{}.ttf", font.name.to_lowercase())),
+            PathBuf::from(format!("/{}.ttf", font.name.to_lowercase())),
             async move { Source::GoogleFont(font) },
         )
     })

@@ -10,7 +10,7 @@ use ssg::{Asset, Source};
 
 pub async fn page() -> Asset {
     let mobs = mobs::read_all_mobs().await;
-    Asset::new("index.html".into(), async {
+    Asset::new("/index.html".into(), async {
         let mut existing_mobs_url = REPO_URL.clone();
         existing_mobs_url
             .path_segments_mut()

@@ -24,7 +24,7 @@ pub(crate) fn base(
     let title = title.map_or(NAME.to_owned(), |title| format!("{title}; {NAME}"));
     const NAV_ICON_SIZE: u8 = 32;
     let brand_classes = classes!("tracking-widest" "text-center");
-    let target_index = targets.path_of("index.html").unwrap();
+    let target_index = targets.path_of("/index.html").unwrap();
     let markup = html! {
         (DOCTYPE)
         html
@@ -69,19 +69,19 @@ pub(crate) fn base(
                             img
                                 width=(NAV_ICON_SIZE)
                                 alt="Zulip"
-                                src=(targets.path_of("zulip_logo.svg").unwrap());
+                                src=(targets.path_of("/zulip_logo.svg").unwrap());
                         }
                         a class=(classes!("invert")) href=(*GITHUB_ORGANIZATION_URL) {
                             img
                                 width=(NAV_ICON_SIZE)
                                 alt="GitHub"
-                                src=(targets.path_of("inverticat.svg").unwrap());
+                                src=(targets.path_of("/inverticat.svg").unwrap());
                         }
                         a href="https://twitter.com/mobusoperandi" {
                             img
                                 width=(NAV_ICON_SIZE)
                                 alt="Twitter"
-                                src=(targets.path_of("twitter_logo.svg").unwrap());
+                                src=(targets.path_of("/twitter_logo.svg").unwrap());
                         }
                     }
                 }
@@ -110,7 +110,7 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
     }
     let id = mob.id.clone();
     Asset::new(
-        ["mobs", &format!("{id}.html")].into_iter().collect(),
+        ["/mobs", &format!("{id}.html")].into_iter().collect(),
         async move {
             Source::BytesWithAssetSafety(Box::new(move |targets| {
                 let join_content = match &mob.status {
@@ -128,7 +128,11 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                         mobs::Link::YouTube(path) => {
                             let mut url = Url::parse("https://www.youtube.com").unwrap();
                             url.set_path(&path);
-                            (url, targets.path_of("youtube_logo.svg").unwrap(), "YouTube")
+                            (
+                                url,
+                                targets.path_of("/youtube_logo.svg").unwrap(),
+                                "YouTube",
+                            )
                         }
                     })
                     .collect::<Vec<_>>();
