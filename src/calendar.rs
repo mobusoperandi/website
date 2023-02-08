@@ -1,14 +1,11 @@
 use std::path::{Path, PathBuf};
 
-use chrono::{DateTime, Utc};
-use csscolorparser::Color;
 use maud::{html, Markup, PreEscaped};
-use serde::Serialize;
 use serde_json::json;
 use ssg::{Asset, Source, Targets};
 
 use crate::html::css_class;
-use crate::mobs::Event;
+use crate::mobs::FullCalendarEvent;
 use crate::style::{BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR};
 use crate::url::Url;
 
@@ -23,7 +20,11 @@ pub(crate) fn js_library_asset() -> Asset {
     })
 }
 
-pub(crate) fn markup(targets: &Targets, events: Vec<Event>, display_event_time: bool) -> Markup {
+pub(crate) fn markup(
+    targets: &Targets,
+    events: Vec<FullCalendarEvent>,
+    display_event_time: bool,
+) -> Markup {
     #[derive(Debug, PartialEq, Eq)]
     enum Direction {
         Left,
@@ -50,33 +51,6 @@ pub(crate) fn markup(targets: &Targets, events: Vec<Event>, display_event_time: 
     let button_prev_class = css_class();
     let button_next_class = css_class();
     let button_today_class = css_class();
-    #[derive(Serialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct FullCalendarEvent {
-        start: DateTime<Utc>,
-        end: DateTime<Utc>,
-        title: String,
-        background_color: Color,
-        text_color: Color,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        url: Option<String>,
-    }
-    impl From<Event> for FullCalendarEvent {
-        fn from(event: Event) -> Self {
-            FullCalendarEvent {
-                start: event.start,
-                end: event.end,
-                title: event.title,
-                background_color: event.background_color,
-                text_color: event.text_color,
-                url: event.target_path,
-            }
-        }
-    }
-    let events = events
-        .into_iter()
-        .map(FullCalendarEvent::from)
-        .collect::<Vec<FullCalendarEvent>>();
     let calendar_fn_input = json!({
         "events": events,
         "displayEventTime": display_event_time,

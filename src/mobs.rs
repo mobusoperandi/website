@@ -139,11 +139,14 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
     (id, yaml_mob).try_into().unwrap()
 }
 
-pub struct Event {
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FullCalendarEvent {
     pub(crate) start: DateTime<Utc>,
     pub(crate) end: DateTime<Utc>,
     pub(crate) title: String,
-    pub(crate) target_path: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) url: Option<String>,
     pub(crate) background_color: Color,
     pub(crate) text_color: Color,
 }
@@ -153,7 +156,7 @@ impl Mob {
         &self,
         include_titles: bool,
         include_links_to_mob_pages: bool,
-    ) -> Vec<Event> {
+    ) -> Vec<FullCalendarEvent> {
         self.schedule
             .iter()
             .flat_map(|recurring_session| {
@@ -162,7 +165,7 @@ impl Mob {
                 recurring_session
                     .recurrence
                     .into_iter()
-                    .map(move |occurrence| Event {
+                    .map(move |occurrence| FullCalendarEvent {
                         start: occurrence.with_timezone(&Utc),
                         end: (occurrence + duration).with_timezone(&Utc),
                         title: if include_titles {
@@ -170,8 +173,7 @@ impl Mob {
                         } else {
                             "".to_owned()
                         },
-                        target_path: include_links_to_mob_pages
-                            .then(|| format!("mobs/{}.html", mob.id)),
+                        url: include_links_to_mob_pages.then(|| format!("mobs/{}.html", mob.id)),
                         background_color: mob.background_color.clone(),
                         text_color: mob.text_color.clone(),
                     })
