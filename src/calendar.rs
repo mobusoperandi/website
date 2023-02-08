@@ -64,6 +64,9 @@ pub(crate) fn markup(
         },
     });
 
+    const INPUT_ATTR: &str = "data-input";
+    let input_selector = format!("[{INPUT_ATTR}]");
+
     html! {
         div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" format!("gap-x-{BUTTON_GAP}"))) {
             div class=(classes!("flex" "flex-wrap" "gap-x-[1ch]" "whitespace-nowrap" "flex-1")) {
@@ -82,9 +85,9 @@ pub(crate) fn markup(
         }
         div class=(classes!(calendar_container_class "[--fc-page-bg-color:transparent]")) {}
         script defer src=(targets.path_of(Path::new("/fullcalendar.js")).unwrap()) {}
-        script {
+        script data-input=(calendar_fn_input.to_string()) {
             (PreEscaped(format!("window.addEventListener('DOMContentLoaded', () => {{
-                const input = JSON.parse('{calendar_fn_input}')
+                const input = JSON.parse(document.querySelector('{input_selector}').getAttribute('{INPUT_ATTR}'))
                 {CALENDAR_FN_SNIPPET}(input)
             }})")))
         }
