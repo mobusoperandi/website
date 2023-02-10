@@ -5,17 +5,17 @@ use crate::{
     fonts,
     html::Classes,
     markdown::to_html,
-    mobs::{self, Mob, MobParticipant},
+    mobs::{self, Mob, MobId, MobParticipant, MobTitle},
     style,
     url::Url,
 };
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 use ssg::{Asset, Source, Targets};
 use std::vec;
 
 pub(crate) fn base(
-    title: Option<String>,
+    title: Option<MobTitle>,
     content: Markup,
     content_classes: Classes,
     targets: &Targets,
@@ -119,8 +119,8 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
                     mobs::Status::Full(join_content) => join_content.clone(),
                     mobs::Status::Public(join_content) => Some(join_content.clone()),
                 };
-                let events = mob.events(false, false);
-                let calendar_html = calendar::markup(&targets, events, true);
+                let events = mob.events(&targets, event_content_template);
+                let calendar_html = calendar::markup(&targets, events);
                 let mob_links = mob
                     .links
                     .into_iter()
@@ -232,6 +232,20 @@ pub(crate) fn mob_page(mob: Mob) -> Asset {
             }))
         },
     )
+}
+
+fn event_content_template(
+    start: DateTime<Utc>,
+    end: DateTime<Utc>,
+    _mob_id: MobId,
+    _mob_title: MobTitle,
+    _targets: &Targets,
+) -> Markup {
+    let start = start.format("%k:%M").to_string();
+    let end = end.format("%k:%M").to_string();
+    html! {
+        (start) "–" (end) " UTC"
+    }
 }
 
 pub(crate) async fn all() -> Vec<Asset> {

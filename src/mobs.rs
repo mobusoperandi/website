@@ -3,9 +3,11 @@ use chrono::TimeZone;
 use chrono::{DateTime, Duration, Utc};
 use csscolorparser::Color;
 use futures::StreamExt;
+use maud::{html, Markup, PreEscaped, Render};
 use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
+use ssg::Targets;
 use std::collections::BTreeSet;
 use std::io;
 use tokio::fs;
@@ -16,8 +18,8 @@ use crate::url::Url;
 
 #[derive(Debug, Clone)]
 pub struct Mob {
-    pub(crate) id: String,
-    pub(crate) title: String,
+    pub(crate) id: MobId,
+    pub(crate) title: MobTitle,
     pub(crate) subtitle: Option<String>,
     pub(crate) participants: Vec<MobParticipant>,
     pub(crate) schedule: Vec<RecurringSession>,
@@ -28,12 +30,23 @@ pub struct Mob {
     pub(crate) status: Status,
 }
 
+#[derive(Debug, Clone, derive_more::Display)]
+pub(crate) struct MobId(String);
+#[derive(Debug, Clone, derive_more::Display)]
+pub(crate) struct MobTitle(String);
+
+impl Render for MobTitle {
+    fn render(&self) -> Markup {
+        PreEscaped(self.0.clone())
+    }
+}
+
 impl TryFrom<(String, YAMLMob)> for Mob {
     type Error = anyhow::Error;
     fn try_from((id, yaml): (String, YAMLMob)) -> Result<Self, Self::Error> {
         Ok(Mob {
-            id,
-            title: yaml.title,
+            id: MobId(id),
+            title: MobTitle(yaml.title),
             subtitle: yaml.subtitle,
             participants: yaml.participants,
             schedule: yaml
@@ -144,9 +157,7 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
 pub struct FullCalendarEvent {
     pub(crate) start: DateTime<Utc>,
     pub(crate) end: DateTime<Utc>,
-    pub(crate) title: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) url: Option<String>,
+    pub(crate) event_content: String,
     pub(crate) background_color: Color,
     pub(crate) text_color: Color,
 }
@@ -154,8 +165,14 @@ pub struct FullCalendarEvent {
 impl Mob {
     pub(crate) fn events(
         &self,
-        include_titles: bool,
-        include_links_to_mob_pages: bool,
+        targets: &Targets,
+        event_content_template: fn(
+            DateTime<Utc>,
+            DateTime<Utc>,
+            MobId,
+            MobTitle,
+            &Targets,
+        ) -> Markup,
     ) -> Vec<FullCalendarEvent> {
         self.schedule
             .iter()
@@ -165,17 +182,35 @@ impl Mob {
                 recurring_session
                     .recurrence
                     .into_iter()
-                    .map(move |occurrence| FullCalendarEvent {
-                        start: occurrence.with_timezone(&Utc),
-                        end: (occurrence + duration).with_timezone(&Utc),
-                        title: if include_titles {
-                            mob.title.clone()
-                        } else {
-                            "".to_owned()
-                        },
-                        url: include_links_to_mob_pages.then(|| format!("mobs/{}.html", mob.id)),
-                        background_color: mob.background_color.clone(),
-                        text_color: mob.text_color.clone(),
+                    .map(move |occurrence| {
+                        let start = occurrence.with_timezone(&Utc);
+                        let end = (start + duration).with_timezone(&Utc);
+
+                        let event_content = event_content_template(
+                            start,
+                            end,
+                            mob.id.clone(),
+                            mob.title.clone(),
+                            targets,
+                        );
+
+                        let background_color = mob.background_color.clone();
+                        let text_color = mob.text_color.clone();
+
+                        let event_content = html! {
+                            div class=(classes!("h-full" "break-words")) {
+                                (event_content)
+                            }
+                        }
+                        .0;
+
+                        FullCalendarEvent {
+                            start,
+                            end,
+                            event_content,
+                            background_color,
+                            text_color,
+                        }
                     })
             })
             .take_while(|event| {

@@ -1,12 +1,13 @@
 use super::base;
 use crate::{
     constants::{DEFAULT_BRANCH, MOBS_PATH, REPO_URL},
-    mobs::{self, get_all_participants},
+    mobs::{self, get_all_participants, MobId, MobTitle},
     pages::calendar,
     style::{BUTTON_CLASSES, BUTTON_GAP},
 };
-use maud::html;
-use ssg::{Asset, Source};
+use chrono::{DateTime, Utc};
+use maud::{html, Markup};
+use ssg::{Asset, Source, Targets};
 
 pub async fn page() -> Asset {
     let mobs = mobs::read_all_mobs().await;
@@ -22,8 +23,11 @@ pub async fn page() -> Asset {
         let participants = get_all_participants().await;
 
         Source::BytesWithAssetSafety(Box::new(move |targets| {
-            let events = mobs.iter().flat_map(|mob| mob.events(true, true)).collect();
-            let calendar_html = calendar::markup(&targets, events, false);
+            let events = mobs
+                .iter()
+                .flat_map(|mob| mob.events(&targets, event_content_template))
+                .collect();
+            let calendar_html = calendar::markup(&targets, events);
             let content = html! {
                 (calendar_html)
                 div class=(classes!("flex" "flex-wrap" format!("gap-x-{BUTTON_GAP}"))) {
@@ -49,4 +53,19 @@ pub async fn page() -> Asset {
             )
         }))
     })
+}
+
+fn event_content_template(
+    _start: DateTime<Utc>,
+    _end: DateTime<Utc>,
+    mob_id: MobId,
+    mob_title: MobTitle,
+    targets: &Targets,
+) -> Markup {
+    let target_path = targets.path_of(format!("/mobs/{mob_id}.html")).unwrap();
+    html! {
+        a class=(classes!("no-underline" "block" "h-full")) href=(target_path) {
+            (mob_title)
+        }
+    }
 }

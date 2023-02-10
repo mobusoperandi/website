@@ -20,11 +20,7 @@ pub(crate) fn js_library_asset() -> Asset {
     })
 }
 
-pub(crate) fn markup(
-    targets: &Targets,
-    events: Vec<FullCalendarEvent>,
-    display_event_time: bool,
-) -> Markup {
+pub(crate) fn markup(targets: &Targets, events: Vec<FullCalendarEvent>) -> Markup {
     #[derive(Debug, PartialEq, Eq)]
     enum Direction {
         Left,
@@ -53,7 +49,6 @@ pub(crate) fn markup(
     let button_today_class = css_class();
     let calendar_fn_input = json!({
         "events": events,
-        "displayEventTime": display_event_time,
         "selectors": {
             "calendarContainer": format!(".{calendar_container_class}"),
             "dateRange": format!(".{date_range_class}"),

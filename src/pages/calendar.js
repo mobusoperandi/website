@@ -6,8 +6,7 @@
     styleElm.sheet.insertRule('.fc .fc-toolbar .fc-toolbar-title { font-size: inherit }')
     styleElm.sheet.insertRule('.fc .fc-toolbar.fc-header-toolbar { margin-bottom: 0.5em; }')
     styleElm.sheet.insertRule('.fc .fc-timegrid-slot { height: 2.5em; }')
-    styleElm.sheet.insertRule('.fc .fc-event-time { white-space: normal; }')
-    styleElm.sheet.insertRule('.fc .fc-event-main-frame { overflow-wrap: break-word; }')
+
     const calendarContainerElm = document.querySelector(selectors.calendarContainer)
     const calendar = new FullCalendar.Calendar(calendarContainerElm, {
       initialView: 'timeGridWeek',
@@ -20,6 +19,7 @@
         }
       },
       events,
+      eventContent: ({ event }) => ({ html: event.extendedProps.eventContent }),
       height: 'auto',
       contentHeight: 'auto',
       eventMinHeight: 40,
