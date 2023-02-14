@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, Render, DOCTYPE};
 use ssg::Targets;
@@ -10,8 +12,29 @@ use crate::{
     style,
 };
 
+#[derive(Debug, Clone)]
+pub(crate) struct PageTitle(String);
+
+impl Render for PageTitle {
+    fn render(&self) -> Markup {
+        self.0.render()
+    }
+}
+
+impl Display for PageTitle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<MobTitle> for PageTitle {
+    fn from(mob_title: MobTitle) -> Self {
+        Self(mob_title.to_string())
+    }
+}
+
 pub(crate) struct BasePage {
-    pub(crate) title: Option<MobTitle>,
+    pub(crate) title: Option<PageTitle>,
     pub(crate) content: Markup,
     pub(crate) content_classes: Classes,
     pub(crate) targets: Targets,
