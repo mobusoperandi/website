@@ -1,12 +1,3 @@
-<!-- TOC -->
-# Table of contents
-
-1. [Table of contents](#table-of-contents)
-1. [Requirements](#requirements)
-1. [Get help from the CLI](#get-help-from-the-cli)
-1. [If there's no output for a while](#if-there's-no-output-for-a-while)
-<!-- TOC -->
-
 # Requirements
 
 1. The [Rust toolchain](https://rust-lang.github.io/rustup/concepts/toolchains.html) specified in `rust-toolchain.toml`.
