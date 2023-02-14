@@ -44,6 +44,7 @@ pub fn generate_static_site(
                         all: targets,
                         current: this_target.clone(),
                     };
+
                     function(targets)?
                 }
                 Source::GoogleFont(google_font) => google_font.download().await?,
@@ -79,6 +80,7 @@ pub fn generate_static_site(
 
             Ok(())
         });
+
         (target, result)
     }))
 }
