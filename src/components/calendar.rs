@@ -1,18 +1,30 @@
 use std::path::Path;
 
+use chrono::{DateTime, Utc};
+use csscolorparser::Color;
 use maud::{html, Markup, PreEscaped, Render};
 use once_cell::sync::Lazy;
+use serde::Serialize;
 use serde_json::json;
 use ssg::Targets;
 
 use crate::html::css_class;
-use crate::mobs::FullCalendarEvent;
 use crate::style::{BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR};
 use crate::url::Url;
 
 pub(crate) struct Calendar {
     pub(crate) targets: Targets,
-    pub(crate) events: Vec<FullCalendarEvent>,
+    pub(crate) events: Vec<CalendarEvent>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct CalendarEvent {
+    pub(crate) start: DateTime<Utc>,
+    pub(crate) end: DateTime<Utc>,
+    pub(crate) event_content: String,
+    pub(crate) background_color: Color,
+    pub(crate) text_color: Color,
 }
 
 pub(crate) static LIBRARY_URL: Lazy<Url> = Lazy::new(|| {

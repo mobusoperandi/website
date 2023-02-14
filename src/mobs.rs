@@ -14,6 +14,7 @@ use ssg::Targets;
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
 
+use crate::components::CalendarEvent;
 use crate::constants::MOBS_PATH;
 use crate::url::Url;
 
@@ -159,16 +160,6 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
     (id, yaml_mob).try_into().unwrap()
 }
 
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct FullCalendarEvent {
-    pub(crate) start: DateTime<Utc>,
-    pub(crate) end: DateTime<Utc>,
-    pub(crate) event_content: String,
-    pub(crate) background_color: Color,
-    pub(crate) text_color: Color,
-}
-
 impl Mob {
     pub(crate) fn events(
         &self,
@@ -180,7 +171,7 @@ impl Mob {
             MobTitle,
             &Targets,
         ) -> Markup,
-    ) -> Vec<FullCalendarEvent> {
+    ) -> Vec<CalendarEvent> {
         self.schedule
             .iter()
             .flat_map(|recurring_session| {
@@ -212,7 +203,7 @@ impl Mob {
                         }
                         .0;
 
-                        FullCalendarEvent {
+                        CalendarEvent {
                             start,
                             end,
                             event_content,
