@@ -1,14 +1,15 @@
 mod disk_caching_http_client;
 
-use anyhow::{anyhow, Result};
-use futures::{future::BoxFuture, Future, FutureExt};
-use readext::ReadExt;
-use reqwest::Url;
 use std::{
     collections::BTreeSet,
     fmt::Display,
     path::{Path, PathBuf},
 };
+
+use anyhow::{anyhow, Result};
+use futures::{future::BoxFuture, Future, FutureExt};
+use readext::ReadExt;
+use reqwest::Url;
 use tokio::{fs, io::AsyncWriteExt};
 
 pub fn generate_static_site(
@@ -19,17 +20,22 @@ pub fn generate_static_site(
         (BTreeSet::<PathBuf>::new(), BTreeSet::<Asset>::new()),
         |(mut paths, mut assets), asset| {
             let newly_inserted = paths.insert(asset.target.clone());
+
             if !newly_inserted {
                 return Err(anyhow!("Duplicate target: {}", asset.target.display()));
             }
+
             assets.insert(asset);
+
             Ok((paths, assets))
         },
     )?;
+
     Ok(assets.into_iter().map(move |Asset { source, target }| {
         let this_target = target.to_owned();
         let targets = paths.clone();
         let output_dir = output_dir.clone();
+
         let result = source.then(|source| async move {
             let contents = match source {
                 Source::Bytes(bytes) => bytes.clone(),
@@ -52,20 +58,25 @@ pub fn generate_static_site(
                         .to_vec()
                 }
             };
+
             let this_target_relative = this_target.iter().skip(1).collect();
             let file_path = [output_dir, this_target_relative]
                 .into_iter()
                 .collect::<PathBuf>();
+
             fs::create_dir_all(file_path.parent().unwrap())
                 .await
                 .unwrap();
+
             let mut file_handle = fs::OpenOptions::new()
                 .write(true)
                 .create(true)
                 .truncate(true)
                 .open(file_path)
                 .await?;
+
             file_handle.write_all(&contents).await?;
+
             Ok(())
         });
         (target, result)
@@ -171,9 +182,11 @@ impl GoogleFont {
                 ("variants", self.variant),
             ],
         )?;
+
         let client = disk_caching_http_client::create();
         let archive = client.get(url.clone()).send().await?.bytes().await?;
         let mut archive = zip::ZipArchive::new(std::io::Cursor::new(archive))?;
+
         let mut font_file = archive.by_name(&format!(
             "{}-v{}-{}-{}.woff2",
             self.name.to_lowercase(),
@@ -181,7 +194,9 @@ impl GoogleFont {
             self.subset,
             self.variant
         ))?;
+
         let font_contents = font_file.read_into_vec()?;
+
         Ok(font_contents)
     }
 }

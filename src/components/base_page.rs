@@ -20,13 +20,17 @@ pub(crate) struct BasePage {
 impl Render for BasePage {
     fn render(&self) -> maud::Markup {
         let version = Utc::now().timestamp_millis();
+
         let title = self
             .title
             .clone()
             .map_or(NAME.to_owned(), |title| format!("{title}; {NAME}"));
+
         const NAV_ICON_SIZE: u8 = 32;
+
         let brand_classes = classes!("tracking-widest" "text-center");
         let target_index = self.targets.path_of("/index.html").unwrap();
+
         let markup = html! {
             (DOCTYPE)
             html
@@ -41,18 +45,20 @@ impl Render for BasePage {
                   link rel="stylesheet" href={ "/index.css?v=" (version) };
                   style {
                     // TODO extract as font utility
-                    @for font in fonts::ALL {(PreEscaped(format!("
-                  @font-face {{
-                    font-family: '{}';
-                    src: url('/{}') format('truetype');
-                  }}
-                ", font.name, fonts::output_filename(&font))))}
+                    @for font in fonts::ALL {
+                        (PreEscaped(format!("
+                            @font-face {{
+                                font-family: '{}';
+                                src: url('/{}') format('truetype');
+                            }}",
+                            font.name, fonts::output_filename(&font)))
+                        )
+                    }
                   }
                 }
                 body class=(classes!("min-h-screen" "py-1" "px-1" "md:px-5" "flex" "flex-col" "gap-1" "max-w-screen-xl" "mx-auto")) {
                     div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" "gap-x-2" "gap-y-1" "uppercase" "text-lg")) {
-                        div
-                            class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap"))
+                        div class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap"))
                             {
                                 @if target_index == self.targets.current_path() {
                                     p
@@ -66,6 +72,7 @@ impl Render for BasePage {
                                 }
                                 p class=(classes!("text-sm" "opacity-75")) { (DESCRIPTION) }
                             }
+
                         div class=(classes!("flex" "items-center" "gap-x-2")) {
                             a href=(*ZULIP_URL) {
                                 img
@@ -73,12 +80,14 @@ impl Render for BasePage {
                                     alt="Zulip"
                                     src=(self.targets.path_of("/zulip_logo.svg").unwrap());
                             }
+
                             a class=(classes!("invert")) href=(*GITHUB_ORGANIZATION_URL) {
                                 img
                                     width=(NAV_ICON_SIZE)
                                     alt="GitHub"
                                     src=(self.targets.path_of("/inverticat.svg").unwrap());
                             }
+
                             a href="https://twitter.com/mobusoperandi" {
                                 img
                                     width=(NAV_ICON_SIZE)
@@ -87,11 +96,15 @@ impl Render for BasePage {
                             }
                         }
                     }
+
                     hr;
+
                     div class=({self.content_classes.clone() + classes!("grow")}) {
                         (self.content)
                     }
+
                     hr;
+
                     div class=(classes!("flex" "justify-between" "flex-wrap" "items-end")) {
                         pre class=(classes!("text-xs")) { code { (*COMMIT_HASH) } }
                         a class=(classes!("text-sm")) href=(*REPO_URL) { "Source"}

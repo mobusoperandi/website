@@ -1,15 +1,16 @@
-mod constants;
-mod fonts;
-mod tailwind;
 #[macro_use]
 mod html;
+
 mod assets;
 mod components;
+mod constants;
+mod fonts;
 mod graphic_assets;
 mod markdown;
 mod mobs;
 mod pages;
 mod style;
+mod tailwind;
 mod url;
 
 use std::thread;

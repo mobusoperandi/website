@@ -2,7 +2,9 @@
 ; (function initCalendar({ events, displayEventTime, selectors }) {
   window.addEventListener('DOMContentLoaded', () => {
     const styleElm = document.createElement('style');
+
     document.head.append(styleElm);
+
     styleElm.sheet.insertRule('.fc .fc-toolbar .fc-toolbar-title { font-size: inherit }')
     styleElm.sheet.insertRule('.fc .fc-toolbar.fc-header-toolbar { margin-bottom: 0.5em; }')
     styleElm.sheet.insertRule('.fc .fc-timegrid-slot { height: 2.5em; }')
@@ -28,26 +30,35 @@
       eventBorderColor: 'transparent',
       headerToolbar: false,
     })
+
     const dateRangeElm = document.querySelector(selectors.dateRange)
     const timezoneElm = document.querySelector(selectors.timezone)
+
     calendar.on('datesSet', (dateInfo) => {
       const start = new Intl.DateTimeFormat().format(dateInfo.start)
       const end = new Intl.DateTimeFormat().format(dateInfo.end)
       dateRangeElm.textContent = `${start} – ${end}`
       timezoneElm.textContent = `Time zone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`
     })
+
     const buttonPrevElm = document.querySelector(selectors.buttonPrev)
+
     buttonPrevElm.addEventListener('click', () => {
       calendar.prev()
     })
+
     const buttonNextElm = document.querySelector(selectors.buttonNext)
+
     buttonNextElm.addEventListener('click', () => {
       calendar.next()
     })
+
     const buttonTodayElm = document.querySelector(selectors.buttonToday)
+
     buttonTodayElm.addEventListener('click', () => {
       calendar.today()
     })
+
     calendar.render()
   })
 })

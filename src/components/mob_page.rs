@@ -18,23 +18,28 @@ pub(crate) struct MobPage {
 impl Render for MobPage {
     fn render(&self) -> maud::Markup {
         type WrapperFn = fn(&str) -> Markup;
+
         fn status_wrapper_false(content: &str) -> Markup {
             html!(s class=(classes!("opacity-70")) { (content) })
         }
+
         fn status_wrapper_true(content: &str) -> Markup {
             html!(span { (content) })
         }
+
         let join_content = match &self.mob.status {
             mobs::Status::Short(join_content) => Some(join_content.clone()),
             mobs::Status::Open(join_content) => Some(join_content.clone()),
             mobs::Status::Full(join_content) => join_content.clone(),
             mobs::Status::Public(join_content) => Some(join_content.clone()),
         };
+
         let events = self.mob.events(&self.targets, event_content_template);
         let calendar = components::Calendar {
             targets: self.targets.clone(),
             events,
         };
+
         let mob_links = self
             .mob
             .links
@@ -52,7 +57,9 @@ impl Render for MobPage {
                 }
             })
             .collect::<Vec<_>>();
+
         let mob_links = (!mob_links.is_empty()).then_some(mob_links);
+
         let (short_wrapper, open_wrapper, full_wrapper, public_wrapper, status_explanation): (
             WrapperFn,
             WrapperFn,
@@ -89,6 +96,7 @@ impl Render for MobPage {
                 html!("This mob is public, so anyone can join."),
             ),
         };
+
         let content = html! {
             div class=(classes!("flex" "flex-col" "sm:flex-row" "sm:justify-around" "text-center" "tracking-wide")) {
                 div class=(classes!("py-12")) {
@@ -97,6 +105,7 @@ impl Render for MobPage {
                         p { (subtitle) }
                     }
                 }
+
                 @if let Some(mob_links) = mob_links {
                     div class=(classes!("flex" "sm:flex-col" "justify-center" "gap-2")) {
                         @for (url, image_path, alt) in mob_links {
@@ -106,6 +115,7 @@ impl Render for MobPage {
                         }
                     }
                 }
+
                 div class=(classes!("py-12")) {
                     h2 { "Participants" }
                     div class=(classes!("font-bold")) {
@@ -118,12 +128,14 @@ impl Render for MobPage {
                     }
                 }
             }
+
             div class=(classes!("flex" "flex-col" "items-center" "gap-1" "text-lg")) {
                 div class=(classes!("flex" "gap-4" "uppercase" "tracking-widest")) {
                     (short_wrapper("short")) (open_wrapper("open")) (full_wrapper("full")) (public_wrapper("public"))
                 }
                 p class="tracking-wide" { (status_explanation) }
             }
+
             div class=(classes!("grid" "grid-flow-row" "sm:grid-flow-col" "auto-cols-fr" "gap-[1.25em]")) {
                 div class=(*style::PROSE_CLASSES) {
                     (PreEscaped(to_html(&self.mob.freeform_copy_markdown)))
@@ -134,9 +146,12 @@ impl Render for MobPage {
                     }
                 }
             }
+
             hr;
+
             (calendar)
         };
+
         components::BasePage {
             title: Some(self.mob.title.clone()),
             content,
@@ -156,6 +171,7 @@ fn event_content_template(
 ) -> Markup {
     let start = start.format("%k:%M").to_string();
     let end = end.format("%k:%M").to_string();
+
     html! {
         (start) "–" (end) " UTC"
     }

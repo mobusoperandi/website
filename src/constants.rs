@@ -5,6 +5,7 @@ use crate::url::Url;
 pub(crate) const NAME: &str = "Mobus Operandi";
 pub(crate) const DESCRIPTION: &str = "A mob programming community";
 pub(crate) const MOBS_PATH: &str = "mobs";
+
 pub(crate) static ZULIP_URL: Lazy<Url> =
     Lazy::new(|| "https://mobusoperandi.zulipchat.com".parse().unwrap());
 
@@ -12,7 +13,9 @@ pub(crate) const GITHUB_ORGANIZATION: &str = "mobusoperandi";
 
 pub(crate) static GITHUB_ORGANIZATION_URL: Lazy<Url> = Lazy::new(|| {
     let mut url = Url::parse("https://github.com/").unwrap();
+
     url.set_path(GITHUB_ORGANIZATION);
+
     url
 });
 

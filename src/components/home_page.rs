@@ -20,6 +20,7 @@ pub(crate) struct HomePage {
 impl Render for HomePage {
     fn render(&self) -> maud::Markup {
         let mut existing_mobs_url = REPO_URL.clone();
+
         existing_mobs_url
             .path_segments_mut()
             .unwrap()
@@ -32,10 +33,12 @@ impl Render for HomePage {
             .iter()
             .flat_map(|mob| mob.events(&self.targets, event_content_template))
             .collect();
+
         let calendar = components::Calendar {
             targets: self.targets.clone(),
             events,
         };
+
         html! {
             (calendar)
             div class=(classes!("flex" "flex-wrap" format!("gap-x-{BUTTON_GAP}"))) {

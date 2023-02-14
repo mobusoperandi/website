@@ -13,6 +13,7 @@ impl FromStr for Class {
         if s.chars().any(|char| char.is_ascii_whitespace()) {
             return Err(s.to_owned());
         }
+
         Ok(Self(s.to_owned()))
     }
 }
@@ -105,11 +106,13 @@ macro_rules! classes {
     () => { $crate::html::Classes::default() };
     ($($class:expr)*) => {{
         let mut classes = $crate::html::Classes::default();
+
         $(
             let class = <$crate::html::Class as ::std::convert::TryFrom<_>>::try_from($class)
                 .unwrap();
             classes.push(class);
         )*
+
         classes
     }};
 }

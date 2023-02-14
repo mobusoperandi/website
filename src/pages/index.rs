@@ -1,7 +1,7 @@
-use crate::{components, mobs};
-
 use maud::Render;
 use ssg::{Asset, Source};
+
+use crate::{components, mobs};
 
 pub async fn page() -> Asset {
     let mobs = mobs::read_all_mobs().await;
@@ -20,6 +20,7 @@ pub async fn page() -> Asset {
                 content_classes: classes!("flex" "flex-col" "gap-1"),
                 targets,
             };
+
             Ok(base_page.render().0.into_bytes())
         }))
     })

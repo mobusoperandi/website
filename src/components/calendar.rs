@@ -26,11 +26,14 @@ impl Render for Calendar {
             Left,
             Right,
         }
+
         fn arrow(direction: Direction) -> Markup {
             let mut classes = classes!("w-[1em]" format!("fill-{TEXT_COLOR}"));
+
             if direction == Direction::Right {
                 classes.push("rotate-180".parse().unwrap());
             }
+
             html! {
                 svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -40,6 +43,7 @@ impl Render for Calendar {
                                     }
             }
         }
+
         const CALENDAR_FN_SNIPPET: &str = include_str!("calendar/snippet.js");
         let calendar_container_class = css_class();
         let date_range_class = css_class();
@@ -47,6 +51,7 @@ impl Render for Calendar {
         let button_prev_class = css_class();
         let button_next_class = css_class();
         let button_today_class = css_class();
+
         let calendar_fn_input = json!({
             "events": self.events,
             "selectors": {
@@ -68,13 +73,16 @@ impl Render for Calendar {
                     p class=(classes!(timezone_class)) {}
                     p class=(classes!(date_range_class)) {}
                 }
+
                 div class=(classes!("flex" format!("gap-x-{BUTTON_GAP}"))) {
                     div class=({BUTTON_CLASSES.clone() + classes!(button_prev_class)}) {
                         (arrow(Direction::Left))
                     }
+
                     div class=({BUTTON_CLASSES.clone() + classes!(button_next_class)}) {
                         (arrow(Direction::Right))
                     }
+
                     button class=({BUTTON_CLASSES.clone() + classes!(button_today_class)}) { "Today" }
                 }
             }

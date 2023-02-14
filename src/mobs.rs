@@ -1,3 +1,6 @@
+use std::collections::BTreeSet;
+use std::io;
+
 use anyhow::anyhow;
 use chrono::TimeZone;
 use chrono::{DateTime, Duration, Utc};
@@ -8,8 +11,6 @@ use rrule::{RRule, RRuleSet, Unvalidated};
 use serde::Deserialize;
 use serde::Serialize;
 use ssg::Targets;
-use std::collections::BTreeSet;
-use std::io;
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
 
@@ -126,15 +127,19 @@ impl TryFrom<YAMLRecurringSession> for RecurringSession {
             start_time,
             duration,
         } = yaml_recurring_session;
+
         let recurrence = format!("RRULE:{recurrence}");
         let rrule: RRule<Unvalidated> = recurrence.parse()?;
         let timezone: chrono_tz::Tz = timezone.parse().map_err(|e: String| anyhow!(e))?;
         let timezone: rrule::Tz = timezone.into();
+
         let start_date_time = timezone
             .datetime_from_str(&(start_date + &start_time), "%F%R")
             .unwrap();
+
         let recurrence = rrule.build(start_date_time).unwrap();
         let duration = Duration::minutes(duration.into());
+
         Ok(RecurringSession {
             recurrence,
             duration,
@@ -146,9 +151,11 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
     let data_file_path = dir_entry.unwrap().path();
     let id = data_file_path.file_stem().unwrap().to_str().unwrap().into();
     let data = fs::read_to_string(data_file_path.clone()).await.unwrap();
+
     let yaml_mob: YAMLMob = serde_yaml::from_str(&data)
         .map_err(|e| anyhow!("{:?} {:?}", data_file_path, e))
         .unwrap();
+
     (id, yaml_mob).try_into().unwrap()
 }
 
@@ -179,6 +186,7 @@ impl Mob {
             .flat_map(|recurring_session| {
                 let duration = recurring_session.duration;
                 let mob = self.clone();
+
                 recurring_session
                     .recurrence
                     .into_iter()
