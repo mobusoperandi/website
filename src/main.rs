@@ -4,7 +4,7 @@ mod tailwind;
 #[macro_use]
 mod html;
 mod assets;
-mod calendar;
+mod components;
 mod graphic_assets;
 mod markdown;
 mod mobs;
