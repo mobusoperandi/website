@@ -7,7 +7,7 @@ pub async fn page() -> Asset {
     let mobs = mobs::read_all_mobs().await;
     let participants = mobs::get_all_participants().await;
 
-    Asset::new("/index.html".into(), async {
+    Asset::new("/index.html", async {
         Source::BytesWithAssetSafety(Box::new(move |targets| {
             let base_page = components::BasePage {
                 title: None,

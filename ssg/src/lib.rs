@@ -91,7 +91,12 @@ pub struct Asset {
 }
 
 impl Asset {
-    pub fn new(target: PathBuf, source: impl Future<Output = Source> + Send + 'static) -> Self {
+    pub fn new<T>(target: T, source: impl Future<Output = Source> + Send + 'static) -> Self
+    where
+        PathBuf: From<T>,
+    {
+        let target: PathBuf = target.into();
+
         assert!(target.is_absolute(), "path not absolute: {target:?}");
 
         Self {

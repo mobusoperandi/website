@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use ssg::{Asset, Source};
 
 use crate::{components, fonts, graphic_assets, pages};
@@ -8,7 +6,7 @@ pub(crate) async fn get() -> impl Iterator<Item = Asset> {
     let fonts = fonts::assets();
     let pages = pages::all().await;
 
-    let calendar_library = Asset::new(PathBuf::from("/fullcalendar.js"), async {
+    let calendar_library = Asset::new("/fullcalendar.js", async {
         Source::Http(components::CALENDAR_LIBRARY_URL.to_inner().clone())
     });
 

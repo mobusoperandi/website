@@ -11,14 +11,11 @@ use crate::{
 };
 
 fn mob_page(mob: Mob) -> Asset {
-    Asset::new(
-        ["/mobs", &format!("{}.html", mob.id)].into_iter().collect(),
-        async move {
-            Source::BytesWithAssetSafety(Box::new(move |targets| {
-                Ok(components::MobPage { mob, targets }.render().0.into_bytes())
-            }))
-        },
-    )
+    Asset::new(format!("/mobs/{}.html", mob.id), async move {
+        Source::BytesWithAssetSafety(Box::new(move |targets| {
+            Ok(components::MobPage { mob, targets }.render().0.into_bytes())
+        }))
+    })
 }
 
 pub(crate) async fn all() -> Vec<Asset> {
