@@ -41,8 +41,8 @@ jobs:
       - id: deploy
         if: github.event_name == 'pull_request'
         run: |
-          vercel pull --yes --environment=preview --scope mobusoperandi --token=${{ secrets.VERCEL_TOKEN }}
-          URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          npx vercel pull --yes --environment=preview --scope mobusoperandi --token=${{ secrets.VERCEL_TOKEN }}
+          URL=$(npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "URL=$URL" >> $GITHUB_OUTPUT
       - if: github.event_name == 'pull_request'
         uses: thollander/actions-comment-pull-request@v2
