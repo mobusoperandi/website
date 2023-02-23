@@ -5,25 +5,23 @@ participants:
     name: Shahar “Dawn” Or
     social_url: https://twitter.com/mightyiam
     avatar_url: https://avatars.githubusercontent.com/u/635591?v=4
+  - !Public
+    name: Iuliu Pop
+    social_url: https://twitter.com/iulspop
+    avatar_url: https://avatars.githubusercontent.com/u/53665722?v=4
 schedule:
-  - recurrence: FREQ=WEEKLY;BYDAY=MO,WE,FR
+  - recurrence: FREQ=WEEKLY;BYDAY=MO
     timezone: Etc/UTC
-    start_date: 2022-05-06
-    start_time: 13:00
-    duration: 120
-background_color: darkorange
-text_color: darkblue
+    start_date: 2023-02-13
+    start_time: 12:30
+    duration: 90
+background_color: salmon
+text_color: black
 freeform_copy: |
-  ## What we'd like to do
+  ## We're learning Agda
 
-  We'd like to go on a serious and fun journey of learning [Agda](https://wiki.portal.chalmers.se/agda/pmwiki.php).
-
-  Mob programming facilitated by [Dawn](https://twitter.com/mightyiam).
-
-  ## Schedule
-
-  The schedule is merely a suggestion.
-status: !Short |
+  Learning [Agda](https://wiki.portal.chalmers.se/agda/pmwiki.php) since 2023-02-13.
+status: !Open |
   ## Join us
 
   To apply, please contact [Dawn](https://github.com/mightyiam).
