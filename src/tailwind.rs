@@ -12,12 +12,21 @@ pub(crate) async fn execute() {
         .args([
             "tailwindcss",
             "--input",
-            &PathBuf::from("src/input.css").to_string_lossy(),
+            &["src", "input.css"]
+                .iter()
+                .collect::<PathBuf>()
+                .to_string_lossy(),
             "--output",
-            &PathBuf::from(format!("./{OUTPUT_DIR}/index.css")).to_string_lossy(),
+            &[".", OUTPUT_DIR, "index.css"]
+                .iter()
+                .collect::<PathBuf>()
+                .to_string_lossy(),
             "--content",
             // TODO explicit list instead of pattern
-            &PathBuf::from(format!("./{OUTPUT_DIR}/**/*.html")).to_string_lossy(),
+            &[".", OUTPUT_DIR, "**", "*.html"]
+                .iter()
+                .collect::<PathBuf>()
+                .to_string_lossy(),
         ])
         .output()
         .await
