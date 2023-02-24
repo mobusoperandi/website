@@ -54,9 +54,9 @@ impl Render for MobSubtitle {
     }
 }
 
-impl TryFrom<(String, YAMLMob)> for Mob {
+impl TryFrom<(String, MobFile)> for Mob {
     type Error = anyhow::Error;
-    fn try_from((id, yaml): (String, YAMLMob)) -> Result<Self, Self::Error> {
+    fn try_from((id, yaml): (String, MobFile)) -> Result<Self, Self::Error> {
         Ok(Mob {
             id: MobId(id),
             title: yaml.title,
@@ -118,11 +118,11 @@ pub(crate) struct RecurringSession {
 }
 
 #[derive(Deserialize)]
-struct YAMLMob {
+struct MobFile {
     title: MobTitle,
     subtitle: Option<MobSubtitle>,
     participants: Vec<MobParticipant>,
-    schedule: Vec<YAMLRecurringSession>,
+    schedule: Vec<YamlRecurringSession>,
     background_color: Color,
     text_color: Color,
     links: Option<Vec<Link>>,
@@ -134,7 +134,7 @@ struct YAMLMob {
 struct RecurrenceFrequency(String);
 
 #[derive(Deserialize)]
-struct YAMLRecurringSession {
+struct YamlRecurringSession {
     frequency: RecurrenceFrequency,
     timezone: Tz,
     start_date: NaiveDate,
@@ -154,10 +154,10 @@ impl From<Minutes> for Duration {
     }
 }
 
-impl TryFrom<YAMLRecurringSession> for RecurringSession {
+impl TryFrom<YamlRecurringSession> for RecurringSession {
     type Error = anyhow::Error;
-    fn try_from(yaml_recurring_session: YAMLRecurringSession) -> Result<Self, Self::Error> {
-        let YAMLRecurringSession {
+    fn try_from(yaml_recurring_session: YamlRecurringSession) -> Result<Self, Self::Error> {
+        let YamlRecurringSession {
             frequency: recurrence,
             timezone,
             start_date,
@@ -188,7 +188,7 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
     let id = data_file_path.file_stem().unwrap().to_str().unwrap().into();
     let data = fs::read_to_string(data_file_path.clone()).await.unwrap();
 
-    let yaml_mob: YAMLMob = serde_yaml::from_str(&data)
+    let yaml_mob: MobFile = serde_yaml::from_str(&data)
         .map_err(|e| anyhow!("{:?} {:?}", data_file_path, e))
         .unwrap();
 
