@@ -10,7 +10,7 @@ participants:
     social_url: https://twitter.com/iulspop
     avatar_url: https://avatars.githubusercontent.com/u/53665722?v=4
 schedule:
-  - recurrence: FREQ=WEEKLY;BYDAY=MO
+  - frequency: FREQ=WEEKLY;BYDAY=MO
     timezone: Etc/UTC
     start_date: 2023-02-13
     start_time: 12:30

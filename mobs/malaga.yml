@@ -6,7 +6,7 @@ participants:
     social_url: https://twitter.com/alterisian
     avatar_url:
 schedule:
-  - recurrence: FREQ=WEEKLY;BYDAY=MO
+  - frequency: FREQ=WEEKLY;BYDAY=MO
     timezone: Etc/UTC
     start_date: 2022-11-01
     start_time: 17:00

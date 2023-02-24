@@ -1,10 +1,9 @@
 use chrono::{DateTime, Utc};
-use maud::{html, Markup, PreEscaped, Render};
+use maud::{html, Markup, Render};
 use ssg::Targets;
 
 use crate::{
     components,
-    markdown::to_html,
     mobs::{self, Mob, MobId, MobParticipant, MobTitle},
     style,
     url::Url,
@@ -28,10 +27,10 @@ impl Render for MobPage {
         }
 
         let join_content = match &self.mob.status {
-            mobs::Status::Short(join_content) => Some(join_content.clone()),
-            mobs::Status::Open(join_content) => Some(join_content.clone()),
-            mobs::Status::Full(join_content) => join_content.clone(),
-            mobs::Status::Public(join_content) => Some(join_content.clone()),
+            mobs::Status::Short(join_content) => Some(join_content.to_owned()),
+            mobs::Status::Open(join_content) => Some(join_content.to_owned()),
+            mobs::Status::Full(join_content) => join_content.to_owned(),
+            mobs::Status::Public(join_content) => Some(join_content.to_owned()),
         };
 
         let events = self.mob.events(&self.targets, event_content_template);
@@ -102,7 +101,7 @@ impl Render for MobPage {
                 div class=(classes!("py-12")) {
                     h1 class=(classes!("text-4xl")) { (self.mob.title) }
                     @if let Some(subtitle) = &self.mob.subtitle {
-                        p { (subtitle) }
+                        (subtitle)
                     }
                 }
 
@@ -138,11 +137,11 @@ impl Render for MobPage {
 
             div class=(classes!("grid" "grid-flow-row" "sm:grid-flow-col" "auto-cols-fr" "gap-[1.25em]")) {
                 div class=(*style::PROSE_CLASSES) {
-                    (PreEscaped(to_html(&self.mob.freeform_copy_markdown)))
+                    (self.mob.freeform_copy_markdown.to_html())
                 }
                 div class=(*style::PROSE_CLASSES) {
                     @if let Some(join_content) = join_content {
-                        (PreEscaped(to_html(&join_content)))
+                        (join_content.to_html())
                     }
                 }
             }

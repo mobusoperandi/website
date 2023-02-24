@@ -2,8 +2,9 @@ use std::collections::BTreeSet;
 use std::io;
 
 use anyhow::anyhow;
-use chrono::TimeZone;
 use chrono::{DateTime, Duration, Utc};
+use chrono::{NaiveDate, TimeZone};
+use chrono_tz::Tz;
 use csscolorparser::Color;
 use futures::StreamExt;
 use maud::{html, Markup, PreEscaped, Render};
@@ -16,16 +17,17 @@ use tokio_stream::wrappers::ReadDirStream;
 
 use crate::components::CalendarEvent;
 use crate::constants::MOBS_PATH;
+use crate::markdown::Markdown;
 use crate::url::Url;
 
 #[derive(Debug, Clone)]
 pub struct Mob {
     pub(crate) id: MobId,
     pub(crate) title: MobTitle,
-    pub(crate) subtitle: Option<String>,
+    pub(crate) subtitle: Option<MobSubtitle>,
     pub(crate) participants: Vec<MobParticipant>,
     pub(crate) schedule: Vec<RecurringSession>,
-    pub(crate) freeform_copy_markdown: String,
+    pub(crate) freeform_copy_markdown: Markdown,
     pub(crate) background_color: Color,
     pub(crate) text_color: Color,
     pub(crate) links: Vec<Link>,
@@ -34,7 +36,7 @@ pub struct Mob {
 
 #[derive(Debug, Clone, derive_more::Display)]
 pub(crate) struct MobId(String);
-#[derive(Debug, Clone, derive_more::Display)]
+#[derive(Debug, Clone, derive_more::Display, Serialize, Deserialize)]
 pub(crate) struct MobTitle(String);
 
 impl Render for MobTitle {
@@ -43,12 +45,21 @@ impl Render for MobTitle {
     }
 }
 
+#[derive(Debug, Clone, derive_more::Display, Serialize, Deserialize)]
+pub(crate) struct MobSubtitle(String);
+
+impl Render for MobSubtitle {
+    fn render(&self) -> Markup {
+        html! { p { (self.0) } }
+    }
+}
+
 impl TryFrom<(String, YAMLMob)> for Mob {
     type Error = anyhow::Error;
     fn try_from((id, yaml): (String, YAMLMob)) -> Result<Self, Self::Error> {
         Ok(Mob {
             id: MobId(id),
-            title: MobTitle(yaml.title),
+            title: yaml.title,
             subtitle: yaml.subtitle,
             participants: yaml.participants,
             schedule: yaml
@@ -67,10 +78,10 @@ impl TryFrom<(String, YAMLMob)> for Mob {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) enum Status {
-    Short(String),
-    Open(String),
-    Full(Option<String>),
-    Public(String),
+    Short(Markdown),
+    Open(Markdown),
+    Full(Option<Markdown>),
+    Public(Markdown),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -86,9 +97,18 @@ pub(crate) enum MobParticipant {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct Person {
-    pub(crate) name: String,
+    pub(crate) name: PersonName,
     pub(crate) social_url: Url,
     pub(crate) avatar_url: Option<Url>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct PersonName(String);
+
+impl Render for PersonName {
+    fn render(&self) -> Markup {
+        self.0.render()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -99,30 +119,46 @@ pub(crate) struct RecurringSession {
 
 #[derive(Deserialize)]
 struct YAMLMob {
-    title: String,
-    subtitle: Option<String>,
+    title: MobTitle,
+    subtitle: Option<MobSubtitle>,
     participants: Vec<MobParticipant>,
     schedule: Vec<YAMLRecurringSession>,
     background_color: Color,
     text_color: Color,
     links: Option<Vec<Link>>,
-    freeform_copy: String,
+    freeform_copy: Markdown,
     status: Status,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, derive_more::Display)]
+struct RecurrenceFrequency(String);
+
 #[derive(Deserialize)]
 struct YAMLRecurringSession {
-    recurrence: String,
-    timezone: String,
-    start_date: String,
-    start_time: String,
-    duration: u16,
+    frequency: RecurrenceFrequency,
+    timezone: Tz,
+    start_date: NaiveDate,
+    start_time: Time,
+    duration: Minutes,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, derive_more::Display)]
+struct Time(String);
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct Minutes(u16);
+
+impl From<Minutes> for Duration {
+    fn from(minutes: Minutes) -> Self {
+        Self::minutes(minutes.0.into())
+    }
 }
 
 impl TryFrom<YAMLRecurringSession> for RecurringSession {
     type Error = anyhow::Error;
     fn try_from(yaml_recurring_session: YAMLRecurringSession) -> Result<Self, Self::Error> {
         let YAMLRecurringSession {
-            recurrence,
+            frequency: recurrence,
             timezone,
             start_date,
             start_time,
@@ -131,15 +167,14 @@ impl TryFrom<YAMLRecurringSession> for RecurringSession {
 
         let recurrence = format!("RRULE:{recurrence}");
         let rrule: RRule<Unvalidated> = recurrence.parse()?;
-        let timezone: chrono_tz::Tz = timezone.parse().map_err(|e: String| anyhow!(e))?;
         let timezone: rrule::Tz = timezone.into();
 
         let start_date_time = timezone
-            .datetime_from_str(&(start_date + &start_time), "%F%R")
+            .datetime_from_str(&format!("{start_date}{start_time}"), "%F%R")
             .unwrap();
 
         let recurrence = rrule.build(start_date_time).unwrap();
-        let duration = Duration::minutes(duration.into());
+        let duration = duration.into();
 
         Ok(RecurringSession {
             recurrence,

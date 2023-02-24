@@ -9,7 +9,7 @@ participants:
     social_url: https://twitter.com/NitsanAvni
     avatar_url: https://avatars.githubusercontent.com/u/2943610?v=4
 schedule:
-  - recurrence: FREQ=WEEKLY;BYDAY=TH
+  - frequency: FREQ=WEEKLY;BYDAY=TH
     timezone: Europe/Vienna
     start_date: 2023-01-05
     start_time: 17:00
