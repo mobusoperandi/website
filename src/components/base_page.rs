@@ -8,7 +8,6 @@ use crate::{
     constants::{COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL},
     fonts,
     html::Classes,
-    mobs::MobTitle,
     style,
 };
 
@@ -27,9 +26,9 @@ impl Display for PageTitle {
     }
 }
 
-impl From<MobTitle> for PageTitle {
-    fn from(mob_title: MobTitle) -> Self {
-        Self(mob_title.to_string())
+impl From<String> for PageTitle {
+    fn from(string: String) -> Self {
+        Self(string)
     }
 }
 

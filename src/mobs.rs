@@ -39,6 +39,12 @@ pub(crate) struct MobId(String);
 #[derive(Debug, Clone, derive_more::Display, Serialize, Deserialize)]
 pub(crate) struct MobTitle(String);
 
+impl MobTitle {
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
+}
+
 impl Render for MobTitle {
     fn render(&self) -> Markup {
         PreEscaped(self.0.clone())

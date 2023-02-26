@@ -152,7 +152,7 @@ impl Render for MobPage {
         };
 
         components::BasePage {
-            title: Some(self.mob.title.clone().into()),
+            title: Some(self.mob.title.as_str().to_owned().into()),
             content,
             content_classes: classes!("flex" "flex-col" "gap-6"),
             targets: self.targets.clone(),
