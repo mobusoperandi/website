@@ -6,7 +6,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.66"
+anyhow = { version = "1.0.66", features = ["backtrace"] }
 chrono = { version = "0.4.19", features = ["serde"] }
 chrono-tz = { version = "0.6.1", features = ["serde"] }
 clap = { version = "4.1.4", features = ["derive"] }
