@@ -10,23 +10,23 @@ participants:
     social_url: https://twitter.com/kellyrankin19
     avatar_url: https://avatars.githubusercontent.com/u/1892611?v=4
 schedule:
-  - frequency: FREQ=WEEKLY;BYDAY=MO,TU,WE
+  - frequency: FREQ=WEEKLY;BYDAY=MO,TU,WE,TH
     timezone: Etc/UTC
     start_date: 2023-01-23
     start_time: 04:00
-    duration: 120
+    duration: 180
 background_color: firebrick
 text_color: floralwhite
 freeform_copy: |
   ## What we do
 
-  We are currently working on the Mobus Operandi website which is [statically generated using Rust](https://github.com/mobusoperandi/website).
+  We are currently working on [the Mobus Operandi website](https://mobusoperandi.com) which is [statically generated using Rust](https://github.com/mobusoperandi/website).
 status: !Open |
   ## Join us
   
   We're currently only two, so we're definitely interested in expanding.
   You'll be learning/practicing web development using Rust.
 
-  The current schedule works for us, but we could possibly select different weekdays.
+  If the current is too much for you, you don't have to participate in all of it.
   
-  To apply, please contact [Dawn](https://twitter.com/mightyiam) and let him know that you’re interested.
+  To apply, please contact [Dawn](https://twitter.com/mightyiam).
