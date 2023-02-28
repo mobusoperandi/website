@@ -1,3 +1,4 @@
+pub(crate) mod add;
 mod index;
 
 use std::vec;
@@ -21,7 +22,7 @@ fn mob_page(mob: Mob) -> Asset {
 pub(crate) async fn all() -> Vec<Asset> {
     let mobs = mobs::read_all_mobs().await;
     let mut mob_pages = mobs.iter().cloned().map(mob_page).collect::<Vec<_>>();
-    let mut pages = vec![index::page().await];
+    let mut pages = vec![index::page().await, add::page()];
 
     pages.append(&mut mob_pages);
 

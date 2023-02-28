@@ -6,7 +6,6 @@ use ssg::Targets;
 
 use crate::{
     components,
-    constants::{DEFAULT_BRANCH, MOBS_PATH, REPO_URL},
     mobs::{Mob, MobId, MobTitle, Person},
     style::{BUTTON_CLASSES, BUTTON_GAP},
 };
@@ -19,15 +18,6 @@ pub(crate) struct HomePage {
 
 impl Render for HomePage {
     fn render(&self) -> maud::Markup {
-        let mut existing_mobs_url = REPO_URL.clone();
-
-        existing_mobs_url
-            .path_segments_mut()
-            .unwrap()
-            .push("tree")
-            .push(DEFAULT_BRANCH)
-            .push(MOBS_PATH);
-
         let events = self
             .mobs
             .iter()
@@ -44,7 +34,7 @@ impl Render for HomePage {
             div class=(classes!("flex" "flex-wrap" format!("gap-x-{BUTTON_GAP}"))) {
                 a
                     class=(*BUTTON_CLASSES)
-                    href=(existing_mobs_url)
+                    href=(self.targets.path_of("/add.html").unwrap())
                     { "Add your mob" }
             }
             div class=(classes!("flex" "flex-wrap")) {

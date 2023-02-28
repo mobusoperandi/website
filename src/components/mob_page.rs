@@ -64,35 +64,35 @@ impl Render for MobPage {
             WrapperFn,
             WrapperFn,
             WrapperFn,
-            Markup,
+            &str,
         ) = match self.mob.status {
             mobs::Status::Short(_) => (
                 status_wrapper_true,
                 status_wrapper_false,
                 status_wrapper_false,
                 status_wrapper_false,
-                html!("This mob needs more participants to become active."),
+                "This mob is not active yet because it needs more members.",
             ),
             mobs::Status::Open(_) => (
                 status_wrapper_false,
                 status_wrapper_true,
                 status_wrapper_false,
                 status_wrapper_false,
-                html!("This mob is open to more participants."),
+                "This mob is taking applications for new participants.",
             ),
             mobs::Status::Full(_) => (
                 status_wrapper_false,
                 status_wrapper_false,
                 status_wrapper_true,
                 status_wrapper_false,
-                html!("This mob is not interested in more participants at this time."),
+                "This mob is not currently taking applications.",
             ),
             mobs::Status::Public(_) => (
                 status_wrapper_false,
                 status_wrapper_false,
                 status_wrapper_false,
                 status_wrapper_true,
-                html!("This mob is public, so anyone can join."),
+                "This mob's sessions are open for anyone to join.",
             ),
         };
 

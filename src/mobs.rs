@@ -9,6 +9,7 @@ use csscolorparser::Color;
 use futures::StreamExt;
 use maud::{html, Markup, PreEscaped, Render};
 use rrule::{RRule, RRuleSet, Unvalidated};
+use schema::Schema;
 use serde::Deserialize;
 use serde::Serialize;
 use ssg::Targets;
@@ -82,29 +83,118 @@ impl TryFrom<(String, MobFile)> for Mob {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Schema)]
+/// A mob's status
 pub(crate) enum Status {
+    /// This mob is not active yet because it needs more members.
+    ///
+    /// The value explains how to apply.
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// !Short |
+    ///   To apply contact [Kelly](https://example.com/kelly).
+    /// ```
     Short(Markdown),
+    /// This mob is taking applications for new participants.
+    ///
+    /// The value explains how to apply.
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// !Open |
+    ///   To apply contact [Dawn](https://example.com/dawn).
+    /// ```
     Open(Markdown),
+    /// This mob is not currently taking applications.
+    ///
+    /// The value is optional.
+    ///     
+    /// Example:
+    ///
+    /// ```yaml
+    /// !Full |
+    ///   We are currently full.
+    /// ```
     Full(Option<Markdown>),
+    /// This mob's sessions are open for anyone to join.
+    ///
+    /// The value explains how to join.
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// !Public |
+    ///   [Room link](https://meet.jit.si/MedievalWebsPortrayLoud)
+    /// ```
     Public(Markdown),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Schema)]
+/// A link that showcases the mob
 pub enum Link {
+    /// A YouTube channel ID
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// !YouTube "@mobseattle"
+    /// ```
     YouTube(String),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Schema)]
+/// A participant in a mob
 pub(crate) enum MobParticipant {
+    /// A mob member who prefers to remain anonymous
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// !Hidden
+    /// ```
     Hidden,
+    /// A mob member who wishes to be publically listed"whitespace-nowrap" "font-mono"
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// !Public
+    /// name: Forbany Klenbin
+    /// social_url: https://example.com/fk
+    /// avatar_url: https://example.com/fk.png
+    /// ```
     Public(Person),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Schema)]
+/// The public details about a person
 pub(crate) struct Person {
+    /// The person's name
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// Nompomer Pilento
+    /// ```
     pub(crate) name: PersonName,
+    /// A social URL
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// https://example.com/np
+    /// ```
     pub(crate) social_url: Url,
+    /// An avatar image URL
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// https://example.com/np.png
+    /// ```
     pub(crate) avatar_url: Option<Url>,
 }
 
@@ -123,28 +213,117 @@ pub(crate) struct RecurringSession {
     pub(crate) duration: Duration,
 }
 
-#[derive(Deserialize)]
-struct MobFile {
-    title: MobTitle,
-    subtitle: Option<MobSubtitle>,
-    participants: Vec<MobParticipant>,
-    schedule: Vec<YamlRecurringSession>,
-    background_color: Color,
-    text_color: Color,
-    links: Option<Vec<Link>>,
-    freeform_copy: Markdown,
-    status: Status,
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, derive_more::Display)]
 struct RecurrenceFrequency(String);
 
-#[derive(Deserialize)]
-struct YamlRecurringSession {
+#[derive(Deserialize, Schema)]
+/// The contents of a mob file
+pub(crate) struct MobFile {
+    /// The mob's title
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// Agile Bandits
+    /// ```
+    title: MobTitle,
+    /// An optional mob's subtitle
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// Hackin' and cruisin'
+    /// ```
+    subtitle: Option<MobSubtitle>,
+    /// Regular participants of the mob
+    participants: Vec<MobParticipant>,
+    /// The mob's regular schedule
+    schedule: Vec<YamlRecurringSession>,
+    /// Color of the background of calendar event blocks
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// aliceblue
+    /// ```
+    background_color: Color,
+    /// Color of text inside calendar event blocks
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// orangered
+    /// ```
+    text_color: Color,
+    /// Links associated with the mob
+    ///
+    /// ```yaml
+    /// - !YouTube @agilebandits
+    /// ```
+    links: Option<Vec<Link>>,
+    /// A description of the mob, the purpose of it, its past attainments, etc.
+    ///
+    /// ```yaml
+    /// ## What we do
+    ///
+    /// We study the BrainShock programming language.
+    /// ```
+    freeform_copy: Markdown,
+    /// The mob's current status
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// !Public |
+    ///   ## Just show up!
+    ///
+    ///   [Room link](https://meet.jit.si/MedievalWebsPortrayLoud)
+    /// ```
+    status: Status,
+}
+
+#[derive(Deserialize, Schema)]
+/// Specification for a recurring session
+pub(crate) struct YamlRecurringSession {
+    /// Frequency of the recurrence in [RRULE](https://icalendar.org/iCalendar-RFC-5545/3-8-5-3-recurrence-rule.html) format
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// FREQ=WEEKLY;BYDAY=MO,TU,WE,TH
+    /// ```
     frequency: RecurrenceFrequency,
+    /// The schedule's timezone
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// Africa/Dakar
+    /// ```
     timezone: Tz,
+    /// Date of the first session of this schedule
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// 2023-02-27
+    /// ```
     start_date: NaiveDate,
+    /// Session start time
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// 04:00
+    /// ```
     start_time: Time,
+    /// Session duration in minutes
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// 180
+    /// ```
     duration: Minutes,
 }
 

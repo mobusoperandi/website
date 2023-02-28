@@ -1,7 +1,9 @@
+pub(crate) mod add_page;
 mod base_page;
 mod calendar;
 mod home_page;
 mod mob_page;
+pub(crate) mod schema;
 
 pub(crate) use base_page::BasePage;
 pub(crate) use calendar::Calendar;

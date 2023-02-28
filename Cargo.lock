@@ -17,14 +17,17 @@ dependencies = [
  "derive_more",
  "futures",
  "global_counter",
+ "indexmap",
  "live-server",
  "maud",
  "once_cell",
  "rrule",
+ "schema",
  "serde",
  "serde_json",
  "serde_yaml",
  "ssg",
+ "syn",
  "tokio",
  "tokio-stream",
  "url",
@@ -2831,6 +2834,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "paste"
+version = "1.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d01a5bd0424d00070b0098dd17ebca6f961a959dead1dbcbbbc1d1cd8d3deeba"
+
+[[package]]
 name = "pbkdf2"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3363,6 +3372,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "713cfb06c7059f3588fb8044c0fad1d09e3c01d225e25b9220dbfdcf16dbb1b3"
 dependencies = [
  "windows-sys 0.42.0",
+]
+
+[[package]]
+name = "schema"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c264b3fd73f2b0b7360f7ae10779dbcb3a3d0f2b1326347c16cd4da32a0db43"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "schema-derive",
+ "syn",
+]
+
+[[package]]
+name = "schema-derive"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c5081f42984166c05c533e4ae3a75e8c1f973071be7ef442912d7f83fc9e762"
+dependencies = [
+ "paste",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
