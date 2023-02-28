@@ -417,7 +417,7 @@ impl Mob {
                         let text_color = mob.text_color.clone();
 
                         let event_content = html! {
-                            div class=(classes!("h-full" "break-words")) {
+                            div class=(classes!("h-full", "break-words")) {
                                 (event_content)
                             }
                         }

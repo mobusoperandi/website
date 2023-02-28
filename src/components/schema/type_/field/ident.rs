@@ -14,10 +14,7 @@ impl From<String> for FieldIdent {
 
 impl Render for FieldIdent {
     fn render(&self) -> maud::Markup {
-        let root_classes = classes!(
-            "font-bold"
-            format!("text-blue-{IDENT_INTENSITY}")
-        );
+        let root_classes = classes!("font-bold", format!("text-blue-{IDENT_INTENSITY}"));
 
         html! {
             span class=(root_classes) { (self.0) }

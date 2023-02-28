@@ -50,7 +50,7 @@ impl Render for AddPage {
                     " that adds a mob file."
                 }
             }
-            ol class=(classes!("flex" "flex-col" VERTICAL_GAP_CLASS)) {
+            ol class=(classes!("flex", "flex-col", VERTICAL_GAP_CLASS)) {
                 @for type_ in &self.internal_types {
                     li { (type_) }
                 }
@@ -60,11 +60,7 @@ impl Render for AddPage {
         components::BasePage {
             title: Some("Add".to_owned().into()),
             content,
-            content_classes: classes!(
-                "flex"
-                "flex-col"
-                VERTICAL_GAP_CLASS
-            ),
+            content_classes: classes!("flex", "flex-col", VERTICAL_GAP_CLASS),
             targets: self.targets.clone(),
         }
         .render()

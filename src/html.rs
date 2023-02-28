@@ -104,7 +104,8 @@ impl Render for Classes {
 #[macro_export]
 macro_rules! classes {
     () => { $crate::html::Classes::default() };
-    ($($class:expr)*) => {{
+    (,) => { ::core::compile_error("invalid syntax") };
+    ($($class:expr),* $(,)?) => {{
         let mut classes = $crate::html::Classes::default();
 
         $(

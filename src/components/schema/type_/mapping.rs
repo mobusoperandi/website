@@ -30,7 +30,7 @@ impl TryFrom<syn::DataStruct> for MappingType {
 impl Render for MappingType {
     fn render(&self) -> maud::Markup {
         html! {
-            ol class=(classes!("flex" "flex-col" VERTICAL_GAP_CLASS)) {
+            ol class=(classes!("flex", "flex-col", VERTICAL_GAP_CLASS)) {
                 @for key in &self.keys { li { (key) } }
             }
         }

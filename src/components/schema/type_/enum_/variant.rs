@@ -49,7 +49,7 @@ impl Render for Variant {
     fn render(&self) -> maud::Markup {
         html! {
             div class=(*FIELD_OR_VARIANT_CLASSES) {
-                div class=(classes!("flex" "gap-[1ch]")) {
+                div class=(classes!("flex", "gap-[1ch]")) {
                     (self.ident)
 
                     @if let Some(field) = &self.field {

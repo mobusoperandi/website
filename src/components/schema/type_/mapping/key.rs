@@ -43,7 +43,7 @@ impl Render for MappingKey {
     fn render(&self) -> maud::Markup {
         html! {
             div class=(*FIELD_OR_VARIANT_CLASSES) {
-                div class=(classes!("flex" "gap-[1ch]")) {
+                div class=(classes!("flex", "gap-[1ch]")) {
                     (self.ident)
 
                     @if !self.field.required() {

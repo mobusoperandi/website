@@ -96,8 +96,17 @@ impl Render for MobPage {
             ),
         };
 
+        let root_classes = classes!(
+            "flex",
+            "flex-col",
+            "sm:flex-row",
+            "sm:justify-around",
+            "text-center",
+            "tracking-wide"
+        );
+
         let content = html! {
-            div class=(classes!("flex" "flex-col" "sm:flex-row" "sm:justify-around" "text-center" "tracking-wide")) {
+            div class=(root_classes) {
                 div class=(classes!("py-12")) {
                     h1 class=(classes!("text-4xl")) { (self.mob.title) }
                     @if let Some(subtitle) = &self.mob.subtitle {
@@ -106,7 +115,7 @@ impl Render for MobPage {
                 }
 
                 @if let Some(mob_links) = mob_links {
-                    div class=(classes!("flex" "sm:flex-col" "justify-center" "gap-2")) {
+                    div class=(classes!("flex", "sm:flex-col", "justify-center", "gap-2")) {
                         @for (url, image_path, alt) in mob_links {
                             a href=(url) {
                                 img class=(classes!("h-8")) alt=(alt) src=(image_path);
@@ -128,14 +137,14 @@ impl Render for MobPage {
                 }
             }
 
-            div class=(classes!("flex" "flex-col" "items-center" "gap-1" "text-lg")) {
-                div class=(classes!("flex" "gap-4" "uppercase" "tracking-widest")) {
+            div class=(classes!("flex", "flex-col", "items-center", "gap-1", "text-lg")) {
+                div class=(classes!("flex", "gap-4", "uppercase", "tracking-widest")) {
                     (short_wrapper("short")) (open_wrapper("open")) (full_wrapper("full")) (public_wrapper("public"))
                 }
                 p class="tracking-wide" { (status_explanation) }
             }
 
-            div class=(classes!("grid" "grid-flow-row" "sm:grid-flow-col" "auto-cols-fr" "gap-[1.25em]")) {
+            div class=(classes!("grid", "grid-flow-row", "sm:grid-flow-col", "auto-cols-fr", "gap-[1.25em]")) {
                 div class=(*style::PROSE_CLASSES) {
                     (self.mob.freeform_copy_markdown.to_html())
                 }
@@ -154,7 +163,7 @@ impl Render for MobPage {
         components::BasePage {
             title: Some(self.mob.title.as_str().to_owned().into()),
             content,
-            content_classes: classes!("flex" "flex-col" "gap-6"),
+            content_classes: classes!("flex", "flex-col", "gap-6"),
             targets: self.targets.clone(),
         }
         .render()

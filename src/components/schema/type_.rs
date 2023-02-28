@@ -56,10 +56,10 @@ impl Render for Type {
         };
 
         let root_classes = classes!(
-            format!("bg-{GRAYS}-800")
-            "p-1"
-            "flex"
-            "flex-col"
+            format!("bg-{GRAYS}-800"),
+            "p-1",
+            "flex",
+            "flex-col",
             VERTICAL_GAP_CLASS
         );
 

@@ -40,7 +40,7 @@ impl Render for Calendar {
         }
 
         fn arrow(direction: Direction) -> Markup {
-            let mut classes = classes!("w-[1em]" format!("fill-{TEXT_COLOR}"));
+            let mut classes = classes!("w-[1em]", format!("fill-{TEXT_COLOR}"));
 
             if direction == Direction::Right {
                 classes.push("rotate-180".parse().unwrap());
@@ -79,14 +79,30 @@ impl Render for Calendar {
         const INPUT_ATTR: &str = "data-input";
         let input_selector = format!("[{INPUT_ATTR}]");
 
+        let root_classes = classes!(
+            "flex",
+            "justify-between",
+            "items-center",
+            "flex-wrap",
+            format!("gap-x-{BUTTON_GAP}")
+        );
+
+        let timezone_and_dates_classes = classes!(
+            "flex",
+            "flex-wrap",
+            "gap-x-[1ch]",
+            "whitespace-nowrap",
+            "flex-1"
+        );
+
         html! {
-            div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" format!("gap-x-{BUTTON_GAP}"))) {
-                div class=(classes!("flex" "flex-wrap" "gap-x-[1ch]" "whitespace-nowrap" "flex-1")) {
+            div class=(root_classes) {
+                div class=(timezone_and_dates_classes) {
                     p class=(classes!(timezone_class)) {}
                     p class=(classes!(date_range_class)) {}
                 }
 
-                div class=(classes!("flex" format!("gap-x-{BUTTON_GAP}"))) {
+                div class=(classes!("flex" ,format!("gap-x-{BUTTON_GAP}"))) {
                     div class=({BUTTON_CLASSES.clone() + classes!(button_prev_class)}) {
                         (arrow(Direction::Left))
                     }
@@ -98,7 +114,7 @@ impl Render for Calendar {
                     button class=({BUTTON_CLASSES.clone() + classes!(button_today_class)}) { "Today" }
                 }
             }
-            div class=(classes!(calendar_container_class "[--fc-page-bg-color:transparent]")) {}
+            div class=(classes!(calendar_container_class, "[--fc-page-bg-color:transparent]")) {}
             script defer src=(self.targets.path_of(Path::new("/fullcalendar.js")).unwrap()) {}
             script data-input=(calendar_fn_input.to_string()) {
                 (PreEscaped(format!("

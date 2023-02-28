@@ -50,14 +50,43 @@ impl Render for BasePage {
 
         const NAV_ICON_SIZE: u8 = 32;
 
-        let brand_classes = classes!("tracking-widest" "text-center");
+        let brand_classes = classes!("tracking-widest", "text-center");
         let target_index = self.targets.path_of("/index.html").unwrap();
+
+        let root_classes = classes![
+            format!("font-[{}]", fonts::VOLLKORN),
+            "[font-size:16px]",
+            format!("bg-{}", style::BACKGROUND_COLOR),
+            format!("text-{}", style::TEXT_COLOR),
+        ];
+
+        let body_classes = classes!(
+            "min-h-screen",
+            "py-1",
+            "px-1",
+            "md:px-5",
+            "flex",
+            "flex-col",
+            "gap-1",
+            "max-w-screen-xl",
+            "mx-auto"
+        );
+        let header_classes = classes!(
+            "flex",
+            "justify-between",
+            "items-center",
+            "flex-wrap",
+            "gap-x-2",
+            "gap-y-1",
+            "uppercase",
+            "text-lg"
+        );
 
         let markup = html! {
             (DOCTYPE)
             html
             lang="en"
-            class=(classes![format!("font-[{}]", fonts::VOLLKORN) "[font-size:16px]" format!("bg-{}", style::BACKGROUND_COLOR) format!("text-{}", style::TEXT_COLOR)])
+            class=(root_classes)
             {
                 head {
                   title { (title) }
@@ -78,9 +107,9 @@ impl Render for BasePage {
                     }
                   }
                 }
-                body class=(classes!("min-h-screen" "py-1" "px-1" "md:px-5" "flex" "flex-col" "gap-1" "max-w-screen-xl" "mx-auto")) {
-                    div class=(classes!("flex" "justify-between" "items-center" "flex-wrap" "gap-x-2" "gap-y-1" "uppercase" "text-lg")) {
-                        div class=(classes!("flex" "flex-col" "gap-x-2" "whitespace-nowrap"))
+                body class=(body_classes) {
+                    div class=(header_classes) {
+                        div class=(classes!("flex", "flex-col", "gap-x-2", "whitespace-nowrap"))
                             {
                                 @if target_index == self.targets.current_path() {
                                     p
@@ -92,10 +121,10 @@ impl Render for BasePage {
                                         class=(brand_classes)
                                         { (NAME) }
                                 }
-                                p class=(classes!("text-sm" "opacity-75")) { (DESCRIPTION) }
+                                p class=(classes!("text-sm", "opacity-75")) { (DESCRIPTION) }
                             }
 
-                        div class=(classes!("flex" "items-center" "gap-x-2")) {
+                        div class=(classes!("flex", "items-center", "gap-x-2")) {
                             a href=(*ZULIP_URL) {
                                 img
                                     width=(NAV_ICON_SIZE)
@@ -127,7 +156,7 @@ impl Render for BasePage {
 
                     hr;
 
-                    div class=(classes!("flex" "justify-between" "flex-wrap" "items-end")) {
+                    div class=(classes!("flex", "justify-between", "flex-wrap", "items-end")) {
                         pre class=(classes!("text-xs")) { code { (*COMMIT_HASH) } }
                         a class=(classes!("text-sm")) href=(*REPO_URL) { "Source"}
                     }

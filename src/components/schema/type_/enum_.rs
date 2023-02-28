@@ -37,14 +37,10 @@ impl TryFrom<syn::DataEnum> for EnumType {
 
 impl Render for EnumType {
     fn render(&self) -> maud::Markup {
-        let variant_classes = classes![
-            "flex"
-            "flex-col"
-            VERTICAL_GAP_CLASS
-        ];
+        let variant_classes = classes!["flex", "flex-col", VERTICAL_GAP_CLASS];
 
         html! {
-            div class=(classes!("flex" "flex-col" VERTICAL_GAP_CLASS)) {
+            div class=(classes!("flex", "flex-col", VERTICAL_GAP_CLASS)) {
                 div { "One of:" }
 
                 ol class=(variant_classes) {

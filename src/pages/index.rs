@@ -17,7 +17,7 @@ pub async fn page() -> Asset {
                     participants,
                 }
                 .render(),
-                content_classes: classes!("flex" "flex-col" "gap-1"),
+                content_classes: classes!("flex", "flex-col", "gap-1"),
                 targets,
             };
 

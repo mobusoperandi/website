@@ -31,13 +31,13 @@ impl Render for HomePage {
 
         html! {
             (calendar)
-            div class=(classes!("flex" "flex-wrap" format!("gap-x-{BUTTON_GAP}"))) {
+            div class=(classes!("flex", "flex-wrap", format!("gap-x-{BUTTON_GAP}"))) {
                 a
                     class=(*BUTTON_CLASSES)
                     href=(self.targets.path_of("/add.html").unwrap())
                     { "Add your mob" }
             }
-            div class=(classes!("flex" "flex-wrap")) {
+            div class=(classes!("flex", "flex-wrap")) {
                 @for person in &self.participants {
                     @if let Some(avatar_url) = &person.avatar_url {
                         a href=(person.social_url) class=(classes!("w-20")) {
@@ -59,7 +59,7 @@ fn event_content_template(
 ) -> Markup {
     let target_path = targets.path_of(format!("/mobs/{mob_id}.html")).unwrap();
     html! {
-        a class=(classes!("no-underline" "block" "h-full")) href=(target_path) {
+        a class=(classes!("no-underline", "block", "h-full")) href=(target_path) {
             (mob_title)
         }
     }
