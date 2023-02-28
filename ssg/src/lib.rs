@@ -31,58 +31,68 @@ pub fn generate_static_site(
         },
     )?;
 
-    Ok(assets.into_iter().map(move |Asset { source, target }| {
+    let iterator = assets.into_iter().map(move |Asset { source, target }| {
         let this_target = target.to_owned();
         let targets = paths.clone();
         let output_dir = output_dir.clone();
 
-        let result = source.then(|source| async move {
-            let contents = match source {
-                Source::Bytes(bytes) => bytes.clone(),
-                Source::BytesWithAssetSafety(function) => {
-                    let targets = Targets {
-                        all: targets,
-                        current: this_target.clone(),
-                    };
-
-                    function(targets)?
-                }
-                Source::GoogleFont(google_font) => google_font.download().await?,
-                Source::Http(url) => {
-                    let client = disk_caching_http_client::create();
-                    client
-                        .get(url.clone())
-                        .send()
-                        .await?
-                        .bytes()
-                        .await?
-                        .to_vec()
-                }
-            };
-
-            let this_target_relative = this_target.iter().skip(1).collect();
-            let file_path = [output_dir, this_target_relative]
-                .into_iter()
-                .collect::<PathBuf>();
-
-            fs::create_dir_all(file_path.parent().unwrap())
-                .await
-                .unwrap();
-
-            let mut file_handle = fs::OpenOptions::new()
-                .write(true)
-                .create(true)
-                .truncate(true)
-                .open(file_path)
-                .await?;
-
-            file_handle.write_all(&contents).await?;
-
-            Ok(())
-        });
+        let result = source
+            .then(|source| generate_file_from_asset(source, targets, this_target, output_dir));
 
         (target, result)
-    }))
+    });
+
+    Ok(iterator)
+}
+
+async fn generate_file_from_asset(
+    source: Source,
+    targets: BTreeSet<PathBuf>,
+    this_target: PathBuf,
+    output_dir: PathBuf,
+) -> Result<()> {
+    let contents = match source {
+        Source::Bytes(bytes) => bytes.clone(),
+        Source::BytesWithAssetSafety(function) => {
+            let targets = Targets {
+                all: targets,
+                current: this_target.clone(),
+            };
+
+            function(targets)?
+        }
+        Source::GoogleFont(google_font) => google_font.download().await?,
+        Source::Http(url) => {
+            let client = disk_caching_http_client::create();
+            client
+                .get(url.clone())
+                .send()
+                .await?
+                .bytes()
+                .await?
+                .to_vec()
+        }
+    };
+
+    let this_target_relative = this_target.iter().skip(1).collect();
+    let file_path = [output_dir, this_target_relative]
+        .into_iter()
+        .collect::<PathBuf>();
+
+    fs::create_dir_all(file_path.parent().unwrap())
+        .await
+        .unwrap();
+
+    let mut file_handle = fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(file_path)
+        .await?;
+
+    file_handle.write_all(&contents).await?;
+
+    Ok(())
 }
 
 pub struct Asset {
