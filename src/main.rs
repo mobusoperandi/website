@@ -52,6 +52,7 @@ async fn main() {
 
 async fn build() {
     let assets = assets::get().await;
+
     stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), assets).unwrap())
         .map(|(path, source)| (path, tokio::spawn(source)))
         .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
@@ -62,6 +63,7 @@ async fn build() {
                 .unwrap_or_else(|error| panic!("{path:?}: {error:?}"));
         })
         .await;
+
     tailwind::execute().await;
 }
 
