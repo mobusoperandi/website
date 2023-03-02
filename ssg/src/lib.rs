@@ -12,26 +12,27 @@ use readext::ReadExt;
 use reqwest::Url;
 use tokio::{fs, io::AsyncWriteExt};
 
+/// Panics on duplicate asset targets
 pub fn generate_static_site(
     output_dir: PathBuf,
     assets: impl IntoIterator<Item = Asset>,
-) -> Result<impl Iterator<Item = (PathBuf, impl Future<Output = Result<()>>)>> {
-    let (paths, assets) = assets.into_iter().try_fold(
+) -> impl Iterator<Item = (PathBuf, impl Future<Output = Result<()>>)> {
+    let (paths, assets) = assets.into_iter().fold(
         (BTreeSet::<PathBuf>::new(), BTreeSet::<Asset>::new()),
         |(mut paths, mut assets), asset| {
             let newly_inserted = paths.insert(asset.target.clone());
 
             if !newly_inserted {
-                return Err(anyhow!("Duplicate target: {}", asset.target.display()));
+                panic!("Duplicate target: {}", asset.target.display());
             }
 
             assets.insert(asset);
 
-            Ok((paths, assets))
+            (paths, assets)
         },
-    )?;
+    );
 
-    let iterator = assets.into_iter().map(move |Asset { source, target }| {
+    assets.into_iter().map(move |Asset { source, target }| {
         let this_target = target.to_owned();
         let targets = paths.clone();
         let output_dir = output_dir.clone();
@@ -40,9 +41,7 @@ pub fn generate_static_site(
             .then(|source| generate_file_from_asset(source, targets, this_target, output_dir));
 
         (target, result)
-    });
-
-    Ok(iterator)
+    })
 }
 
 async fn generate_file_from_asset(

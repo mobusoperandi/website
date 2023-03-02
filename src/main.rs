@@ -53,7 +53,7 @@ async fn main() {
 async fn build() {
     let assets = assets::get().await;
 
-    stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), assets).unwrap())
+    stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), assets))
         .map(|(path, source)| (path, tokio::spawn(source)))
         .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
             println!("generating: {path:?}");
