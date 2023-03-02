@@ -59,7 +59,6 @@ async fn build() {
     ))
     .map(|(path, source)| (path, tokio::spawn(source)))
     .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
-        println!("generating: {path:?}");
         join_handle
             .await
             .unwrap()
