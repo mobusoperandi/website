@@ -6,17 +6,47 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Result};
 use futures::{future::BoxFuture, Future, FutureExt};
 use readext::ReadExt;
 use reqwest::Url;
+use thiserror::Error;
 use tokio::{fs, io::AsyncWriteExt};
+
+#[derive(Debug, thiserror::Error)]
+#[error("Failed to generate {spec_target_path}: {source}")]
+pub struct FileGenerationError {
+    spec_target_path: PathBuf,
+    source: FileGenerationErrorCause,
+}
+
+impl FileGenerationError {
+    pub fn new(spec_target_path: PathBuf, source: FileGenerationErrorCause) -> Self {
+        Self {
+            spec_target_path,
+            source,
+        }
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum FileGenerationErrorCause {
+    #[error("user function error: {0}")]
+    UserFnError(#[from] Box<dyn std::error::Error + Send>),
+    #[error(transparent)]
+    GoogleFontDownloadError(#[from] GoogleFontDownloadError),
+    #[error(transparent)]
+    RequestMiddlewareError(#[from] reqwest_middleware::Error),
+    #[error(transparent)]
+    RequestError(#[from] reqwest::Error),
+    #[error(transparent)]
+    IoError(#[from] std::io::Error),
+}
 
 /// Panics on duplicate `FileSpec` targets
 pub fn generate_static_site(
     output_dir: PathBuf,
     file_specs: impl IntoIterator<Item = FileSpec>,
-) -> impl Iterator<Item = (PathBuf, impl Future<Output = Result<()>>)> {
+) -> impl Iterator<Item = impl Future<Output = Result<(), FileGenerationError>>> {
     let (paths, file_specs) = file_specs.into_iter().fold(
         (BTreeSet::<PathBuf>::new(), BTreeSet::<FileSpec>::new()),
         |(mut paths, mut file_specs), file_spec| {
@@ -35,14 +65,9 @@ pub fn generate_static_site(
     file_specs
         .into_iter()
         .map(move |FileSpec { source, target }| {
-            let this_target = target.to_owned();
             let targets = paths.clone();
             let output_dir = output_dir.clone();
-
-            let result = source
-                .then(|source| generate_file_from_spec(source, targets, this_target, output_dir));
-
-            (target, result)
+            source.then(move |source| generate_file_from_spec(source, targets, target, output_dir))
         })
 }
 
@@ -51,7 +76,7 @@ async fn generate_file_from_spec(
     targets: BTreeSet<PathBuf>,
     this_target: PathBuf,
     output_dir: PathBuf,
-) -> Result<()> {
+) -> Result<(), FileGenerationError> {
     let contents = match source {
         Source::Bytes(bytes) => bytes.clone(),
         Source::BytesWithFileSpecSafety(function) => {
@@ -60,17 +85,23 @@ async fn generate_file_from_spec(
                 current: this_target.clone(),
             };
 
-            function(targets)?
+            function(targets)
+                .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
         }
-        Source::GoogleFont(google_font) => google_font.download().await?,
+        Source::GoogleFont(google_font) => google_font
+            .download()
+            .await
+            .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?,
         Source::Http(url) => {
             let client = disk_caching_http_client::create();
             client
                 .get(url.clone())
                 .send()
-                .await?
+                .await
+                .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
                 .bytes()
-                .await?
+                .await
+                .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
                 .to_vec()
         }
     };
@@ -89,9 +120,13 @@ async fn generate_file_from_spec(
         .create(true)
         .truncate(true)
         .open(file_path)
-        .await?;
+        .await
+        .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?;
 
-    file_handle.write_all(&contents).await?;
+    file_handle
+        .write_all(&contents)
+        .await
+        .map_err(|error| FileGenerationError::new(this_target, error.into()))?;
 
     Ok(())
 }
@@ -139,7 +174,10 @@ impl Ord for FileSpec {
 
 pub enum Source {
     Bytes(Vec<u8>),
-    BytesWithFileSpecSafety(Box<dyn FnOnce(Targets) -> Result<Vec<u8>> + Send>),
+    BytesWithFileSpecSafety(
+        #[allow(clippy::type_complexity)]
+        Box<dyn FnOnce(Targets) -> Result<Vec<u8>, Box<dyn std::error::Error + Send>> + Send>,
+    ),
     GoogleFont(GoogleFont),
     Http(Url),
 }
@@ -150,8 +188,20 @@ pub struct Targets {
     all: BTreeSet<PathBuf>,
 }
 
+#[derive(Debug, thiserror::Error)]
+#[error("target not found: {target}")]
+pub struct TargetNotFoundError {
+    target: PathBuf,
+}
+
+impl TargetNotFoundError {
+    pub fn new(target: PathBuf) -> Self {
+        Self { target }
+    }
+}
+
 impl Targets {
-    pub fn path_of(&self, path: impl AsRef<Path>) -> Result<String> {
+    pub fn path_of(&self, path: impl AsRef<Path>) -> Result<String, TargetNotFoundError> {
         let path = path.as_ref();
 
         assert!(path.is_absolute(), "path not absolute: {path:?}");
@@ -171,7 +221,7 @@ impl Targets {
                     path
                 }
             })
-            .ok_or_else(|| anyhow!("no target with path: {path:?}"))
+            .ok_or_else(|| TargetNotFoundError::new(path.to_owned()))
     }
     pub fn current_path(&self) -> String {
         self.path_of(&self.current).unwrap()
@@ -186,8 +236,22 @@ pub struct GoogleFont {
     pub variant: &'static str,
 }
 
+#[derive(Debug, Error)]
+pub enum GoogleFontDownloadError {
+    #[error(transparent)]
+    UrlParseError(#[from] url::ParseError),
+    #[error(transparent)]
+    RequestMiddlewareError(#[from] reqwest_middleware::Error),
+    #[error(transparent)]
+    RequestError(#[from] reqwest::Error),
+    #[error(transparent)]
+    ZipError(#[from] zip::result::ZipError),
+    #[error(transparent)]
+    IoError(#[from] std::io::Error),
+}
+
 impl GoogleFont {
-    pub(crate) async fn download(&self) -> Result<Vec<u8>> {
+    pub(crate) async fn download(&self) -> Result<Vec<u8>, GoogleFontDownloadError> {
         // TODO: Consider reusing the client ->
         let url = Url::parse_with_params(
             &format!(

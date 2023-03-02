@@ -57,12 +57,9 @@ async fn build() {
         OUTPUT_DIR.parse().unwrap(),
         file_specs,
     ))
-    .map(|(path, source)| (path, tokio::spawn(source)))
-    .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
-        join_handle
-            .await
-            .unwrap()
-            .unwrap_or_else(|error| panic!("{path:?}: {error:?}"));
+    .map(tokio::spawn)
+    .for_each_concurrent(usize::MAX, |join_handle| async move {
+        join_handle.await.unwrap().unwrap();
     })
     .await;
 
