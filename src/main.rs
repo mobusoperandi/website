@@ -1,11 +1,11 @@
 #[macro_use]
 mod html;
 
-mod assets;
 mod components;
 mod constants;
+mod file_specs;
 mod fonts;
-mod graphic_assets;
+mod graphic_file_specs;
 mod markdown;
 mod mobs;
 mod pages;
@@ -51,18 +51,21 @@ async fn main() {
 }
 
 async fn build() {
-    let assets = assets::get().await;
+    let file_specs = file_specs::get().await;
 
-    stream::iter(generate_static_site(OUTPUT_DIR.parse().unwrap(), assets))
-        .map(|(path, source)| (path, tokio::spawn(source)))
-        .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
-            println!("generating: {path:?}");
-            join_handle
-                .await
-                .unwrap()
-                .unwrap_or_else(|error| panic!("{path:?}: {error:?}"));
-        })
-        .await;
+    stream::iter(generate_static_site(
+        OUTPUT_DIR.parse().unwrap(),
+        file_specs,
+    ))
+    .map(|(path, source)| (path, tokio::spawn(source)))
+    .for_each_concurrent(usize::MAX, |(path, join_handle)| async move {
+        println!("generating: {path:?}");
+        join_handle
+            .await
+            .unwrap()
+            .unwrap_or_else(|error| panic!("{path:?}: {error:?}"));
+    })
+    .await;
 
     tailwind::execute().await;
 }

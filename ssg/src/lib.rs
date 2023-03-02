@@ -12,39 +12,41 @@ use readext::ReadExt;
 use reqwest::Url;
 use tokio::{fs, io::AsyncWriteExt};
 
-/// Panics on duplicate asset targets
+/// Panics on duplicate `FileSpec` targets
 pub fn generate_static_site(
     output_dir: PathBuf,
-    assets: impl IntoIterator<Item = Asset>,
+    file_specs: impl IntoIterator<Item = FileSpec>,
 ) -> impl Iterator<Item = (PathBuf, impl Future<Output = Result<()>>)> {
-    let (paths, assets) = assets.into_iter().fold(
-        (BTreeSet::<PathBuf>::new(), BTreeSet::<Asset>::new()),
-        |(mut paths, mut assets), asset| {
-            let newly_inserted = paths.insert(asset.target.clone());
+    let (paths, file_specs) = file_specs.into_iter().fold(
+        (BTreeSet::<PathBuf>::new(), BTreeSet::<FileSpec>::new()),
+        |(mut paths, mut file_specs), file_spec| {
+            let newly_inserted = paths.insert(file_spec.target.clone());
 
             if !newly_inserted {
-                panic!("Duplicate target: {}", asset.target.display());
+                panic!("Duplicate target: {}", file_spec.target.display());
             }
 
-            assets.insert(asset);
+            file_specs.insert(file_spec);
 
-            (paths, assets)
+            (paths, file_specs)
         },
     );
 
-    assets.into_iter().map(move |Asset { source, target }| {
-        let this_target = target.to_owned();
-        let targets = paths.clone();
-        let output_dir = output_dir.clone();
+    file_specs
+        .into_iter()
+        .map(move |FileSpec { source, target }| {
+            let this_target = target.to_owned();
+            let targets = paths.clone();
+            let output_dir = output_dir.clone();
 
-        let result = source
-            .then(|source| generate_file_from_asset(source, targets, this_target, output_dir));
+            let result = source
+                .then(|source| generate_file_from_spec(source, targets, this_target, output_dir));
 
-        (target, result)
-    })
+            (target, result)
+        })
 }
 
-async fn generate_file_from_asset(
+async fn generate_file_from_spec(
     source: Source,
     targets: BTreeSet<PathBuf>,
     this_target: PathBuf,
@@ -52,7 +54,7 @@ async fn generate_file_from_asset(
 ) -> Result<()> {
     let contents = match source {
         Source::Bytes(bytes) => bytes.clone(),
-        Source::BytesWithAssetSafety(function) => {
+        Source::BytesWithFileSpecSafety(function) => {
             let targets = Targets {
                 all: targets,
                 current: this_target.clone(),
@@ -94,12 +96,12 @@ async fn generate_file_from_asset(
     Ok(())
 }
 
-pub struct Asset {
+pub struct FileSpec {
     pub(crate) source: BoxFuture<'static, Source>,
     pub(crate) target: PathBuf,
 }
 
-impl Asset {
+impl FileSpec {
     pub fn new<T>(target: T, source: impl Future<Output = Source> + Send + 'static) -> Self
     where
         PathBuf: From<T>,
@@ -115,21 +117,21 @@ impl Asset {
     }
 }
 
-impl PartialEq for Asset {
+impl PartialEq for FileSpec {
     fn eq(&self, other: &Self) -> bool {
         self.target == other.target
     }
 }
 
-impl Eq for Asset {}
+impl Eq for FileSpec {}
 
-impl PartialOrd for Asset {
+impl PartialOrd for FileSpec {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for Asset {
+impl Ord for FileSpec {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.target.cmp(&other.target)
     }
@@ -137,7 +139,7 @@ impl Ord for Asset {
 
 pub enum Source {
     Bytes(Vec<u8>),
-    BytesWithAssetSafety(Box<dyn FnOnce(Targets) -> Result<Vec<u8>> + Send>),
+    BytesWithFileSpecSafety(Box<dyn FnOnce(Targets) -> Result<Vec<u8>> + Send>),
     GoogleFont(GoogleFont),
     Http(Url),
 }

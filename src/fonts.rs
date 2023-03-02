@@ -1,4 +1,4 @@
-use ssg::{Asset, GoogleFont, Source};
+use ssg::{FileSpec, GoogleFont, Source};
 
 pub(crate) const VOLLKORN: GoogleFont = GoogleFont {
     name: "Vollkorn",
@@ -9,9 +9,9 @@ pub(crate) const VOLLKORN: GoogleFont = GoogleFont {
 
 pub(crate) const ALL: [GoogleFont; 1] = [VOLLKORN];
 
-pub(crate) fn assets() -> [Asset; 1] {
+pub(crate) fn all() -> [FileSpec; 1] {
     ALL.map(|font| {
-        Asset::new(format!("/{}.ttf", font.name.to_lowercase()), async move {
+        FileSpec::new(format!("/{}.ttf", font.name.to_lowercase()), async move {
             Source::GoogleFont(font)
         })
     })
