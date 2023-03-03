@@ -72,14 +72,14 @@ pub fn generate_static_site(
 }
 
 async fn generate_file_from_spec(
-    source: Source,
+    source: FileSource,
     targets: BTreeSet<PathBuf>,
     this_target: PathBuf,
     output_dir: PathBuf,
 ) -> Result<(), FileGenerationError> {
     let contents = match source {
-        Source::Bytes(bytes) => bytes.clone(),
-        Source::BytesWithFileSpecSafety(function) => {
+        FileSource::Bytes(bytes) => bytes.clone(),
+        FileSource::BytesWithFileSpecSafety(function) => {
             let targets = Targets {
                 all: targets,
                 current: this_target.clone(),
@@ -88,11 +88,11 @@ async fn generate_file_from_spec(
             function(targets)
                 .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
         }
-        Source::GoogleFont(google_font) => google_font
+        FileSource::GoogleFont(google_font) => google_font
             .download()
             .await
             .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?,
-        Source::Http(url) => {
+        FileSource::Http(url) => {
             let client = disk_caching_http_client::create();
             client
                 .get(url.clone())
@@ -132,12 +132,12 @@ async fn generate_file_from_spec(
 }
 
 pub struct FileSpec {
-    pub(crate) source: BoxFuture<'static, Source>,
+    pub(crate) source: BoxFuture<'static, FileSource>,
     pub(crate) target: PathBuf,
 }
 
 impl FileSpec {
-    pub fn new<T>(target: T, source: impl Future<Output = Source> + Send + 'static) -> Self
+    pub fn new<T>(target: T, source: impl Future<Output = FileSource> + Send + 'static) -> Self
     where
         PathBuf: From<T>,
     {
@@ -172,7 +172,7 @@ impl Ord for FileSpec {
     }
 }
 
-pub enum Source {
+pub enum FileSource {
     Bytes(Vec<u8>),
     BytesWithFileSpecSafety(
         #[allow(clippy::type_complexity)]

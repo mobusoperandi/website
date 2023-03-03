@@ -4,7 +4,7 @@ use indexmap::IndexMap;
 use maud::Render;
 use once_cell::sync::Lazy;
 use schema::{DeriveInput, Schema};
-use ssg::{FileSpec, Source};
+use ssg::{FileSource, FileSpec};
 
 use crate::{
     components::{
@@ -51,7 +51,7 @@ pub(crate) static INTERNAL_TYPES_DERIVE_INPUTS: Lazy<IndexMap<TypeIdent, DeriveI
 
 pub fn page() -> FileSpec {
     FileSpec::new("/add.html", async {
-        Source::BytesWithFileSpecSafety(Box::new(move |targets| {
+        FileSource::BytesWithFileSpecSafety(Box::new(move |targets| {
             let internal_types = INTERNAL_TYPES_DERIVE_INPUTS
                 .values()
                 .map(|derive_input| Type::try_from(derive_input.deref().clone()).unwrap())

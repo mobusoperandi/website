@@ -4,7 +4,7 @@ mod index;
 use std::vec;
 
 use maud::Render;
-use ssg::{FileSpec, Source};
+use ssg::{FileSource, FileSpec};
 
 use crate::{
     components,
@@ -13,7 +13,7 @@ use crate::{
 
 fn mob_page(mob: Mob) -> FileSpec {
     FileSpec::new(format!("/mobs/{}.html", mob.id), async move {
-        Source::BytesWithFileSpecSafety(Box::new(move |targets| {
+        FileSource::BytesWithFileSpecSafety(Box::new(move |targets| {
             Ok(components::MobPage { mob, targets }.render().0.into_bytes())
         }))
     })

@@ -1,5 +1,5 @@
 use maud::Render;
-use ssg::{FileSpec, Source};
+use ssg::{FileSource, FileSpec};
 
 use crate::{components, mobs};
 
@@ -8,7 +8,7 @@ pub async fn page() -> FileSpec {
     let participants = mobs::get_all_participants().await;
 
     FileSpec::new("/index.html", async {
-        Source::BytesWithFileSpecSafety(Box::new(move |targets| {
+        FileSource::BytesWithFileSpecSafety(Box::new(move |targets| {
             let base_page = components::BasePage {
                 title: None,
                 content: components::HomePage {

@@ -1,12 +1,12 @@
-use ssg::{FileSpec, Source};
+use ssg::{FileSource, FileSpec};
 
 use crate::url::Url;
 
 pub(crate) fn get() -> [FileSpec; 5] {
-    let favicon = FileSpec::new("/favicon.ico", async { Source::Bytes(vec![]) });
+    let favicon = FileSpec::new("/favicon.ico", async { FileSource::Bytes(vec![]) });
 
     let twitter_logo = FileSpec::new("/twitter_logo.svg", async {
-        Source::Http(
+        FileSource::Http(
             Url::parse("https://upload.wikimedia.org/wikipedia/commons/4/4f/Twitter-logo.svg")
                 .unwrap()
                 .to_inner()
@@ -15,14 +15,14 @@ pub(crate) fn get() -> [FileSpec; 5] {
     });
 
     let zulip_logo = FileSpec::new("/zulip_logo.svg", async {
-        Source::Http(
+        FileSource::Http(
             Url::parse("https://raw.githubusercontent.com/zulip/zulip/main/static/images/logo/zulip-icon-square.svg")
                 .unwrap().to_inner().clone(),
         )
     });
 
     let inverticat_logo = FileSpec::new("/inverticat.svg", async {
-        Source::Http(
+        FileSource::Http(
             Url::parse(
                 "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg",
             )
@@ -33,7 +33,7 @@ pub(crate) fn get() -> [FileSpec; 5] {
     });
 
     let youtube_logo = FileSpec::new("/youtube_logo.svg", async {
-        Source::Http(
+        FileSource::Http(
             Url::parse("https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg")
                 .unwrap().to_inner().clone(),
         )
