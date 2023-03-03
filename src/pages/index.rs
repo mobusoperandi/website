@@ -7,7 +7,8 @@ pub async fn page() -> FileSpec {
     let mobs = mobs::read_all_mobs().await;
     let participants = mobs::get_all_participants().await;
 
-    FileSpec::new("/index.html", async {
+    FileSpec::new(
+        "/index.html",
         FileSource::BytesWithFileSpecSafety(Box::new(move |targets| {
             let base_page = components::BasePage {
                 title: None,
@@ -22,6 +23,6 @@ pub async fn page() -> FileSpec {
             };
 
             Ok(base_page.render().0.into_bytes())
-        }))
-    })
+        })),
+    )
 }

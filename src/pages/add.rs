@@ -50,7 +50,8 @@ pub(crate) static INTERNAL_TYPES_DERIVE_INPUTS: Lazy<IndexMap<TypeIdent, DeriveI
     });
 
 pub fn page() -> FileSpec {
-    FileSpec::new("/add.html", async {
+    FileSpec::new(
+        "/add.html",
         FileSource::BytesWithFileSpecSafety(Box::new(move |targets| {
             let internal_types = INTERNAL_TYPES_DERIVE_INPUTS
                 .values()
@@ -60,6 +61,6 @@ pub fn page() -> FileSpec {
             let add_page = components::add_page::AddPage::new(internal_types, targets);
 
             Ok(add_page.render().0.into_bytes())
-        }))
-    })
+        })),
+    )
 }

@@ -11,9 +11,10 @@ pub(crate) const ALL: [GoogleFont; 1] = [VOLLKORN];
 
 pub(crate) fn all() -> [FileSpec; 1] {
     ALL.map(|font| {
-        FileSpec::new(format!("/{}.ttf", font.name.to_lowercase()), async move {
-            FileSource::GoogleFont(font)
-        })
+        FileSpec::new(
+            format!("/{}.ttf", font.name.to_lowercase()),
+            FileSource::GoogleFont(font),
+        )
     })
 }
 

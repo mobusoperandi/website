@@ -65,9 +65,7 @@ pub fn generate_static_site(
     file_specs
         .into_iter()
         .map(move |FileSpec { source, target }| {
-            let targets = paths.clone();
-            let output_dir = output_dir.clone();
-            source.then(move |source| generate_file_from_spec(source, targets, target, output_dir))
+            generate_file_from_spec(source, paths.clone(), target, output_dir.clone())
         })
 }
 
@@ -132,12 +130,12 @@ async fn generate_file_from_spec(
 }
 
 pub struct FileSpec {
-    pub(crate) source: BoxFuture<'static, FileSource>,
+    pub(crate) source: FileSource,
     pub(crate) target: PathBuf,
 }
 
 impl FileSpec {
-    pub fn new<T>(target: T, source: impl Future<Output = FileSource> + Send + 'static) -> Self
+    pub fn new<T>(target: T, source: FileSource) -> Self
     where
         PathBuf: From<T>,
     {
@@ -145,10 +143,7 @@ impl FileSpec {
 
         assert!(target.is_absolute(), "path not absolute: {target:?}");
 
-        Self {
-            source: source.boxed(),
-            target,
-        }
+        Self { source, target }
     }
 }
 
