@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use futures::{future::BoxFuture, Future, FutureExt};
+use futures::Future;
 use readext::ReadExt;
 use reqwest::Url;
 use thiserror::Error;
