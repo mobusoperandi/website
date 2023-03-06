@@ -3,6 +3,7 @@ mod index;
 
 use std::vec;
 
+use futures::FutureExt;
 use maud::Render;
 use ssg::{FileSource, FileSpec};
 
@@ -15,7 +16,7 @@ fn mob_page(mob: Mob) -> FileSpec {
     FileSpec::new(
         format!("/mobs/{}.html", mob.id),
         FileSource::BytesWithFileSpecSafety(Box::new(move |targets| {
-            Ok(components::MobPage { mob, targets }.render().0.into_bytes())
+            async { Ok(components::MobPage { mob, targets }.render().0.into_bytes()) }.boxed()
         })),
     )
 }

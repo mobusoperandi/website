@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use futures::Future;
+use futures::{future::BoxFuture, Future, FutureExt};
 use readext::ReadExt;
 use reqwest::Url;
 use thiserror::Error;
@@ -69,64 +69,68 @@ pub fn generate_static_site(
         })
 }
 
-async fn generate_file_from_spec(
+fn generate_file_from_spec(
     source: FileSource,
     targets: BTreeSet<PathBuf>,
     this_target: PathBuf,
     output_dir: PathBuf,
-) -> Result<(), FileGenerationError> {
-    let contents = match source {
-        FileSource::Static(bytes) => bytes.to_vec(),
-        FileSource::BytesWithFileSpecSafety(function) => {
-            let targets = Targets {
-                all: targets,
-                current: this_target.clone(),
-            };
+) -> BoxFuture<'static, Result<(), FileGenerationError>> {
+    async {
+        let contents = match source {
+            FileSource::Static(bytes) => bytes.to_vec(),
+            FileSource::BytesWithFileSpecSafety(function) => {
+                let targets = Targets {
+                    all: targets,
+                    current: this_target.clone(),
+                };
 
-            function(targets)
-                .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
-        }
-        FileSource::GoogleFont(google_font) => google_font
-            .download()
+                function(targets)
+                    .await
+                    .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
+            }
+            FileSource::GoogleFont(google_font) => google_font
+                .download()
+                .await
+                .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?,
+            FileSource::Http(url) => {
+                let client = disk_caching_http_client::create();
+                client
+                    .get(url.clone())
+                    .send()
+                    .await
+                    .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
+                    .bytes()
+                    .await
+                    .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
+                    .to_vec()
+            }
+        };
+
+        let this_target_relative = this_target.iter().skip(1).collect();
+        let file_path = [output_dir, this_target_relative]
+            .into_iter()
+            .collect::<PathBuf>();
+
+        fs::create_dir_all(file_path.parent().unwrap())
             .await
-            .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?,
-        FileSource::Http(url) => {
-            let client = disk_caching_http_client::create();
-            client
-                .get(url.clone())
-                .send()
-                .await
-                .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
-                .bytes()
-                .await
-                .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
-                .to_vec()
-        }
-    };
+            .unwrap();
 
-    let this_target_relative = this_target.iter().skip(1).collect();
-    let file_path = [output_dir, this_target_relative]
-        .into_iter()
-        .collect::<PathBuf>();
+        let mut file_handle = fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(file_path)
+            .await
+            .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?;
 
-    fs::create_dir_all(file_path.parent().unwrap())
-        .await
-        .unwrap();
+        file_handle
+            .write_all(&contents)
+            .await
+            .map_err(|error| FileGenerationError::new(this_target, error.into()))?;
 
-    let mut file_handle = fs::OpenOptions::new()
-        .write(true)
-        .create(true)
-        .truncate(true)
-        .open(file_path)
-        .await
-        .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?;
-
-    file_handle
-        .write_all(&contents)
-        .await
-        .map_err(|error| FileGenerationError::new(this_target, error.into()))?;
-
-    Ok(())
+        Ok(())
+    }
+    .boxed()
 }
 
 pub struct FileSpec {
@@ -167,11 +171,12 @@ impl Ord for FileSpec {
     }
 }
 
+type FileSpecSafetyResult = Result<Vec<u8>, Box<dyn std::error::Error + Send>>;
+
 pub enum FileSource {
     Static(&'static [u8]),
     BytesWithFileSpecSafety(
-        #[allow(clippy::type_complexity)]
-        Box<dyn FnOnce(Targets) -> Result<Vec<u8>, Box<dyn std::error::Error + Send>> + Send>,
+        Box<dyn FnOnce(Targets) -> BoxFuture<'static, FileSpecSafetyResult> + Send>,
     ),
     GoogleFont(GoogleFont),
     Http(Url),
