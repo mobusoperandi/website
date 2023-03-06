@@ -3,7 +3,8 @@ use ssg::{FileSource, FileSpec};
 use crate::url::Url;
 
 pub(crate) fn get() -> [FileSpec; 5] {
-    let favicon = FileSpec::new("/favicon.ico", FileSource::Bytes(vec![]));
+    const FAVICON: [u8; 0] = [];
+    let favicon = FileSpec::new("/favicon.ico", FileSource::Static(FAVICON.as_slice()));
 
     let twitter_logo = FileSpec::new(
         "/twitter_logo.svg",

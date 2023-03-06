@@ -76,7 +76,7 @@ async fn generate_file_from_spec(
     output_dir: PathBuf,
 ) -> Result<(), FileGenerationError> {
     let contents = match source {
-        FileSource::Bytes(bytes) => bytes.clone(),
+        FileSource::Static(bytes) => bytes.to_vec(),
         FileSource::BytesWithFileSpecSafety(function) => {
             let targets = Targets {
                 all: targets,
@@ -168,7 +168,7 @@ impl Ord for FileSpec {
 }
 
 pub enum FileSource {
-    Bytes(Vec<u8>),
+    Static(&'static [u8]),
     BytesWithFileSpecSafety(
         #[allow(clippy::type_complexity)]
         Box<dyn FnOnce(Targets) -> Result<Vec<u8>, Box<dyn std::error::Error + Send>> + Send>,
