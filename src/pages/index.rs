@@ -11,6 +11,9 @@ pub async fn page() -> FileSpec {
     FileSpec::new(
         "/index.html",
         FileSource::BytesWithFileSpecSafety(Box::new(move |targets| {
+            let mobs = mobs.clone();
+            let participants = participants.clone();
+
             async {
                 let base_page = components::BasePage {
                     title: None,

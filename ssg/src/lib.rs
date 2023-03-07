@@ -84,8 +84,9 @@ fn generate_file_from_spec(
                     current: this_target.clone(),
                 };
 
-                function(targets)
-                    .await
+                let task = function(targets);
+
+                task.await
                     .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
             }
             FileSource::GoogleFont(google_font) => google_font
@@ -176,7 +177,7 @@ type FileSpecSafetyResult = Result<Vec<u8>, Box<dyn std::error::Error + Send>>;
 pub enum FileSource {
     Static(&'static [u8]),
     BytesWithFileSpecSafety(
-        Box<dyn FnOnce(Targets) -> BoxFuture<'static, FileSpecSafetyResult> + Send>,
+        Box<dyn Fn(Targets) -> BoxFuture<'static, FileSpecSafetyResult> + Send>,
     ),
     GoogleFont(GoogleFont),
     Http(Url),
