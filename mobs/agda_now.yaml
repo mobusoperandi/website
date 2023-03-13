@@ -11,9 +11,9 @@ participants:
     avatar_url: https://avatars.githubusercontent.com/u/53665722?v=4
 schedule:
   - frequency: FREQ=WEEKLY;BYDAY=MO
-    timezone: Etc/UTC
+    timezone: America/Toronto
     start_date: 2023-02-13
-    start_time: 12:30
+    start_time: 07:30
     duration: 90
 background_color: salmon
 text_color: black
