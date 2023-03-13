@@ -31,15 +31,15 @@ impl FileGenerationError {
 #[derive(Debug, thiserror::Error)]
 pub enum FileGenerationErrorCause {
     #[error("user function error: {0}")]
-    UserFnError(#[from] Box<dyn std::error::Error + Send>),
+    UserFn(#[from] Box<dyn std::error::Error + Send>),
     #[error(transparent)]
-    GoogleFontDownloadError(#[from] GoogleFontDownloadError),
+    GoogleFontDownload(#[from] GoogleFontDownloadError),
     #[error(transparent)]
-    RequestMiddlewareError(#[from] reqwest_middleware::Error),
+    RequestMiddleware(#[from] reqwest_middleware::Error),
     #[error(transparent)]
-    RequestError(#[from] reqwest::Error),
+    Request(#[from] reqwest::Error),
     #[error(transparent)]
-    IoError(#[from] std::io::Error),
+    Io(#[from] std::io::Error),
 }
 
 /// Panics on duplicate `FileSpec` targets
