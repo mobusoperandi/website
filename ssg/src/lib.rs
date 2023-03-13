@@ -20,7 +20,7 @@ pub struct FileGenerationError {
 }
 
 impl FileGenerationError {
-    pub fn new(spec_target_path: PathBuf, source: FileGenerationErrorCause) -> Self {
+    fn new(spec_target_path: PathBuf, source: FileGenerationErrorCause) -> Self {
         Self {
             spec_target_path,
             source,
@@ -29,7 +29,7 @@ impl FileGenerationError {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum FileGenerationErrorCause {
+enum FileGenerationErrorCause {
     #[error("user function error: {0}")]
     UserFn(#[from] Box<dyn std::error::Error + Send>),
     #[error(transparent)]
@@ -238,7 +238,7 @@ pub struct GoogleFont {
 }
 
 #[derive(Debug, Error)]
-pub enum GoogleFontDownloadError {
+enum GoogleFontDownloadError {
     #[error(transparent)]
     UrlParse(#[from] url::ParseError),
     #[error(transparent)]
