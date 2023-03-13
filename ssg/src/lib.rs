@@ -240,15 +240,15 @@ pub struct GoogleFont {
 #[derive(Debug, Error)]
 pub enum GoogleFontDownloadError {
     #[error(transparent)]
-    UrlParseError(#[from] url::ParseError),
+    UrlParse(#[from] url::ParseError),
     #[error(transparent)]
-    RequestMiddlewareError(#[from] reqwest_middleware::Error),
+    RequestMiddleware(#[from] reqwest_middleware::Error),
     #[error(transparent)]
-    RequestError(#[from] reqwest::Error),
+    Request(#[from] reqwest::Error),
     #[error(transparent)]
-    ZipError(#[from] zip::result::ZipError),
+    Zip(#[from] zip::result::ZipError),
     #[error(transparent)]
-    IoError(#[from] std::io::Error),
+    Io(#[from] std::io::Error),
 }
 
 impl GoogleFont {
