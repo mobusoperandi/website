@@ -1,4 +1,4 @@
-use ssg::{FileSource, FileSpec};
+use ssg::{sources::FileSource, FileSpec};
 
 use crate::url::Url;
 

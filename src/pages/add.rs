@@ -5,7 +5,7 @@ use indexmap::IndexMap;
 use maud::Render;
 use once_cell::sync::Lazy;
 use schema::{DeriveInput, Schema};
-use ssg::{FileSource, FileSpec};
+use ssg::{sources::FileSource, FileSpec};
 
 use crate::{
     components::{

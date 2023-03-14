@@ -1,4 +1,7 @@
-use ssg::{FileSource, FileSpec, GoogleFont};
+use ssg::{
+    sources::{google_font::GoogleFont, FileSource},
+    FileSpec,
+};
 
 pub(crate) const VOLLKORN: GoogleFont = GoogleFont {
     name: "Vollkorn",

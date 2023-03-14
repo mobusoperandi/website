@@ -1,15 +1,10 @@
 mod disk_caching_http_client;
+pub mod sources;
 
-use std::{
-    collections::BTreeSet,
-    fmt::Display,
-    path::{Path, PathBuf},
-};
+use std::{collections::BTreeSet, path::PathBuf};
 
 use futures::{future::BoxFuture, Future, FutureExt};
-use readext::ReadExt;
-use reqwest::Url;
-use thiserror::Error;
+use sources::FileSource;
 use tokio::{fs, io::AsyncWriteExt};
 
 #[derive(Debug, thiserror::Error)]
@@ -33,7 +28,7 @@ enum FileGenerationErrorCause {
     #[error("user function error: {0}")]
     UserFn(#[from] Box<dyn std::error::Error + Send>),
     #[error(transparent)]
-    GoogleFontDownload(#[from] GoogleFontDownloadError),
+    GoogleFontDownload(#[from] sources::google_font::DownloadError),
     #[error(transparent)]
     RequestMiddleware(#[from] reqwest_middleware::Error),
     #[error(transparent)]
@@ -79,32 +74,17 @@ fn generate_file_from_spec(
         let contents = match source {
             FileSource::Static(bytes) => bytes.to_vec(),
             FileSource::BytesWithFileSpecSafety(function) => {
-                let targets = Targets {
-                    all: targets,
-                    current: this_target.clone(),
-                };
-
-                let task = function(targets);
-
-                task.await
+                sources::bytes_with_file_spec_safety::obtain(function, targets, this_target.clone())
+                    .await
                     .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
             }
             FileSource::GoogleFont(google_font) => google_font
                 .download()
                 .await
                 .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?,
-            FileSource::Http(url) => {
-                let client = disk_caching_http_client::create();
-                client
-                    .get(url.clone())
-                    .send()
-                    .await
-                    .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
-                    .bytes()
-                    .await
-                    .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
-                    .to_vec()
-            }
+            FileSource::Http(url) => sources::http::download(url)
+                .await
+                .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?,
         };
 
         let this_target_relative = this_target.iter().skip(1).collect();
@@ -169,123 +149,5 @@ impl PartialOrd for FileSpec {
 impl Ord for FileSpec {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.target.cmp(&other.target)
-    }
-}
-
-type FileSpecSafetyResult = Result<Vec<u8>, Box<dyn std::error::Error + Send>>;
-
-pub enum FileSource {
-    Static(&'static [u8]),
-    BytesWithFileSpecSafety(
-        Box<dyn Fn(Targets) -> BoxFuture<'static, FileSpecSafetyResult> + Send>,
-    ),
-    GoogleFont(GoogleFont),
-    Http(Url),
-}
-
-#[derive(Debug, Clone)]
-pub struct Targets {
-    current: PathBuf,
-    all: BTreeSet<PathBuf>,
-}
-
-#[derive(Debug, thiserror::Error)]
-#[error("target not found: {target}")]
-pub struct TargetNotFoundError {
-    target: PathBuf,
-}
-
-impl TargetNotFoundError {
-    pub fn new(target: PathBuf) -> Self {
-        Self { target }
-    }
-}
-
-impl Targets {
-    pub fn path_of(&self, path: impl AsRef<Path>) -> Result<String, TargetNotFoundError> {
-        let path = path.as_ref();
-
-        assert!(path.is_absolute(), "path not absolute: {path:?}");
-
-        self.all
-            .contains(path)
-            .then(|| {
-                PathBuf::from_iter([PathBuf::from("/"), path.to_owned()])
-                    .to_str()
-                    .map(|path| path.to_owned())
-            })
-            .flatten()
-            .map(|path| {
-                if path == "/index.html" {
-                    String::from("/")
-                } else {
-                    path
-                }
-            })
-            .ok_or_else(|| TargetNotFoundError::new(path.to_owned()))
-    }
-    pub fn current_path(&self) -> String {
-        self.path_of(&self.current).unwrap()
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct GoogleFont {
-    pub name: &'static str,
-    pub version: u8,
-    pub subset: &'static str,
-    pub variant: &'static str,
-}
-
-#[derive(Debug, Error)]
-enum GoogleFontDownloadError {
-    #[error(transparent)]
-    UrlParse(#[from] url::ParseError),
-    #[error(transparent)]
-    RequestMiddleware(#[from] reqwest_middleware::Error),
-    #[error(transparent)]
-    Request(#[from] reqwest::Error),
-    #[error(transparent)]
-    Zip(#[from] zip::result::ZipError),
-    #[error(transparent)]
-    Io(#[from] std::io::Error),
-}
-
-impl GoogleFont {
-    pub(crate) async fn download(&self) -> Result<Vec<u8>, GoogleFontDownloadError> {
-        // TODO: Consider reusing the client ->
-        let url = Url::parse_with_params(
-            &format!(
-                "https://gwfh.mranftl.com/api/fonts/{}",
-                self.name.to_lowercase(),
-            ),
-            [
-                ("download", "zip"),
-                ("subsets", self.subset),
-                ("variants", self.variant),
-            ],
-        )?;
-
-        let client = disk_caching_http_client::create();
-        let archive = client.get(url.clone()).send().await?.bytes().await?;
-        let mut archive = zip::ZipArchive::new(std::io::Cursor::new(archive))?;
-
-        let mut font_file = archive.by_name(&format!(
-            "{}-v{}-{}-{}.woff2",
-            self.name.to_lowercase(),
-            self.version,
-            self.subset,
-            self.variant
-        ))?;
-
-        let font_contents = font_file.read_into_vec()?;
-
-        Ok(font_contents)
-    }
-}
-
-impl Display for GoogleFont {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.name)
     }
 }

@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, Render, DOCTYPE};
-use ssg::Targets;
+use ssg::sources::bytes_with_file_spec_safety::Targets;
 
 use crate::{
     constants::{COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL},

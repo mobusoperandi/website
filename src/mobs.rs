@@ -12,7 +12,7 @@ use rrule::{RRule, RRuleSet, Unvalidated};
 use schema::Schema;
 use serde::Deserialize;
 use serde::Serialize;
-use ssg::Targets;
+use ssg::sources::bytes_with_file_spec_safety::Targets;
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
 

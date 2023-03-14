@@ -1,4 +1,4 @@
-use ssg::{FileSource, FileSpec};
+use ssg::{sources::FileSource, FileSpec};
 
 use crate::{components, fonts, graphic_file_specs, pages};
 

@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use maud::{html, Markup, Render};
-use ssg::Targets;
+use ssg::sources::bytes_with_file_spec_safety::Targets;
 
 use crate::{
     components,

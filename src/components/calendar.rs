@@ -6,7 +6,7 @@ use maud::{html, Markup, PreEscaped, Render};
 use once_cell::sync::Lazy;
 use serde::Serialize;
 use serde_json::json;
-use ssg::Targets;
+use ssg::sources::bytes_with_file_spec_safety::Targets;
 
 use crate::html::css_class;
 use crate::style::{BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR};

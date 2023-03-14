@@ -5,7 +5,7 @@ use std::vec;
 
 use futures::FutureExt;
 use maud::Render;
-use ssg::{FileSource, FileSpec};
+use ssg::{sources::FileSource, FileSpec};
 
 use crate::{
     components,

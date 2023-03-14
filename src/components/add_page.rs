@@ -1,5 +1,5 @@
 use maud::{html, Render};
-use ssg::Targets;
+use ssg::sources::bytes_with_file_spec_safety::Targets;
 
 use crate::components;
 use crate::constants::{DEFAULT_BRANCH, GITHUB_PULL_REQUESTS_URL, MOBS_PATH, REPO_URL};
