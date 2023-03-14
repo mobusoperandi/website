@@ -34,7 +34,7 @@ enum FileGenerationErrorCause {
     #[error(transparent)]
     Request(#[from] reqwest::Error),
     #[error(transparent)]
-    Io(#[from] std::io::Error),
+    TargetIo(#[from] std::io::Error),
 }
 
 /// Panics on duplicate `FileSpec` targets
@@ -102,12 +102,16 @@ fn generate_file_from_spec(
             .truncate(true)
             .open(file_path)
             .await
-            .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?;
+            .map_err(|error| {
+                FileGenerationError::new(
+                    this_target.clone(),
+                    FileGenerationErrorCause::TargetIo(error),
+                )
+            })?;
 
-        file_handle
-            .write_all(&contents)
-            .await
-            .map_err(|error| FileGenerationError::new(this_target, error.into()))?;
+        file_handle.write_all(&contents).await.map_err(|error| {
+            FileGenerationError::new(this_target, FileGenerationErrorCause::TargetIo(error))
+        })?;
 
         Ok(())
     }
