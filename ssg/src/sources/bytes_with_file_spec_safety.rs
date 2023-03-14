@@ -3,24 +3,23 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use futures::future::BoxFuture;
+use futures::{future::BoxFuture, FutureExt, TryFutureExt};
 
-pub(crate) type BytesWithFileSpecSafety = Box<
-    dyn Fn(Targets) -> BoxFuture<'static, Result<Vec<u8>, Box<dyn std::error::Error + Send>>>
-        + Send,
->;
+use super::FileSource;
 
-pub(crate) fn obtain(
-    function: BytesWithFileSpecSafety,
-    targets: BTreeSet<PathBuf>,
-    this_target: PathBuf,
-) -> BoxFuture<'static, Result<Vec<u8>, Box<dyn std::error::Error + Send>>> {
-    let targets = Targets {
-        all: targets,
-        current: this_target,
-    };
-
-    function(targets)
+impl<T, E> FileSource for T
+where
+    T: Fn(Targets) -> BoxFuture<'static, Result<Vec<u8>, E>> + Send,
+    E: std::error::Error + 'static + Send,
+{
+    fn obtain_content(
+        &self,
+        targets: Targets,
+    ) -> BoxFuture<'static, Result<Vec<u8>, Box<dyn std::error::Error + Send>>> {
+        self(targets)
+            .map_err(|error| -> Box<dyn std::error::Error + Send> { Box::new(error) })
+            .boxed()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -42,6 +41,10 @@ impl TargetNotFoundError {
 }
 
 impl Targets {
+    pub(crate) fn new(current: PathBuf, all: BTreeSet<PathBuf>) -> Self {
+        Self { current, all }
+    }
+
     pub fn path_of(&self, path: impl AsRef<Path>) -> Result<String, TargetNotFoundError> {
         let path = path.as_ref();
 

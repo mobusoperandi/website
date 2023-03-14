@@ -1,11 +1,11 @@
-use std::ops::Deref;
+use std::{convert::Infallible, ops::Deref};
 
 use futures::FutureExt;
 use indexmap::IndexMap;
 use maud::Render;
 use once_cell::sync::Lazy;
 use schema::{DeriveInput, Schema};
-use ssg::{sources::FileSource, FileSpec};
+use ssg::FileSpec;
 
 use crate::{
     components::{
@@ -51,20 +51,17 @@ pub(crate) static INTERNAL_TYPES_DERIVE_INPUTS: Lazy<IndexMap<TypeIdent, DeriveI
     });
 
 pub fn page() -> FileSpec {
-    FileSpec::new(
-        "/add.html",
-        FileSource::BytesWithFileSpecSafety(Box::new(move |targets| {
-            async {
-                let internal_types = INTERNAL_TYPES_DERIVE_INPUTS
-                    .values()
-                    .map(|derive_input| Type::try_from(derive_input.deref().clone()).unwrap())
-                    .collect();
+    FileSpec::new("/add.html", move |targets| {
+        async {
+            let internal_types = INTERNAL_TYPES_DERIVE_INPUTS
+                .values()
+                .map(|derive_input| Type::try_from(derive_input.deref().clone()).unwrap())
+                .collect();
 
-                let add_page = components::add_page::AddPage::new(internal_types, targets);
+            let add_page = components::add_page::AddPage::new(internal_types, targets);
 
-                Ok(add_page.render().0.into_bytes())
-            }
-            .boxed()
-        })),
-    )
+            Ok::<_, Infallible>(add_page.render().0.into_bytes())
+        }
+        .boxed()
+    })
 }

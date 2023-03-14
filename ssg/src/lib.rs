@@ -4,7 +4,7 @@ pub mod sources;
 use std::{collections::BTreeSet, path::PathBuf};
 
 use futures::{future::BoxFuture, Future, FutureExt};
-use sources::FileSource;
+use sources::{bytes_with_file_spec_safety::Targets, FileSource};
 use tokio::{fs, io::AsyncWriteExt};
 
 #[derive(Debug, thiserror::Error)]
@@ -25,14 +25,8 @@ impl FileGenerationError {
 
 #[derive(Debug, thiserror::Error)]
 enum FileGenerationErrorCause {
-    #[error("user function error: {0}")]
-    UserFn(#[from] Box<dyn std::error::Error + Send>),
     #[error(transparent)]
-    GoogleFontDownload(#[from] sources::google_font::DownloadError),
-    #[error(transparent)]
-    RequestMiddleware(#[from] reqwest_middleware::Error),
-    #[error(transparent)]
-    Request(#[from] reqwest::Error),
+    Source(Box<dyn std::error::Error + Send>),
     #[error(transparent)]
     TargetIo(#[from] std::io::Error),
 }
@@ -65,29 +59,16 @@ pub fn generate_static_site(
 }
 
 fn generate_file_from_spec(
-    source: FileSource,
+    source: Box<dyn FileSource + Send>,
     targets: BTreeSet<PathBuf>,
     this_target: PathBuf,
     output_dir: PathBuf,
 ) -> BoxFuture<'static, Result<(), FileGenerationError>> {
-    async {
-        let contents = match source {
-            FileSource::Static(bytes) => bytes.to_vec(),
-            FileSource::BytesWithFileSpecSafety(function) => {
-                sources::bytes_with_file_spec_safety::obtain(function, targets, this_target.clone())
-                    .await
-                    .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?
-            }
-            FileSource::GoogleFont(google_font) => google_font
-                .download()
-                .await
-                .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?,
-            FileSource::Http(url) => sources::http::download(url)
-                .await
-                .map_err(|error| FileGenerationError::new(this_target.clone(), error.into()))?,
-        };
-
+    async move {
+        let targets = Targets::new(this_target.clone(), targets);
+        let task = source.obtain_content(targets);
         let this_target_relative = this_target.iter().skip(1).collect();
+
         let file_path = [output_dir, this_target_relative]
             .into_iter()
             .collect::<PathBuf>();
@@ -95,6 +76,10 @@ fn generate_file_from_spec(
         fs::create_dir_all(file_path.parent().unwrap())
             .await
             .unwrap();
+
+        let contents = task.await.map_err(|error| {
+            FileGenerationError::new(this_target.clone(), FileGenerationErrorCause::Source(error))
+        })?;
 
         let mut file_handle = fs::OpenOptions::new()
             .write(true)
@@ -119,12 +104,12 @@ fn generate_file_from_spec(
 }
 
 pub struct FileSpec {
-    pub(crate) source: FileSource,
+    pub(crate) source: Box<dyn FileSource + Send>,
     pub(crate) target: PathBuf,
 }
 
 impl FileSpec {
-    pub fn new<T>(target: T, source: FileSource) -> Self
+    pub fn new<T>(target: T, source: impl FileSource + 'static + Send) -> Self
     where
         PathBuf: From<T>,
     {
@@ -132,7 +117,10 @@ impl FileSpec {
 
         assert!(target.is_absolute(), "path not absolute: {target:?}");
 
-        Self { source, target }
+        Self {
+            source: Box::new(source),
+            target,
+        }
     }
 }
 

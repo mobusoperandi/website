@@ -1,4 +1,4 @@
-use ssg::{sources::FileSource, FileSpec};
+use ssg::FileSpec;
 
 use crate::{components, fonts, graphic_file_specs, pages};
 
@@ -8,7 +8,7 @@ pub(crate) async fn get() -> impl Iterator<Item = FileSpec> {
 
     let calendar_library = FileSpec::new(
         "/fullcalendar.js",
-        FileSource::Http(components::CALENDAR_LIBRARY_URL.to_inner().clone()),
+        ssg::sources::Http::from(components::CALENDAR_LIBRARY_URL.to_inner().clone()),
     );
 
     [calendar_library]

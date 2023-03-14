@@ -1,10 +1,12 @@
 use std::fmt::Display;
 
+use futures::{future::BoxFuture, FutureExt, TryFutureExt};
 use readext::ReadExt;
 use reqwest::Url;
-use thiserror::Error;
 
 use crate::disk_caching_http_client;
+
+use super::{bytes_with_file_spec_safety::Targets, FileSource};
 
 #[derive(Debug, Clone, Copy)]
 pub struct GoogleFont {
@@ -14,8 +16,8 @@ pub struct GoogleFont {
     pub variant: &'static str,
 }
 
-#[derive(Debug, Error)]
-pub(crate) enum DownloadError {
+#[derive(Debug, thiserror::Error)]
+enum DownloadError {
     #[error(transparent)]
     UrlParse(#[from] url::ParseError),
     #[error(transparent)]
@@ -28,36 +30,50 @@ pub(crate) enum DownloadError {
     Io(#[from] std::io::Error),
 }
 
-impl GoogleFont {
-    pub(crate) async fn download(&self) -> Result<Vec<u8>, DownloadError> {
-        // TODO: Consider reusing the client ->
-        let url = Url::parse_with_params(
-            &format!(
-                "https://gwfh.mranftl.com/api/fonts/{}",
-                self.name.to_lowercase(),
-            ),
-            [
-                ("download", "zip"),
-                ("subsets", self.subset),
-                ("variants", self.variant),
-            ],
-        )?;
+impl FileSource for GoogleFont {
+    fn obtain_content(
+        &self,
+        _targets: Targets,
+    ) -> BoxFuture<'static, Result<Vec<u8>, Box<dyn std::error::Error + Send>>> {
+        let &Self {
+            name,
+            version,
+            subset,
+            variant,
+        } = self;
 
-        let client = disk_caching_http_client::create();
-        let archive = client.get(url.clone()).send().await?.bytes().await?;
-        let mut archive = zip::ZipArchive::new(std::io::Cursor::new(archive))?;
+        async move {
+            // TODO: Consider reusing the client ->
+            let url = Url::parse_with_params(
+                &format!("https://gwfh.mranftl.com/api/fonts/{}", name.to_lowercase(),),
+                [
+                    ("download", "zip"),
+                    ("subsets", subset),
+                    ("variants", variant),
+                ],
+            )?;
 
-        let mut font_file = archive.by_name(&format!(
-            "{}-v{}-{}-{}.woff2",
-            self.name.to_lowercase(),
-            self.version,
-            self.subset,
-            self.variant
-        ))?;
+            let client = disk_caching_http_client::create();
+            let archive = client.get(url.clone()).send().await?.bytes().await?;
 
-        let font_contents = font_file.read_into_vec()?;
+            let mut archive = zip::ZipArchive::new(std::io::Cursor::new(archive))?;
 
-        Ok(font_contents)
+            let mut font_file = archive.by_name(&format!(
+                "{}-v{}-{}-{}.woff2",
+                name.to_lowercase(),
+                version,
+                subset,
+                variant
+            ))?;
+
+            let font_contents = font_file.read_into_vec()?;
+
+            Ok(font_contents)
+        }
+        .map_err(
+            move |error: DownloadError| -> Box<dyn std::error::Error + Send> { Box::new(error) },
+        )
+        .boxed()
     }
 }
 
