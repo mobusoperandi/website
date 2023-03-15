@@ -52,6 +52,7 @@ impl FileSource for GoogleFont {
             )?;
 
             let client = disk_caching_http_client::create();
+
             let archive = client
                 .get(url.clone())
                 .send()
@@ -70,9 +71,7 @@ impl FileSource for GoogleFont {
                 variant
             ))?;
 
-            let font_contents = font_file.read_into_vec()?;
-
-            Ok(font_contents)
+            Ok(font_file.read_into_vec()?)
         }
         .map_err(
             move |error: DownloadError| -> Box<dyn std::error::Error + Send> { Box::new(error) },
