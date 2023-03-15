@@ -15,12 +15,8 @@ impl From<Url> for Http {
 }
 
 #[derive(thiserror::Error, Debug)]
-enum HttpError {
-    #[error(transparent)]
-    ReqwestMiddleware(#[from] reqwest_middleware::Error),
-    #[error(transparent)]
-    Reqwest(#[from] reqwest::Error),
-}
+#[error(transparent)]
+struct HttpError(#[from] reqwest_middleware::Error);
 
 impl FileSource for Http {
     fn obtain_content(
@@ -35,7 +31,8 @@ impl FileSource for Http {
                 .send()
                 .await?
                 .bytes()
-                .await?
+                .await
+                .map_err(reqwest_middleware::Error::Reqwest)?
                 .to_vec())
         }
         .map_err(|error: HttpError| -> Box<dyn std::error::Error + Send> { Box::new(error) })

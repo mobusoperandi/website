@@ -21,9 +21,7 @@ enum DownloadError {
     #[error(transparent)]
     UrlParse(#[from] url::ParseError),
     #[error(transparent)]
-    RequestMiddleware(#[from] reqwest_middleware::Error),
-    #[error(transparent)]
-    Request(#[from] reqwest::Error),
+    Http(#[from] reqwest_middleware::Error),
     #[error(transparent)]
     Zip(#[from] zip::result::ZipError),
     #[error(transparent)]
@@ -54,7 +52,13 @@ impl FileSource for GoogleFont {
             )?;
 
             let client = disk_caching_http_client::create();
-            let archive = client.get(url.clone()).send().await?.bytes().await?;
+            let archive = client
+                .get(url.clone())
+                .send()
+                .await?
+                .bytes()
+                .await
+                .map_err(reqwest_middleware::Error::Reqwest)?;
 
             let mut archive = zip::ZipArchive::new(std::io::Cursor::new(archive))?;
 
