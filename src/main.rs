@@ -13,26 +13,34 @@ mod style;
 mod tailwind;
 mod url;
 
-use clap::{Parser, ValueEnum};
+use std::{env::current_dir, path::PathBuf};
+
+use ::url::Url;
+use clap::{Parser, Subcommand};
+use colored::Colorize;
 use futures::{stream, StreamExt};
 use ssg::generate_static_site;
 use tokio::process::Command;
 
-use crate::constants::OUTPUT_DIR;
+use crate::constants::{LOCALHOST, LOCAL_DEV_PORT, OUTPUT_DIR};
 
 #[derive(Debug, Parser)]
 struct Cli {
-    #[arg(value_enum, default_value_t = Mode::Build)]
-    mode: Mode,
+    #[command(subcommand)]
+    mode: Option<Mode>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Subcommand)]
 enum Mode {
     /// build the website into the output directory and exit
     Build,
     /// watch for changes and rebuild the website
     /// and start a development web server
-    Dev,
+    Dev {
+        /// open website in a browser
+        #[arg(short, long)]
+        open: bool,
+    },
     /// print the output directory path
     PrintOutputDir,
 }
@@ -42,9 +50,9 @@ async fn main() {
     let cli = Cli::parse();
 
     match cli.mode {
-        Mode::Build => build().await,
-        Mode::Dev => dev().await,
-        Mode::PrintOutputDir => print!("{OUTPUT_DIR}"),
+        None | Some(Mode::Build) => build().await,
+        Some(Mode::Dev { open }) => dev(open).await,
+        Some(Mode::PrintOutputDir) => print!("{OUTPUT_DIR}"),
     }
 }
 
@@ -64,22 +72,30 @@ async fn build() {
     tailwind::execute().await;
 }
 
-async fn dev() {
-    let exit_status = tokio::select! {
-        v = watch_for_changes_and_rebuild() => v,
-        v = start_development_web_server() => v,
+async fn dev(launch_browser: bool) {
+    tokio::select! {
+        result = watch_for_changes_and_rebuild() => { result.unwrap(); },
+        result = start_development_web_server(launch_browser) => { result.unwrap(); },
     };
-
-    exit_status.unwrap();
 }
 
-async fn start_development_web_server() -> Result<std::process::ExitStatus, std::io::Error> {
-    let mut child = Command::new("cargo")
-        .args(["bin", "live-server", "--host", "localhost", OUTPUT_DIR])
-        .spawn()
-        .unwrap();
+async fn start_development_web_server(launch_browser: bool) -> Result<(), std::io::Error> {
+    let url = Url::parse(&format!("http://{LOCALHOST}:{}", *LOCAL_DEV_PORT)).unwrap();
+    let message = format!("\nServer started at {url}\n").blue();
+    println!("{message}");
 
-    child.wait().await
+    if launch_browser {
+        open::that(url.as_str()).unwrap();
+    }
+
+    live_server::listen(
+        LOCALHOST,
+        *LOCAL_DEV_PORT,
+        [current_dir().unwrap(), OUTPUT_DIR.into()]
+            .into_iter()
+            .collect::<PathBuf>(),
+    )
+    .await
 }
 
 async fn watch_for_changes_and_rebuild() -> Result<std::process::ExitStatus, std::io::Error> {

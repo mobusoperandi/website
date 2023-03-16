@@ -1,4 +1,5 @@
 use once_cell::sync::Lazy;
+use portpicker::{pick_unused_port, Port};
 
 use crate::url::Url;
 
@@ -47,3 +48,6 @@ pub(crate) const OUTPUT_DIR: &str = ".vercel/output/static";
 pub(crate) const GITHUB_PULL_REQUESTS_URL: &str = "https://docs.github.com\
     /en/pull-requests/collaborating-with-pull-requests\
     /proposing-changes-to-your-work-with-pull-requests/about-pull-requests";
+
+pub(crate) const LOCALHOST: &str = "localhost";
+pub(crate) static LOCAL_DEV_PORT: Lazy<Port> = Lazy::new(|| pick_unused_port().unwrap());
