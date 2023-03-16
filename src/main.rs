@@ -13,8 +13,6 @@ mod style;
 mod tailwind;
 mod url;
 
-use std::thread;
-
 use clap::{Parser, ValueEnum};
 use futures::{stream, StreamExt};
 use ssg::generate_static_site;
@@ -45,7 +43,7 @@ async fn main() {
 
     match cli.mode {
         Mode::Build => build().await,
-        Mode::Dev => dev(),
+        Mode::Dev => dev().await,
         Mode::PrintOutputDir => print!("{OUTPUT_DIR}"),
     }
 }
@@ -66,22 +64,29 @@ async fn build() {
     tailwind::execute().await;
 }
 
-fn dev() {
-    watch_for_changes_and_rebuild();
-    start_development_web_server();
-    thread::park();
+async fn dev() {
+    let exit_status = tokio::select! {
+        v = watch_for_changes_and_rebuild() => v,
+        v = start_development_web_server() => v,
+    };
+
+    exit_status.unwrap();
 }
 
-fn start_development_web_server() {
-    Command::new("cargo")
+async fn start_development_web_server() -> Result<std::process::ExitStatus, std::io::Error> {
+    let mut child = Command::new("cargo")
         .args(["bin", "live-server", "--host", "localhost", OUTPUT_DIR])
         .spawn()
         .unwrap();
+
+    child.wait().await
 }
 
-fn watch_for_changes_and_rebuild() {
-    Command::new("cargo")
+async fn watch_for_changes_and_rebuild() -> Result<std::process::ExitStatus, std::io::Error> {
+    let mut child = Command::new("cargo")
         .args(["bin", "cargo-watch", "--exec", "run -- build"])
         .spawn()
         .unwrap();
+
+    child.wait().await
 }
