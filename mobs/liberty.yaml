@@ -10,11 +10,11 @@ participants:
     social_url: https://twitter.com/mightyiam
     avatar_url: https://avatars.githubusercontent.com/u/635591?v=4
 schedule:
-  - frequency: FREQ=WEEKLY;BYDAY=MO,FR
+  - frequency: FREQ=WEEKLY;BYDAY=MO,WE,FR
     timezone: Etc/UTC
     start_date: 2022-12-12
     start_time: 07:00
-    duration: 120
+    duration: 60
 background_color: DarkGoldenRod
 text_color: CornSilk
 links:
