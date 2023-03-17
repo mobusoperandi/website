@@ -12,10 +12,6 @@
   };
 in
   pkgs.mkShell {
-    buildInputs = with pkgs; [
-      openssl
-      pkg-config
-    ];
     nativeBuildInputs = with pkgs; [
       rustup
       cargo-run-bin
