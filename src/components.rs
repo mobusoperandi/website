@@ -1,5 +1,5 @@
 pub(crate) mod add_page;
-mod base_page;
+pub(crate) mod base_page;
 mod calendar;
 mod home_page;
 mod mob_page;

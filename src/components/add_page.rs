@@ -2,7 +2,7 @@ use maud::{html, Render};
 use ssg::sources::bytes_with_file_spec_safety::Targets;
 
 use crate::components;
-use crate::constants::{DEFAULT_BRANCH, GITHUB_PULL_REQUESTS_URL, MOBS_PATH, REPO_URL};
+use crate::constants::{DEFAULT_BRANCH, GITHUB_PULL_REQUESTS_URL, MOBS_PATH, NAME, REPO_URL};
 use crate::style::{PROSE_CLASSES, VERTICAL_GAP_CLASS};
 
 use super::schema::type_::Type;
@@ -60,6 +60,9 @@ impl Render for AddPage {
         components::BasePage {
             title: Some("Add".to_owned().into()),
             content,
+            description: components::base_page::PageDescription::from(format!(
+                "How to add your mob to {NAME}",
+            )),
             content_classes: classes!("flex", "flex-col", VERTICAL_GAP_CLASS),
             targets: self.targets.clone(),
         }

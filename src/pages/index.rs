@@ -4,7 +4,7 @@ use futures::FutureExt;
 use maud::Render;
 use ssg::{sources::bytes_with_file_spec_safety::Targets, FileSpec};
 
-use crate::{components, mobs};
+use crate::{components, constants::DESCRIPTION, mobs};
 
 pub async fn page() -> FileSpec {
     let mobs = mobs::read_all_mobs().await;
@@ -23,6 +23,7 @@ pub async fn page() -> FileSpec {
                     participants,
                 }
                 .render(),
+                description: components::base_page::PageDescription::from(DESCRIPTION.to_owned()),
                 content_classes: classes!("flex", "flex-col", "gap-1"),
                 targets,
             };

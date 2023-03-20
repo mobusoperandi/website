@@ -4,6 +4,7 @@ use ssg::sources::bytes_with_file_spec_safety::Targets;
 
 use crate::{
     components,
+    constants::NAME,
     mobs::{self, Mob, MobId, MobParticipant, MobTitle},
     style,
     url::Url,
@@ -163,6 +164,15 @@ impl Render for MobPage {
         components::BasePage {
             title: Some(self.mob.title.as_str().to_owned().into()),
             content,
+            description: components::base_page::PageDescription::from(format!(
+                "{}{}; description, schedule and more on {NAME}",
+                self.mob.title,
+                self.mob
+                    .subtitle
+                    .as_ref()
+                    .map(|subtitle| format!(", {}", subtitle.as_str()))
+                    .unwrap_or_default()
+            )),
             content_classes: classes!("flex", "flex-col", "gap-6"),
             targets: self.targets.clone(),
         }

@@ -55,6 +55,12 @@ impl Render for MobTitle {
 #[derive(Debug, Clone, derive_more::Display, Serialize, Deserialize)]
 pub(crate) struct MobSubtitle(String);
 
+impl MobSubtitle {
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
+}
+
 impl Render for MobSubtitle {
     fn render(&self) -> Markup {
         html! { p { (self.0) } }

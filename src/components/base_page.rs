@@ -32,11 +32,27 @@ impl From<String> for PageTitle {
     }
 }
 
+#[derive(Debug, Clone)]
+pub(crate) struct PageDescription(String);
+
+impl Render for PageDescription {
+    fn render(&self) -> Markup {
+        self.0.render()
+    }
+}
+
+impl From<String> for PageDescription {
+    fn from(string: String) -> Self {
+        Self(string)
+    }
+}
+
 pub(crate) struct BasePage {
     pub(crate) title: Option<PageTitle>,
     pub(crate) content: Markup,
     pub(crate) content_classes: Classes,
     pub(crate) targets: Targets,
+    pub(crate) description: PageDescription,
 }
 
 impl Render for BasePage {
@@ -91,7 +107,7 @@ impl Render for BasePage {
                 head {
                   title { (title) }
                   meta charset="utf-8";
-                  meta name="description" content=(DESCRIPTION);
+                  meta name="description" content=(self.description);
                   meta name="viewport" content="width=device-width, initial-scale=1.0";
                   link rel="stylesheet" href={ "/index.css?v=" (version) };
                   style {
