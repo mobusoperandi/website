@@ -41,6 +41,8 @@ enum Mode {
         #[arg(short, long)]
         open: bool,
     },
+    /// print the output directory path
+    PrintOutputDir,
 }
 
 #[tokio::main]
@@ -50,6 +52,7 @@ async fn main() {
     match cli.mode {
         None | Some(Mode::Build) => build().await,
         Some(Mode::Dev { open }) => dev(open).await,
+        Some(Mode::PrintOutputDir) => print!("{OUTPUT_DIR}"),
     }
 }
 
