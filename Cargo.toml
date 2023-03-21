@@ -29,6 +29,7 @@ serde = { version = "1.0.138", features = ["derive"] }
 serde_json = "1.0.82"
 serde_yaml = "0.9.11"
 ssg = { version = "0.0.0", path = "ssg" }
+strum_macros = "0.24.3"
 syn = { version = "1.0.109", features = ["full"] }
 # TODO less features
 tokio = { version = "1.21.0", features = ["fs", "tokio-macros", "full"] }

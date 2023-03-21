@@ -10,6 +10,7 @@ mod markdown;
 mod mobs;
 mod pages;
 mod style;
+mod syn_helpers;
 mod tailwind;
 mod url;
 

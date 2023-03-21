@@ -13,12 +13,14 @@ use schema::Schema;
 use serde::Deserialize;
 use serde::Serialize;
 use ssg::sources::bytes_with_file_spec_safety::Targets;
+use strum_macros::AsRefStr;
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
 
 use crate::components::CalendarEvent;
 use crate::constants::MOBS_PATH;
 use crate::markdown::Markdown;
+use crate::syn_helpers::Attribute;
 use crate::url::Url;
 
 #[derive(Debug, Clone)]
@@ -89,7 +91,7 @@ impl TryFrom<(String, MobFile)> for Mob {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Schema)]
+#[derive(Debug, Clone, Serialize, Deserialize, Schema, AsRefStr)]
 /// A mob's status
 pub(crate) enum Status {
     /// This mob is not active yet because it needs more members.
@@ -136,6 +138,30 @@ pub(crate) enum Status {
     ///   [Room link](https://meet.jit.si/MedievalWebsPortrayLoud)
     /// ```
     Public(Markdown),
+}
+
+impl Status {
+    pub(crate) fn description(&self) -> String {
+        let syn::Data::Enum(enum_data) = Self::schema().data else {
+            panic!("not an enum??")
+        };
+
+        let variant_ident = self.as_ref();
+
+        let variant = enum_data
+            .variants
+            .into_iter()
+            .find(|variant| variant.ident == variant_ident)
+            .expect("variant not found");
+
+        variant
+            .attrs
+            .into_iter()
+            .find(|attr| attr.is_doc())
+            .expect("no doc attr")
+            .doc_string()
+            .unwrap()
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Schema)]

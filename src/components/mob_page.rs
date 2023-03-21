@@ -60,40 +60,35 @@ impl Render for MobPage {
 
         let mob_links = (!mob_links.is_empty()).then_some(mob_links);
 
-        let (short_wrapper, open_wrapper, full_wrapper, public_wrapper, status_explanation): (
+        let (short_wrapper, open_wrapper, full_wrapper, public_wrapper): (
             WrapperFn,
             WrapperFn,
             WrapperFn,
             WrapperFn,
-            &str,
         ) = match self.mob.status {
             mobs::Status::Short(_) => (
                 status_wrapper_true,
                 status_wrapper_false,
                 status_wrapper_false,
                 status_wrapper_false,
-                "This mob is not active yet because it needs more members.",
             ),
             mobs::Status::Open(_) => (
                 status_wrapper_false,
                 status_wrapper_true,
                 status_wrapper_false,
                 status_wrapper_false,
-                "This mob is taking applications for new participants.",
             ),
             mobs::Status::Full(_) => (
                 status_wrapper_false,
                 status_wrapper_false,
                 status_wrapper_true,
                 status_wrapper_false,
-                "This mob is not currently taking applications.",
             ),
             mobs::Status::Public(_) => (
                 status_wrapper_false,
                 status_wrapper_false,
                 status_wrapper_false,
                 status_wrapper_true,
-                "This mob's sessions are open for anyone to join.",
             ),
         };
 
@@ -142,7 +137,7 @@ impl Render for MobPage {
                 div class=(classes!("flex", "gap-4", "uppercase", "tracking-widest")) {
                     (short_wrapper("short")) (open_wrapper("open")) (full_wrapper("full")) (public_wrapper("public"))
                 }
-                p class="tracking-wide" { (status_explanation) }
+                p class="tracking-wide" { (self.mob.status.description()) }
             }
 
             div class=(classes!("grid", "grid-flow-row", "sm:grid-flow-col", "auto-cols-fr", "gap-[1.25em]")) {
