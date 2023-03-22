@@ -157,10 +157,8 @@ impl Status {
         variant
             .attrs
             .into_iter()
-            .find(|attr| attr.is_doc())
+            .find_map(|attr| attr.doc_string())
             .expect("no doc attr")
-            .doc_string()
-            .unwrap()
     }
 }
 

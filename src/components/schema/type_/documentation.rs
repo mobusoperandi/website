@@ -1,5 +1,5 @@
 use ::schema::syn;
-use anyhow::{Error, Result};
+use anyhow::{bail, Error, Result};
 use maud::{html, Markup, Render};
 
 use crate::markdown::Markdown;
@@ -15,14 +15,12 @@ impl TryFrom<Vec<syn::Attribute>> for Documentation {
     fn try_from(attrs: Vec<syn::Attribute>) -> Result<Self> {
         let doc_string_parts = attrs
             .into_iter()
-            .filter_map(|attr| {
-                if attr.is_doc() {
-                    Some(attr.doc_string())
-                } else {
-                    None
-                }
-            })
-            .collect::<Result<Vec<String>>>()?;
+            .filter_map(|attr| attr.doc_string())
+            .collect::<Vec<String>>();
+
+        if doc_string_parts.is_empty() {
+            bail!("no doc attrs");
+        }
 
         let doc_string = doc_string_parts.join("\n");
 

@@ -1,25 +1,15 @@
-use anyhow::{bail, Result};
 use schema::proc_macro2;
 
 pub(crate) trait Attribute {
-    fn is_doc(&self) -> bool;
-    fn doc_string(&self) -> Result<String>;
+    fn doc_string(&self) -> Option<String>;
 }
 
 impl Attribute for syn::Attribute {
-    fn is_doc(&self) -> bool {
-        let last_path_segment = self.path.segments.last();
+    fn doc_string(&self) -> Option<String> {
+        let last_path_segment = self.path.segments.last()?;
 
-        let Some(last_path_segment) = last_path_segment else {
-            return false;
-        };
-
-        last_path_segment.ident == "doc"
-    }
-
-    fn doc_string(&self) -> Result<String> {
-        if !self.is_doc() {
-            bail!("not a doc attr");
+        if last_path_segment.ident != "doc" {
+            return None;
         }
 
         let value_tokens = self
@@ -30,13 +20,13 @@ impl Attribute for syn::Attribute {
             .collect::<proc_macro2::TokenStream>();
 
         let Ok(literal) = syn::parse2::<syn::Lit>(value_tokens) else {
-            bail!("not a literal");
+            return None;
         };
 
         let syn::Lit::Str(lit_str) = literal else {
-            bail!("not a Lit::Str");
+            return None;
         };
 
-        Ok(lit_str.value())
+        Some(lit_str.value())
     }
 }
