@@ -24,13 +24,13 @@ once_cell = "1.16.0"
 open = "4.0.0"
 portpicker = "0.1.1"
 rrule = "0.10.0"
-schema = "0.0.1"
+schema = "0.1.0"
 serde = { version = "1.0.138", features = ["derive"] }
 serde_json = "1.0.82"
 serde_yaml = "0.9.11"
 ssg = { version = "0.0.0", path = "ssg" }
 strum_macros = "0.24.3"
-syn = { version = "1.0.109", features = ["full"] }
+syn = { version = "2.0.5", features = ["full"] }
 # TODO less features
 tokio = { version = "1.21.0", features = ["fs", "tokio-macros", "full"] }
 tokio-stream = { version = "0.1.9", features = ["fs", "sync"] }
