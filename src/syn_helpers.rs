@@ -8,10 +8,6 @@ pub(crate) trait Attribute {
 
 impl Attribute for syn::Attribute {
     fn is_doc(&self) -> bool {
-        if !matches!(self.style, syn::AttrStyle::Outer) {
-            return false;
-        }
-
         let last_path_segment = self.path.segments.last();
 
         let Some(last_path_segment) = last_path_segment else {
