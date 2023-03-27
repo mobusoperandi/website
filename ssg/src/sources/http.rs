@@ -30,6 +30,8 @@ impl FileSource for Http {
                 .get(url)
                 .send()
                 .await?
+                .error_for_status()
+                .map_err(reqwest_middleware::Error::Reqwest)?
                 .bytes()
                 .await
                 .map_err(reqwest_middleware::Error::Reqwest)?
