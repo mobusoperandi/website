@@ -1,10 +1,10 @@
 use std::convert::Infallible;
 
+use crate::{components, constants::DESCRIPTION, mobs};
+
 use futures::FutureExt;
 use maud::Render;
 use ssg::{sources::bytes_with_file_spec_safety::Targets, FileSpec};
-
-use crate::{components, constants::DESCRIPTION, mobs};
 
 pub async fn page() -> FileSpec {
     let mobs = mobs::read_all_mobs().await;
@@ -21,6 +21,7 @@ pub async fn page() -> FileSpec {
                     targets: targets.clone(),
                     mobs,
                     participants,
+                    status_legend: mobs::Status::legend(),
                 }
                 .render(),
                 description: components::base_page::PageDescription::from(DESCRIPTION.to_owned()),

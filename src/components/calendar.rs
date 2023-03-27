@@ -9,12 +9,14 @@ use serde_json::json;
 use ssg::sources::bytes_with_file_spec_safety::Targets;
 
 use crate::html::css_class;
+use crate::mobs;
 use crate::style::{BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR};
 use crate::url::Url;
 
 pub(crate) struct Calendar {
     pub(crate) targets: Targets,
     pub(crate) events: Vec<CalendarEvent>,
+    pub(crate) status_legend: Option<mobs::StatusLegend>,
 }
 
 #[derive(Serialize)]
@@ -114,6 +116,11 @@ impl Render for Calendar {
                     button class=({BUTTON_CLASSES.clone() + classes!(button_today_class)}) { "Today" }
                 }
             }
+
+            @if let Some(status_legend) = &self.status_legend {
+                (status_legend)
+            }
+
             div class=(classes!(calendar_container_class, "[--fc-page-bg-color:transparent]")) {}
             script defer src=(self.targets.path_of(Path::new("/fullcalendar.js")).unwrap()) {}
             script data-input=(calendar_fn_input.to_string()) {

@@ -1,12 +1,14 @@
 use std::collections::BTreeSet;
 
 use chrono::{DateTime, Utc};
+use itertools::Itertools;
 use maud::{html, Markup, Render};
 use ssg::sources::bytes_with_file_spec_safety::Targets;
 
 use crate::{
     components,
-    mobs::{Mob, MobId, MobTitle, Person},
+    html::Class,
+    mobs::{self, Mob, Person},
     style::{BUTTON_CLASSES, BUTTON_GAP},
 };
 
@@ -14,6 +16,7 @@ pub(crate) struct HomePage {
     pub(crate) mobs: Vec<Mob>,
     pub(crate) participants: BTreeSet<Person>,
     pub(crate) targets: Targets,
+    pub(crate) status_legend: mobs::StatusLegend,
 }
 
 impl Render for HomePage {
@@ -27,6 +30,7 @@ impl Render for HomePage {
         let calendar = components::Calendar {
             targets: self.targets.clone(),
             events,
+            status_legend: Some(self.status_legend.clone()),
         };
 
         html! {
@@ -53,14 +57,33 @@ impl Render for HomePage {
 fn event_content_template(
     _start: DateTime<Utc>,
     _end: DateTime<Utc>,
-    mob_id: MobId,
-    mob_title: MobTitle,
+    mob: &Mob,
     targets: &Targets,
 ) -> Markup {
+    let mob_id = &mob.id;
     let target_path = targets.path_of(format!("/mobs/{mob_id}.html")).unwrap();
+
+    const OFFSET_VALUES: [i8; 2] = [-1, 1];
+
+    let indicator_text_shadow_value = OFFSET_VALUES
+        .into_iter()
+        .cartesian_product(OFFSET_VALUES)
+        .map(|(offset_x, offset_y)| format!("{offset_x}px {offset_y}px 3px black"))
+        .join(", ");
+
+    let indicator_text_shadow_class: Class =
+        format!("[text-shadow: {indicator_text_shadow_value}]")
+            .replace(' ', "_")
+            .try_into()
+            .unwrap();
+
     html! {
         a class=(classes!("no-underline", "block", "h-full")) href=(target_path) {
-            (mob_title)
+            (mob.title)
+
+            @if let Some(status_indicator) = mob.status.indicator() {
+                 " " span class=(indicator_text_shadow_class) { (status_indicator) }
+            }
         }
     }
 }

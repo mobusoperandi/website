@@ -5,7 +5,7 @@ use ssg::sources::bytes_with_file_spec_safety::Targets;
 use crate::{
     components,
     constants::NAME,
-    mobs::{self, Mob, MobId, MobParticipant, MobTitle},
+    mobs::{self, Mob, MobParticipant},
     style,
     url::Url,
 };
@@ -38,6 +38,7 @@ impl Render for MobPage {
         let calendar = components::Calendar {
             targets: self.targets.clone(),
             events,
+            status_legend: None,
         };
 
         let mob_links = self
@@ -137,7 +138,7 @@ impl Render for MobPage {
                 div class=(classes!("flex", "gap-4", "uppercase", "tracking-widest")) {
                     (short_wrapper("short")) (open_wrapper("open")) (full_wrapper("full")) (public_wrapper("public"))
                 }
-                p class="tracking-wide" { (self.mob.status.description()) }
+                p class="tracking-wide" { (mobs::Status::description(self.mob.status.as_ref())) }
             }
 
             div class=(classes!("grid", "grid-flow-row", "sm:grid-flow-col", "auto-cols-fr", "gap-[1.25em]")) {
@@ -178,13 +179,11 @@ impl Render for MobPage {
 fn event_content_template(
     start: DateTime<Utc>,
     end: DateTime<Utc>,
-    _mob_id: MobId,
-    _mob_title: MobTitle,
+    _mob: &Mob,
     _targets: &Targets,
 ) -> Markup {
     let start = start.format("%k:%M").to_string();
     let end = end.format("%k:%M").to_string();
-
     html! {
         (start) "–" (end) " UTC"
     }

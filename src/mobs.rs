@@ -1,21 +1,23 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::io;
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Duration, Utc};
 use chrono::{NaiveDate, TimeZone};
 use chrono_tz::Tz;
 use csscolorparser::Color;
+use custom_attrs::CustomAttrs;
 use futures::StreamExt;
 use maud::{html, Markup, PreEscaped, Render};
 use rrule::{RRule, RRuleSet, Unvalidated};
 use schema::Schema;
 use serde::Deserialize;
 use serde::Serialize;
-use ssg::sources::bytes_with_file_spec_safety::Targets;
-use strum_macros::AsRefStr;
+use strum::{AsRefStr, EnumVariantNames, VariantNames};
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
+
+use ssg::sources::bytes_with_file_spec_safety::Targets;
 
 use crate::components::CalendarEvent;
 use crate::constants::MOBS_PATH;
@@ -91,7 +93,8 @@ impl TryFrom<(String, MobFile)> for Mob {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Schema, AsRefStr)]
+#[derive(Debug, Clone, Serialize, Deserialize, Schema, AsRefStr, EnumVariantNames, CustomAttrs)]
+#[attr(indicator: Option<char>)]
 /// A mob's status
 pub(crate) enum Status {
     /// This mob is not active yet because it needs more members.
@@ -104,6 +107,7 @@ pub(crate) enum Status {
     /// !Short |
     ///   To apply contact [Kelly](https://example.com/kelly).
     /// ```
+    #[attr(indicator = '🌱')]
     Short(Markdown),
     /// This mob is taking applications for new participants.
     ///
@@ -115,6 +119,7 @@ pub(crate) enum Status {
     /// !Open |
     ///   To apply contact [Dawn](https://example.com/dawn).
     /// ```
+    #[attr(indicator = '👐')]
     Open(Markdown),
     /// This mob is not currently taking applications.
     ///
@@ -137,16 +142,15 @@ pub(crate) enum Status {
     /// !Public |
     ///   [Room link](https://meet.jit.si/MedievalWebsPortrayLoud)
     /// ```
+    #[attr(indicator = '⛲')]
     Public(Markdown),
 }
 
 impl Status {
-    pub(crate) fn description(&self) -> String {
+    pub(crate) fn description(variant_ident: &str) -> StatusDescription {
         let syn::Data::Enum(enum_data) = Self::schema().data else {
             panic!("not an enum??")
         };
-
-        let variant_ident = self.as_ref();
 
         let variant = enum_data
             .variants
@@ -154,11 +158,110 @@ impl Status {
             .find(|variant| variant.ident == variant_ident)
             .expect("variant not found");
 
-        variant
+        let description = variant
             .attrs
             .into_iter()
             .find_map(|attr| attr.doc_string())
-            .expect("no doc attr")
+            .expect("no doc attr");
+
+        StatusDescription(description)
+    }
+
+    pub(crate) fn indicator(&self) -> Option<StatusIndicator> {
+        Some(StatusIndicator(self.get_indicator()?))
+    }
+
+    pub(crate) fn indicator_for_ident(variant_ident: &str) -> Option<StatusIndicator> {
+        let syn::Data::Enum(enum_data) = Self::schema().data else {
+            panic!("not an enum??")
+        };
+
+        let variant = enum_data
+            .variants
+            .into_iter()
+            .find(|variant| variant.ident == variant_ident)
+            .expect("variant not found");
+
+        let list_tokens = variant.attrs.into_iter().find_map(|attr| {
+            let syn::Meta::List(list_meta) = attr.meta else { return None; };
+
+            if !list_meta.path.is_ident("attr") {
+                return None;
+            };
+
+            Some(list_meta.tokens)
+        })?;
+
+        let name_value = syn::parse2::<syn::MetaNameValue>(list_tokens).ok()?;
+
+        if !name_value.path.is_ident("indicator") {
+            return None;
+        }
+
+        let syn::Expr::Lit(
+            syn::ExprLit {
+                lit: syn::Lit::Char(lit_char),
+                ..
+            }
+        ) = name_value.value else {
+            panic!("value is not a literal");
+        };
+
+        Some(StatusIndicator(lit_char.value()))
+    }
+
+    pub(crate) fn legend() -> StatusLegend {
+        Self::VARIANTS
+            .iter()
+            .filter_map(|&variant_ident| {
+                let indicator = Self::indicator_for_ident(variant_ident)?;
+                let description = Self::description(variant_ident);
+
+                Some((indicator, description))
+            })
+            .collect::<StatusLegend>()
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct StatusIndicator(char);
+
+impl Render for StatusIndicator {
+    fn render(&self) -> Markup {
+        self.0.render()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct StatusDescription(String);
+
+impl Render for StatusDescription {
+    fn render(&self) -> Markup {
+        self.0.render()
+    }
+}
+
+#[derive(Debug, Clone, derive_more::IntoIterator)]
+pub(crate) struct StatusLegend(BTreeMap<StatusIndicator, StatusDescription>);
+
+impl FromIterator<(StatusIndicator, StatusDescription)> for StatusLegend {
+    fn from_iter<T: IntoIterator<Item = (StatusIndicator, StatusDescription)>>(iter: T) -> Self {
+        Self(iter.into_iter().collect())
+    }
+}
+
+impl Render for StatusLegend {
+    fn render(&self) -> Markup {
+        html! {
+            "Legend:"
+            dl class=(classes!("grid", "grid-cols-[auto_auto_1fr]")) {
+                @for (indicator, description) in self.0.iter() {
+                    dt class=(classes!("text-2xl")) { (indicator) }
+                    "\u{00A0}—\u{00A0}"
+                    dd { (description) }
+                }
+            }
+        }
     }
 }
 
@@ -414,13 +517,7 @@ impl Mob {
     pub(crate) fn events(
         &self,
         targets: &Targets,
-        event_content_template: fn(
-            DateTime<Utc>,
-            DateTime<Utc>,
-            MobId,
-            MobTitle,
-            &Targets,
-        ) -> Markup,
+        event_content_template: fn(DateTime<Utc>, DateTime<Utc>, &Mob, &Targets) -> Markup,
     ) -> Vec<CalendarEvent> {
         self.schedule
             .iter()
@@ -435,13 +532,7 @@ impl Mob {
                         let start = occurrence.with_timezone(&Utc);
                         let end = (start + duration).with_timezone(&Utc);
 
-                        let event_content = event_content_template(
-                            start,
-                            end,
-                            mob.id.clone(),
-                            mob.title.clone(),
-                            targets,
-                        );
+                        let event_content = event_content_template(start, end, &mob, targets);
 
                         let background_color = mob.background_color.clone();
                         let text_color = mob.text_color.clone();
