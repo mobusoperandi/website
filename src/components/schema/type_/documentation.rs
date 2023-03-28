@@ -1,13 +1,13 @@
 use ::schema::syn;
 use anyhow::{bail, Error, Result};
-use maud::{html, Markup, Render};
+use maud::{html, Render};
 
 use crate::markdown::Markdown;
 use crate::style::PROSE_CLASSES;
 use crate::syn_helpers::Attribute;
 
 #[derive(Debug, Clone)]
-pub(crate) struct Documentation(Markup);
+pub(crate) struct Documentation(Markdown);
 
 impl TryFrom<Vec<syn::Attribute>> for Documentation {
     type Error = Error;
@@ -24,7 +24,7 @@ impl TryFrom<Vec<syn::Attribute>> for Documentation {
 
         let doc_string = doc_string_parts.join("\n");
 
-        Ok(Self(Markdown::from(doc_string).render()))
+        Ok(Self(Markdown::from(doc_string)))
     }
 }
 
