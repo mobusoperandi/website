@@ -8,12 +8,12 @@ use crate::disk_caching_http_client;
 
 use super::{bytes_with_file_spec_safety::Targets, FileSource};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct GoogleFont {
-    pub name: &'static str,
+    pub name: String,
     pub version: u8,
-    pub subset: &'static str,
-    pub variant: &'static str,
+    pub subset: String,
+    pub variant: String,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -33,12 +33,12 @@ impl FileSource for GoogleFont {
         &self,
         _targets: Targets,
     ) -> BoxFuture<'static, Result<Vec<u8>, Box<dyn std::error::Error + Send>>> {
-        let &Self {
+        let Self {
             name,
             version,
             subset,
             variant,
-        } = self;
+        } = self.clone();
 
         async move {
             // TODO: Consider reusing the client ->
@@ -46,8 +46,8 @@ impl FileSource for GoogleFont {
                 &format!("https://gwfh.mranftl.com/api/fonts/{}", name.to_lowercase(),),
                 [
                     ("download", "zip"),
-                    ("subsets", subset),
-                    ("variants", variant),
+                    ("subsets", &subset),
+                    ("variants", &variant),
                 ],
             )?;
 

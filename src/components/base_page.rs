@@ -70,7 +70,7 @@ impl Render for BasePage {
         let target_index = self.targets.path_of("/index.html").unwrap();
 
         let root_classes = classes![
-            format!("font-[{}]", fonts::VOLLKORN),
+            format!("font-[{}]", *fonts::VOLLKORN),
             "[font-size:16px]",
             format!("bg-{}", style::BACKGROUND_COLOR),
             format!("text-{}", style::TEXT_COLOR),
@@ -112,13 +112,13 @@ impl Render for BasePage {
                   link rel="stylesheet" href={ "/index.css?v=" (version) };
                   style {
                     // TODO extract as font utility
-                    @for font in fonts::ALL {
+                    @for font in fonts::ALL.as_slice() {
                         (PreEscaped(format!("
                             @font-face {{
                                 font-family: '{}';
                                 src: url('/{}') format('truetype');
                             }}",
-                            font.name, fonts::output_filename(&font)))
+                            font.name, fonts::output_filename(font)))
                         )
                     }
                   }
