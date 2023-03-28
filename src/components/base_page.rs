@@ -56,7 +56,7 @@ pub(crate) struct BasePage {
 }
 
 impl Render for BasePage {
-    fn render(&self) -> maud::Markup {
+    fn render(&self) -> Markup {
         let version = Utc::now().timestamp_millis();
 
         let title = self
