@@ -8,6 +8,7 @@
     styleElm.sheet.insertRule('.fc .fc-toolbar .fc-toolbar-title { font-size: inherit }')
     styleElm.sheet.insertRule('.fc .fc-toolbar.fc-header-toolbar { margin-bottom: 0.5em; }')
     styleElm.sheet.insertRule('.fc .fc-timegrid-slot { height: 2.5em; }')
+    styleElm.sheet.insertRule('.fc .fc-col-header-cell-cushion { text-decoration: none; }')
 
     const calendarContainerElm = document.querySelector(selectors.calendarContainer)
     const calendar = new FullCalendar.Calendar(calendarContainerElm, {
