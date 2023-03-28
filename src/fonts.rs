@@ -14,9 +14,9 @@ pub(crate) static ALL: Lazy<[GoogleFont; 1]> = Lazy::new(|| [VOLLKORN.clone()]);
 
 pub(crate) fn all() -> [FileSpec; 1] {
     ALL.clone()
-        .map(|font| FileSpec::new(format!("/{}.ttf", font.name().to_lowercase()), font))
+        .map(|font| FileSpec::new(format!("/{}.ttf", font.family().to_lowercase()), font))
 }
 
 pub(crate) fn output_filename(font: &GoogleFont) -> String {
-    format!("{}.ttf", font.name().to_lowercase())
+    format!("{}.ttf", font.family().to_lowercase())
 }

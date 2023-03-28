@@ -10,24 +10,24 @@ use super::{bytes_with_file_spec_safety::Targets, FileSource};
 
 #[derive(Debug, Clone)]
 pub struct GoogleFont {
-    name: String,
+    family: String,
     version: u8,
     subset: String,
     variant: String,
 }
 
 impl GoogleFont {
-    pub fn new(name: String, version: u8, subset: String, variant: String) -> Self {
+    pub fn new(family: String, version: u8, subset: String, variant: String) -> Self {
         Self {
-            name,
+            family,
             version,
             subset,
             variant,
         }
     }
 
-    pub fn name(&self) -> &str {
-        self.name.as_ref()
+    pub fn family(&self) -> &str {
+        self.family.as_ref()
     }
 }
 
@@ -49,7 +49,7 @@ impl FileSource for GoogleFont {
         _targets: Targets,
     ) -> BoxFuture<'static, Result<Vec<u8>, Box<dyn std::error::Error + Send>>> {
         let Self {
-            name,
+            family,
             version,
             subset,
             variant,
@@ -58,7 +58,7 @@ impl FileSource for GoogleFont {
         async move {
             // TODO: Consider reusing the client ->
             let url = Url::parse_with_params(
-                &format!("https://gwfh.mranftl.com/api/fonts/{}", name.to_lowercase(),),
+                &format!("https://gwfh.mranftl.com/api/fonts/{}", family.to_lowercase(),),
                 [
                     ("download", "zip"),
                     ("subsets", &subset),
@@ -82,7 +82,7 @@ impl FileSource for GoogleFont {
 
             let mut font_file = archive.by_name(&format!(
                 "{}-v{}-{}-{}.woff2",
-                name.to_lowercase(),
+                family.to_lowercase(),
                 version,
                 subset,
                 variant
@@ -99,6 +99,6 @@ impl FileSource for GoogleFont {
 
 impl Display for GoogleFont {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.name)
+        write!(f, "{}", self.family)
     }
 }
