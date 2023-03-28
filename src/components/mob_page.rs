@@ -143,11 +143,11 @@ impl Render for MobPage {
 
             div class=(classes!("grid", "grid-flow-row", "sm:grid-flow-col", "auto-cols-fr", "gap-[1.25em]")) {
                 div class=(*style::PROSE_CLASSES) {
-                    (self.mob.freeform_copy_markdown.to_html())
+                    (self.mob.freeform_copy_markdown)
                 }
                 div class=(*style::PROSE_CLASSES) {
                     @if let Some(join_content) = join_content {
-                        (join_content.to_html())
+                        (join_content)
                     }
                 }
             }

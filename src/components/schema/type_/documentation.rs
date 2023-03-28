@@ -24,7 +24,7 @@ impl TryFrom<Vec<syn::Attribute>> for Documentation {
 
         let doc_string = doc_string_parts.join("\n");
 
-        Ok(Self(Markdown::from(doc_string).to_html()))
+        Ok(Self(Markdown::from(doc_string).render()))
     }
 }
 
