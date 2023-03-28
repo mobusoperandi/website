@@ -64,9 +64,8 @@ async fn build() {
         OUTPUT_DIR.parse().unwrap(),
         file_specs,
     ))
-    .map(tokio::spawn)
-    .for_each_concurrent(usize::MAX, |join_handle| async move {
-        join_handle.await.unwrap().unwrap();
+    .for_each_concurrent(usize::MAX, |file_spec_task| async move {
+        file_spec_task.await.unwrap();
     })
     .await;
 
