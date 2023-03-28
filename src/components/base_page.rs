@@ -118,7 +118,7 @@ impl Render for BasePage {
                                 font-family: '{}';
                                 src: url('/{}') format('truetype');
                             }}",
-                            font.name, fonts::output_filename(font)))
+                            font.name(), fonts::output_filename(font)))
                         )
                     }
                   }

@@ -10,10 +10,25 @@ use super::{bytes_with_file_spec_safety::Targets, FileSource};
 
 #[derive(Debug, Clone)]
 pub struct GoogleFont {
-    pub name: String,
-    pub version: u8,
-    pub subset: String,
-    pub variant: String,
+    name: String,
+    version: u8,
+    subset: String,
+    variant: String,
+}
+
+impl GoogleFont {
+    pub fn new(name: String, version: u8, subset: String, variant: String) -> Self {
+        Self {
+            name,
+            version,
+            subset,
+            variant,
+        }
+    }
+
+    pub fn name(&self) -> &str {
+        self.name.as_ref()
+    }
 }
 
 #[derive(Debug, thiserror::Error)]
