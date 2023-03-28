@@ -37,7 +37,7 @@ pub fn generate_static_site(
     file_specs: impl IntoIterator<Item = FileSpec>,
 ) -> impl Iterator<Item = impl Future<Output = Result<(), FileGenerationError>>> {
     let (paths, file_specs) = file_specs.into_iter().fold(
-        (BTreeSet::<PathBuf>::new(), BTreeSet::<FileSpec>::new()),
+        (BTreeSet::<PathBuf>::new(), Vec::<FileSpec>::new()),
         |(mut paths, mut file_specs), file_spec| {
             let newly_inserted = paths.insert(file_spec.target.clone());
 
@@ -45,7 +45,7 @@ pub fn generate_static_site(
                 panic!("Duplicate target: {}", file_spec.target.display());
             }
 
-            file_specs.insert(file_spec);
+            file_specs.push(file_spec);
 
             (paths, file_specs)
         },
@@ -121,25 +121,5 @@ impl FileSpec {
             source: Box::new(source),
             target,
         }
-    }
-}
-
-impl PartialEq for FileSpec {
-    fn eq(&self, other: &Self) -> bool {
-        self.target == other.target
-    }
-}
-
-impl Eq for FileSpec {}
-
-impl PartialOrd for FileSpec {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for FileSpec {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.target.cmp(&other.target)
     }
 }
