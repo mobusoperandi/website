@@ -13,6 +13,7 @@ use crate::{
 pub(crate) struct MobPage {
     pub(crate) mob: Mob,
     pub(crate) targets: Targets,
+    pub(crate) links: Vec<(Url, String, &'static str)>,
 }
 
 impl Render for MobPage {
@@ -40,26 +41,6 @@ impl Render for MobPage {
             events,
             status_legend: None,
         };
-
-        let mob_links = self
-            .mob
-            .links
-            .clone()
-            .into_iter()
-            .map(|link| match link {
-                mobs::Link::YouTube(path) => {
-                    let mut url = Url::parse("https://www.youtube.com").unwrap();
-                    url.set_path(&path);
-                    (
-                        url,
-                        self.targets.path_of("/youtube_logo.svg").unwrap(),
-                        "YouTube",
-                    )
-                }
-            })
-            .collect::<Vec<_>>();
-
-        let mob_links = (!mob_links.is_empty()).then_some(mob_links);
 
         let (short_wrapper, open_wrapper, full_wrapper, public_wrapper): (
             WrapperFn,
@@ -111,9 +92,9 @@ impl Render for MobPage {
                     }
                 }
 
-                @if let Some(mob_links) = mob_links {
+                @if !self.links.is_empty() {
                     div class=(classes!("flex", "sm:flex-col", "justify-center", "gap-2")) {
-                        @for (url, image_path, alt) in mob_links {
+                        @for (url, image_path, alt) in &self.links {
                             a href=(url) {
                                 img class=(classes!("h-8")) alt=(alt) src=(image_path);
                             }

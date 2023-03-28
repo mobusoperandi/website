@@ -1,23 +1,45 @@
 pub(crate) mod add;
 mod index;
 
-use std::{convert::Infallible, vec};
+use std::vec;
 
 use futures::FutureExt;
 use maud::Render;
+use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 use ssg::FileSpec;
 
 use crate::{
     components,
     mobs::{self, Mob},
+    url::Url,
 };
 
 fn mob_page(mob: Mob) -> FileSpec {
-    FileSpec::new(format!("/mobs/{}.html", mob.id), move |targets| {
+    FileSpec::new(format!("/mobs/{}.html", mob.id), move |targets: Targets| {
         let mob = mob.clone();
 
-        async { Ok::<_, Infallible>(components::MobPage { mob, targets }.render().0.into_bytes()) }
-            .boxed()
+        async {
+            let links = mob
+                .links
+                .iter()
+                .map(|link| match link {
+                    mobs::Link::YouTube(path) => {
+                        let mut url = Url::parse("https://www.youtube.com").unwrap();
+                        url.set_path(path);
+                        Ok((url, targets.path_of("/youtube_logo.svg")?, "YouTube"))
+                    }
+                })
+                .collect::<Result<Vec<_>, TargetNotFoundError>>()?;
+
+            let page = components::MobPage {
+                mob,
+                targets,
+                links,
+            };
+
+            Ok::<_, TargetNotFoundError>(page.render().0.into_bytes())
+        }
+        .boxed()
     })
 }
 
