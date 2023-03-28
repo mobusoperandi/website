@@ -81,7 +81,7 @@ impl Render for Calendar {
         const INPUT_ATTR: &str = "data-input";
         let input_selector = format!("[{INPUT_ATTR}]");
 
-        let root_classes = classes!(
+        let top_classes = classes!(
             "flex",
             "justify-between",
             "items-center",
@@ -98,7 +98,7 @@ impl Render for Calendar {
         );
 
         html! {
-            div class=(root_classes) {
+            div class=(top_classes) {
                 div class=(timezone_and_dates_classes) {
                     p class=(classes!(timezone_class)) {}
                     p class=(classes!(date_range_class)) {}
