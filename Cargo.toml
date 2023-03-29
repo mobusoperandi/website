@@ -11,7 +11,7 @@ chrono = { version = "0.4.19", features = ["serde"] }
 chrono-tz = { version = "0.6.1", features = ["serde"] }
 clap = { version = "4.1.4", features = ["derive"] }
 colored = "2.0.0"
-comrak = "0.16.0"
+comrak = "0.17.0"
 const_format = "0.2.30"
 csscolorparser = { version = "0.6.0", features = ["serde"] }
 custom_attrs = "1.6.0"
