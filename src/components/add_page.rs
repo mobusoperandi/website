@@ -57,12 +57,12 @@ impl Render for AddPage {
             }
         };
 
-        components::BasePage::new(
+        components::PageBase::new(
             Some("Add".to_owned().into()),
             content,
             classes!("flex", "flex-col", VERTICAL_GAP_CLASS),
             self.targets.clone(),
-            components::base_page::PageDescription::from(format!("How to add your mob to {NAME}",)),
+            components::page_base::PageDescription::from(format!("How to add your mob to {NAME}",)),
         )
         .render()
     }

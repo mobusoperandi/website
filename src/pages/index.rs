@@ -24,7 +24,7 @@ pub async fn page() -> FileSpec {
                 .flatten()
                 .collect();
 
-            let base_page = components::BasePage::new(
+            let base_page = components::PageBase::new(
                 None,
                 components::home_page::HomePage {
                     targets: targets.clone(),
@@ -35,7 +35,7 @@ pub async fn page() -> FileSpec {
                 .render(),
                 classes!("flex", "flex-col", "gap-1"),
                 targets,
-                components::base_page::PageDescription::from(DESCRIPTION.to_owned()),
+                components::page_base::PageDescription::from(DESCRIPTION.to_owned()),
             );
 
             Ok::<_, TargetNotFoundError>(base_page.render().0.into_bytes())

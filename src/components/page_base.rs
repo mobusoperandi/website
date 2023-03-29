@@ -47,7 +47,7 @@ impl From<String> for PageDescription {
     }
 }
 
-pub(crate) struct BasePage {
+pub(crate) struct PageBase {
     title: Option<PageTitle>,
     content: Markup,
     content_classes: Classes,
@@ -55,7 +55,7 @@ pub(crate) struct BasePage {
     description: PageDescription,
 }
 
-impl BasePage {
+impl PageBase {
     pub(crate) fn new(
         title: Option<PageTitle>,
         content: Markup,
@@ -73,7 +73,7 @@ impl BasePage {
     }
 }
 
-impl Render for BasePage {
+impl Render for PageBase {
     fn render(&self) -> Markup {
         let version = Utc::now().timestamp_millis();
 

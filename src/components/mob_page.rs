@@ -139,12 +139,12 @@ impl Render for MobPage {
             (calendar)
         };
 
-        components::BasePage::new(
+        components::PageBase::new(
             Some(self.mob.title.as_str().to_owned().into()),
             content,
             classes!("flex", "flex-col", "gap-6"),
             self.targets.clone(),
-            components::base_page::PageDescription::from(format!(
+            components::page_base::PageDescription::from(format!(
                 "{}{}; description, schedule and more on {NAME}",
                 self.mob.title,
                 self.mob
