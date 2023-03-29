@@ -58,7 +58,10 @@ impl FileSource for GoogleFont {
         async move {
             // TODO: Consider reusing the client ->
             let url = Url::parse_with_params(
-                &format!("https://gwfh.mranftl.com/api/fonts/{}", family.to_lowercase(),),
+                &format!(
+                    "https://gwfh.mranftl.com/api/fonts/{}",
+                    family.to_lowercase(),
+                ),
                 [
                     ("download", "zip"),
                     ("subsets", &subset),
