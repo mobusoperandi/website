@@ -139,10 +139,12 @@ impl Render for MobPage {
             (calendar)
         };
 
-        components::BasePage {
-            title: Some(self.mob.title.as_str().to_owned().into()),
+        components::BasePage::new(
+            Some(self.mob.title.as_str().to_owned().into()),
             content,
-            description: components::base_page::PageDescription::from(format!(
+            classes!("flex", "flex-col", "gap-6"),
+            self.targets.clone(),
+            components::base_page::PageDescription::from(format!(
                 "{}{}; description, schedule and more on {NAME}",
                 self.mob.title,
                 self.mob
@@ -151,9 +153,7 @@ impl Render for MobPage {
                     .map(|subtitle| format!(", {}", subtitle.as_str()))
                     .unwrap_or_default()
             )),
-            content_classes: classes!("flex", "flex-col", "gap-6"),
-            targets: self.targets.clone(),
-        }
+        )
         .render()
     }
 }

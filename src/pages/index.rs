@@ -24,19 +24,19 @@ pub async fn page() -> FileSpec {
                 .flatten()
                 .collect();
 
-            let base_page = components::BasePage {
-                title: None,
-                content: components::home_page::HomePage {
+            let base_page = components::BasePage::new(
+                None,
+                components::home_page::HomePage {
                     targets: targets.clone(),
                     participants,
                     status_legend: mobs::Status::legend(),
                     events,
                 }
                 .render(),
-                description: components::base_page::PageDescription::from(DESCRIPTION.to_owned()),
-                content_classes: classes!("flex", "flex-col", "gap-1"),
+                classes!("flex", "flex-col", "gap-1"),
                 targets,
-            };
+                components::base_page::PageDescription::from(DESCRIPTION.to_owned()),
+            );
 
             Ok::<_, TargetNotFoundError>(base_page.render().0.into_bytes())
         }

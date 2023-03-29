@@ -48,11 +48,29 @@ impl From<String> for PageDescription {
 }
 
 pub(crate) struct BasePage {
-    pub(crate) title: Option<PageTitle>,
-    pub(crate) content: Markup,
-    pub(crate) content_classes: Classes,
-    pub(crate) targets: Targets,
-    pub(crate) description: PageDescription,
+    title: Option<PageTitle>,
+    content: Markup,
+    content_classes: Classes,
+    targets: Targets,
+    description: PageDescription,
+}
+
+impl BasePage {
+    pub(crate) fn new(
+        title: Option<PageTitle>,
+        content: Markup,
+        content_classes: Classes,
+        targets: Targets,
+        description: PageDescription,
+    ) -> Self {
+        Self {
+            title,
+            content,
+            content_classes,
+            targets,
+            description,
+        }
+    }
 }
 
 impl Render for BasePage {
