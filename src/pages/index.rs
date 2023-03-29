@@ -24,11 +24,14 @@ pub async fn page() -> FileSpec {
                 .flatten()
                 .collect();
 
+            let base = components::PageBase::new(targets.clone())?;
+
             let home_page = components::home_page::HomePage {
                 targets: targets.clone(),
                 participants,
                 status_legend: mobs::Status::legend(),
                 events,
+                base,
             };
 
             Ok::<_, TargetNotFoundError>(home_page.render().0.into_bytes())

@@ -8,6 +8,7 @@ use maud::Render;
 use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 use ssg::FileSpec;
 
+use crate::components;
 use crate::components::mob_page::{event_content_template, MobPage};
 use crate::{
     mobs::{self, Mob},
@@ -32,12 +33,14 @@ fn mob_page(mob: Mob) -> FileSpec {
                 .collect::<Result<Vec<_>, TargetNotFoundError>>()?;
 
             let events = mob.events(&targets, event_content_template)?;
+            let base = components::PageBase::new(targets.clone())?;
 
             let page = MobPage {
                 mob,
                 targets,
                 links,
                 events,
+                base,
             };
 
             Ok::<_, TargetNotFoundError>(page.render().0.into_bytes())

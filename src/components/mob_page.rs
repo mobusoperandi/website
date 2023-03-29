@@ -11,11 +11,14 @@ use crate::{
     url::Url,
 };
 
+use super::PageBase;
+
 pub(crate) struct MobPage {
     pub(crate) mob: Mob,
     pub(crate) targets: Targets,
     pub(crate) links: Vec<(Url, String, &'static str)>,
     pub(crate) events: Vec<CalendarEvent>,
+    pub(crate) base: PageBase,
 }
 
 impl Render for MobPage {
@@ -139,22 +142,23 @@ impl Render for MobPage {
             (calendar)
         };
 
-        components::PageBase::new(
-            Some(self.mob.title.as_str().to_owned().into()),
-            content,
-            classes!("flex", "flex-col", "gap-6"),
-            self.targets.clone(),
-            components::page_base::PageDescription::from(format!(
-                "{}{}; description, schedule and more on {NAME}",
-                self.mob.title,
-                self.mob
-                    .subtitle
-                    .as_ref()
-                    .map(|subtitle| format!(", {}", subtitle.as_str()))
-                    .unwrap_or_default()
-            )),
-        )
-        .render()
+        self.base
+            .clone()
+            .into_page(
+                Some(self.mob.title.as_str().to_owned().into()),
+                content,
+                classes!("flex", "flex-col", "gap-6"),
+                components::page_base::PageDescription::from(format!(
+                    "{}{}; description, schedule and more on {NAME}",
+                    self.mob.title,
+                    self.mob
+                        .subtitle
+                        .as_ref()
+                        .map(|subtitle| format!(", {}", subtitle.as_str()))
+                        .unwrap_or_default()
+                )),
+            )
+            .render()
     }
 }
 

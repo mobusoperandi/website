@@ -15,11 +15,14 @@ use crate::{
     style::{BUTTON_CLASSES, BUTTON_GAP},
 };
 
+use super::PageBase;
+
 pub(crate) struct HomePage {
     pub(crate) participants: BTreeSet<Person>,
     pub(crate) targets: Targets,
     pub(crate) status_legend: mobs::StatusLegend,
     pub(crate) events: Vec<CalendarEvent>,
+    pub(crate) base: PageBase,
 }
 
 impl Render for HomePage {
@@ -49,15 +52,14 @@ impl Render for HomePage {
             }
         };
 
-        let base_page = components::PageBase::new(
+        let page = self.base.clone().into_page(
             None,
             content,
             classes!("flex", "flex-col", "gap-1"),
-            self.targets.clone(),
             components::page_base::PageDescription::from(DESCRIPTION.to_owned()),
         );
 
-        base_page.render()
+        page.render()
     }
 }
 

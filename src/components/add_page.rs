@@ -1,22 +1,22 @@
 use maud::{html, Render};
-use ssg::sources::bytes_with_file_spec_safety::Targets;
 
 use crate::components;
 use crate::constants::{DEFAULT_BRANCH, GITHUB_PULL_REQUESTS_URL, MOBS_PATH, NAME, REPO_URL};
 use crate::style::{PROSE_CLASSES, VERTICAL_GAP_CLASS};
 
 use super::schema::type_::Type;
+use super::PageBase;
 
 pub(crate) struct AddPage {
     internal_types: Vec<Type>,
-    targets: Targets,
+    base: PageBase,
 }
 
 impl AddPage {
-    pub(crate) fn new(internal_types: Vec<Type>, targets: Targets) -> Self {
+    pub(crate) fn new(internal_types: Vec<Type>, base: PageBase) -> Self {
         Self {
             internal_types,
-            targets,
+            base,
         }
     }
 }
@@ -57,13 +57,16 @@ impl Render for AddPage {
             }
         };
 
-        components::PageBase::new(
-            Some("Add".to_owned().into()),
-            content,
-            classes!("flex", "flex-col", VERTICAL_GAP_CLASS),
-            self.targets.clone(),
-            components::page_base::PageDescription::from(format!("How to add your mob to {NAME}",)),
-        )
-        .render()
+        self.base
+            .clone()
+            .into_page(
+                Some("Add".to_owned().into()),
+                content,
+                classes!("flex", "flex-col", VERTICAL_GAP_CLASS),
+                components::page_base::PageDescription::from(format!(
+                    "How to add your mob to {NAME}",
+                )),
+            )
+            .render()
     }
 }

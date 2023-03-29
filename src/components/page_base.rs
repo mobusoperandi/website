@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, Render, DOCTYPE};
-use ssg::sources::bytes_with_file_spec_safety::Targets;
+use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
 use crate::{
     constants::{COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL},
@@ -47,33 +47,46 @@ impl From<String> for PageDescription {
     }
 }
 
+#[derive(Debug, Clone)]
 pub(crate) struct PageBase {
-    title: Option<PageTitle>,
-    content: Markup,
-    content_classes: Classes,
     targets: Targets,
-    description: PageDescription,
+    index_path: String,
 }
 
 impl PageBase {
-    pub(crate) fn new(
+    pub(crate) fn new(targets: Targets) -> Result<Self, TargetNotFoundError> {
+        Ok(Self {
+            index_path: targets.path_of("/index.html")?,
+            targets,
+        })
+    }
+
+    pub(crate) fn into_page(
+        self,
         title: Option<PageTitle>,
         content: Markup,
         content_classes: Classes,
-        targets: Targets,
         description: PageDescription,
-    ) -> Self {
-        Self {
+    ) -> Page {
+        Page {
+            base: self,
             title,
             content,
             content_classes,
-            targets,
             description,
         }
     }
 }
 
-impl Render for PageBase {
+pub(crate) struct Page {
+    base: PageBase,
+    title: Option<PageTitle>,
+    content: Markup,
+    content_classes: Classes,
+    description: PageDescription,
+}
+
+impl Render for Page {
     fn render(&self) -> Markup {
         let version = Utc::now().timestamp_millis();
 
@@ -85,7 +98,6 @@ impl Render for PageBase {
         const NAV_ICON_SIZE: u8 = 32;
 
         let brand_classes = classes!("tracking-widest", "text-center");
-        let target_index = self.targets.path_of("/index.html").unwrap();
 
         let root_classes = classes![
             format!("font-[{}]", *fonts::VOLLKORN),
@@ -145,13 +157,13 @@ impl Render for PageBase {
                     div class=(header_classes) {
                         div class=(classes!("flex", "flex-col", "gap-x-2", "whitespace-nowrap"))
                             {
-                                @if target_index == self.targets.current_path() {
+                                @if self.base.index_path == self.base.targets.current_path() {
                                     p
                                         class=(brand_classes)
                                         { (NAME) }
                                 } @else {
                                     a
-                                        href=(target_index)
+                                        href=(self.base.index_path)
                                         class=(brand_classes)
                                         { (NAME) }
                                 }
@@ -163,21 +175,21 @@ impl Render for PageBase {
                                 img
                                     width=(NAV_ICON_SIZE)
                                     alt="Zulip"
-                                    src=(self.targets.path_of("/zulip_logo.svg").unwrap());
+                                    src=(self.base.targets.path_of("/zulip_logo.svg").unwrap());
                             }
 
                             a class=(classes!("invert")) href=(*GITHUB_ORGANIZATION_URL) {
                                 img
                                     width=(NAV_ICON_SIZE)
                                     alt="GitHub"
-                                    src=(self.targets.path_of("/inverticat.svg").unwrap());
+                                    src=(self.base.targets.path_of("/inverticat.svg").unwrap());
                             }
 
                             a href="https://twitter.com/mobusoperandi" {
                                 img
                                     width=(NAV_ICON_SIZE)
                                     alt="Twitter"
-                                    src=(self.targets.path_of("/twitter_logo.svg").unwrap());
+                                    src=(self.base.targets.path_of("/twitter_logo.svg").unwrap());
                             }
                         }
                     }
