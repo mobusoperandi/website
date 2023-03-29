@@ -17,7 +17,7 @@ use strum::{AsRefStr, EnumVariantNames, VariantNames};
 use tokio::fs;
 use tokio_stream::wrappers::ReadDirStream;
 
-use ssg::sources::bytes_with_file_spec_safety::Targets;
+use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
 use crate::components::CalendarEvent;
 use crate::constants::MOBS_PATH;
@@ -513,13 +513,17 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
     (id, yaml_mob).try_into().unwrap()
 }
 
+type EventContentTemplate =
+    fn(DateTime<Utc>, DateTime<Utc>, &Mob, &Targets) -> Result<Markup, TargetNotFoundError>;
+
 impl Mob {
     pub(crate) fn events(
         &self,
         targets: &Targets,
-        event_content_template: fn(DateTime<Utc>, DateTime<Utc>, &Mob, &Targets) -> Markup,
-    ) -> Vec<CalendarEvent> {
-        self.schedule
+        event_content_template: EventContentTemplate,
+    ) -> Result<Vec<CalendarEvent>, TargetNotFoundError> {
+        let events = self
+            .schedule
             .iter()
             .flat_map(|recurring_session| {
                 let duration = recurring_session.duration;
@@ -532,7 +536,7 @@ impl Mob {
                         let start = occurrence.with_timezone(&Utc);
                         let end = (start + duration).with_timezone(&Utc);
 
-                        let event_content = event_content_template(start, end, &mob, targets);
+                        let event_content = event_content_template(start, end, &mob, targets)?;
 
                         let background_color = mob.background_color.clone();
                         let text_color = mob.text_color.clone();
@@ -544,19 +548,23 @@ impl Mob {
                         }
                         .0;
 
-                        CalendarEvent {
+                        Ok(CalendarEvent {
                             start,
                             end,
                             event_content,
                             background_color,
                             text_color,
-                        }
+                        })
                     })
             })
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
             .take_while(|event| {
                 event.start <= Utc::now().with_timezone(&rrule::Tz::Etc__UTC) + Duration::weeks(10)
             })
-            .collect()
+            .collect();
+
+        Ok(events)
     }
 }
 

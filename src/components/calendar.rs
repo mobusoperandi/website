@@ -19,7 +19,7 @@ pub(crate) struct Calendar {
     pub(crate) status_legend: Option<mobs::StatusLegend>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct CalendarEvent {
     pub(crate) start: DateTime<Utc>,

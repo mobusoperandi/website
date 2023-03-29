@@ -1,7 +1,8 @@
 use chrono::{DateTime, Utc};
 use maud::{html, Markup, Render};
-use ssg::sources::bytes_with_file_spec_safety::Targets;
+use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
+use crate::components::CalendarEvent;
 use crate::{
     components,
     constants::NAME,
@@ -14,6 +15,7 @@ pub(crate) struct MobPage {
     pub(crate) mob: Mob,
     pub(crate) targets: Targets,
     pub(crate) links: Vec<(Url, String, &'static str)>,
+    pub(crate) events: Vec<CalendarEvent>,
 }
 
 impl Render for MobPage {
@@ -35,10 +37,9 @@ impl Render for MobPage {
             mobs::Status::Public(join_content) => Some(join_content.to_owned()),
         };
 
-        let events = self.mob.events(&self.targets, event_content_template);
         let calendar = components::Calendar {
             targets: self.targets.clone(),
-            events,
+            events: self.events.clone(),
             status_legend: None,
         };
 
@@ -157,15 +158,16 @@ impl Render for MobPage {
     }
 }
 
-fn event_content_template(
+pub(crate) fn event_content_template(
     start: DateTime<Utc>,
     end: DateTime<Utc>,
     _mob: &Mob,
     _targets: &Targets,
-) -> Markup {
+) -> Result<Markup, TargetNotFoundError> {
     let start = start.format("%k:%M").to_string();
     let end = end.format("%k:%M").to_string();
-    html! {
+    let content = html! {
         (start) "–" (end) " UTC"
-    }
+    };
+    Ok(content)
 }

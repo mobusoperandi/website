@@ -3,8 +3,10 @@ use std::collections::BTreeSet;
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use maud::{html, Markup, Render};
-use ssg::sources::bytes_with_file_spec_safety::Targets;
 
+use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
+
+use crate::components::CalendarEvent;
 use crate::{
     components,
     html::Class,
@@ -13,23 +15,17 @@ use crate::{
 };
 
 pub(crate) struct HomePage {
-    pub(crate) mobs: Vec<Mob>,
     pub(crate) participants: BTreeSet<Person>,
     pub(crate) targets: Targets,
     pub(crate) status_legend: mobs::StatusLegend,
+    pub(crate) events: Vec<CalendarEvent>,
 }
 
 impl Render for HomePage {
     fn render(&self) -> maud::Markup {
-        let events = self
-            .mobs
-            .iter()
-            .flat_map(|mob| mob.events(&self.targets, event_content_template))
-            .collect();
-
         let calendar = components::Calendar {
             targets: self.targets.clone(),
-            events,
+            events: self.events.clone(),
             status_legend: Some(self.status_legend.clone()),
         };
 
@@ -54,14 +50,14 @@ impl Render for HomePage {
     }
 }
 
-fn event_content_template(
+pub(crate) fn event_content_template(
     _start: DateTime<Utc>,
     _end: DateTime<Utc>,
     mob: &Mob,
     targets: &Targets,
-) -> Markup {
+) -> Result<Markup, TargetNotFoundError> {
     let mob_id = &mob.id;
-    let target_path = targets.path_of(format!("/mobs/{mob_id}.html")).unwrap();
+    let target_path = targets.path_of(format!("/mobs/{mob_id}.html"))?;
 
     const OFFSET_VALUES: [i8; 2] = [-1, 1];
 
@@ -77,7 +73,7 @@ fn event_content_template(
             .try_into()
             .unwrap();
 
-    html! {
+    let content = html! {
         a class=(classes!("no-underline", "block", "h-full")) href=(target_path) {
             (mob.title)
 
@@ -85,5 +81,7 @@ fn event_content_template(
                  " " span class=(indicator_text_shadow_class) { (status_indicator) }
             }
         }
-    }
+    };
+
+    Ok(content)
 }
