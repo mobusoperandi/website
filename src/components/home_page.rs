@@ -7,6 +7,7 @@ use maud::{html, Markup, Render};
 use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
 use crate::components::CalendarEvent;
+use crate::constants::DESCRIPTION;
 use crate::{
     components,
     html::Class,
@@ -29,11 +30,11 @@ impl Render for HomePage {
             status_legend: Some(self.status_legend.clone()),
         };
 
-        html! {
+        let content = html! {
             (calendar)
             div class=(classes!("flex", "flex-wrap", format!("gap-x-{BUTTON_GAP}"))) {
                 a
-                    class=(*BUTTON_CLASSES)
+                class=(*BUTTON_CLASSES)
                     href=(self.targets.path_of("/add.html").unwrap())
                     { "Add your mob" }
             }
@@ -46,7 +47,17 @@ impl Render for HomePage {
                     }
                 }
             }
-        }
+        };
+
+        let base_page = components::PageBase::new(
+            None,
+            content,
+            classes!("flex", "flex-col", "gap-1"),
+            self.targets.clone(),
+            components::page_base::PageDescription::from(DESCRIPTION.to_owned()),
+        );
+
+        base_page.render()
     }
 }
 

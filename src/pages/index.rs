@@ -5,7 +5,7 @@ use ssg::sources::bytes_with_file_spec_safety::TargetNotFoundError;
 use ssg::{sources::bytes_with_file_spec_safety::Targets, FileSpec};
 
 use crate::components::home_page::event_content_template;
-use crate::{components, constants::DESCRIPTION, mobs};
+use crate::{components, mobs};
 
 pub async fn page() -> FileSpec {
     let mobs = mobs::read_all_mobs().await;
@@ -24,21 +24,14 @@ pub async fn page() -> FileSpec {
                 .flatten()
                 .collect();
 
-            let base_page = components::PageBase::new(
-                None,
-                components::home_page::HomePage {
-                    targets: targets.clone(),
-                    participants,
-                    status_legend: mobs::Status::legend(),
-                    events,
-                }
-                .render(),
-                classes!("flex", "flex-col", "gap-1"),
-                targets,
-                components::page_base::PageDescription::from(DESCRIPTION.to_owned()),
-            );
+            let home_page = components::home_page::HomePage {
+                targets: targets.clone(),
+                participants,
+                status_legend: mobs::Status::legend(),
+                events,
+            };
 
-            Ok::<_, TargetNotFoundError>(base_page.render().0.into_bytes())
+            Ok::<_, TargetNotFoundError>(home_page.render().0.into_bytes())
         }
         .boxed()
     })
