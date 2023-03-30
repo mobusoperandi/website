@@ -5,6 +5,9 @@ name = "_"
 version = "0.0.0"
 edition = "2021"
 
+[features]
+tokio_console = ["dep:console-subscriber"]
+
 [dependencies]
 anyhow = { version = "1.0.66", features = ["backtrace"] }
 chrono = { version = "0.4.19", features = ["serde"] }
@@ -12,6 +15,7 @@ chrono-tz = { version = "0.6.1", features = ["serde"] }
 clap = { version = "4.1.4", features = ["derive"] }
 colored = "2.0.0"
 comrak = "0.17.1"
+console-subscriber = { version = "0.1.8", optional = true }
 const_format = "0.2.30"
 csscolorparser = { version = "0.6.0", features = ["serde"] }
 custom_attrs = "1.6.0"

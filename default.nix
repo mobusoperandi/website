@@ -2,6 +2,7 @@
   pipe = pkgs.lib.trivial.pipe;
   toUpper = pkgs.lib.strings.toUpper;
   replaceStrings = builtins.replaceStrings;
+  concatStringsSep = builtins.concatStringsSep;
 
   cargo-run-bin = pkgs.rustPlatform.buildRustPackage rec {
     pname = "cargo-run-bin";
@@ -23,6 +24,7 @@
 in
   pkgs.mkShell {
     nativeBuildInputs = with pkgs; [
+      tokio-console
       rustup
       cargo-run-bin
       mob
@@ -33,7 +35,10 @@ in
 
     CARGO_BUILD_TARGET = targetTriple;
     "CARGO_TARGET_${envTargetTriple}_LINKER" = "${pkgs.clang}/bin/clang";
-    RUSTFLAGS = "--codegen link-arg=-fuse-ld=${pkgs.mold}/bin/mold";
+    RUSTFLAGS = concatStringsSep " " [
+      "--codegen link-arg=-fuse-ld=${pkgs.mold}/bin/mold"
+      "--cfg tokio_unstable"
+    ];
 
     MOB_TIMER_ROOM = "mobusoperandi_website";
   }

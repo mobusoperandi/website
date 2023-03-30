@@ -48,6 +48,9 @@ enum Mode {
 
 #[tokio::main]
 async fn main() {
+    #[cfg(feature = "tokio_console")]
+    console_subscriber::init();
+
     let cli = Cli::parse();
 
     match cli.mode {
