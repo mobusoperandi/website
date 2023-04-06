@@ -7,15 +7,13 @@ use chrono::{NaiveDate, TimeZone};
 use chrono_tz::Tz;
 use csscolorparser::Color;
 use custom_attrs::CustomAttrs;
-use futures::StreamExt;
 use maud::{html, Markup, PreEscaped, Render};
+use once_cell::sync::Lazy;
 use rrule::{RRule, RRuleSet, Unvalidated};
 use schema::Schema;
 use serde::Deserialize;
 use serde::Serialize;
 use strum::{AsRefStr, EnumVariantNames, VariantNames};
-use tokio::fs;
-use tokio_stream::wrappers::ReadDirStream;
 
 use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
@@ -507,10 +505,10 @@ impl TryFrom<YamlRecurringSession> for RecurringSession {
     }
 }
 
-pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob {
+fn read_mob(dir_entry: Result<std::fs::DirEntry, io::Error>) -> Mob {
     let data_file_path = dir_entry.unwrap().path();
     let id = data_file_path.file_stem().unwrap().to_str().unwrap().into();
-    let data = fs::read_to_string(data_file_path.clone()).await.unwrap();
+    let data = std::fs::read_to_string(data_file_path.clone()).unwrap();
 
     let yaml_mob: MobFile = serde_yaml::from_str(&data)
         .map_err(|e| anyhow!("{:?} {:?}", data_file_path, e))
@@ -566,18 +564,16 @@ impl Mob {
     }
 }
 
-pub(crate) async fn read_all_mobs() -> Vec<Mob> {
-    ReadDirStream::new(fs::read_dir(MOBS_PATH).await.unwrap())
-        .then(read_mob)
-        .collect::<Vec<_>>()
-        .await
-}
+pub(crate) static MOBS: Lazy<Vec<Mob>> = Lazy::new(|| {
+    std::fs::read_dir(MOBS_PATH)
+        .unwrap()
+        .map(read_mob)
+        .collect::<Vec<Mob>>()
+});
 
-pub(crate) async fn get_all_participants() -> BTreeSet<Person> {
-    read_all_mobs()
-        .await
-        .into_iter()
-        .flat_map(|mob| mob.participants)
+pub(crate) fn get_all_participants() -> BTreeSet<Person> {
+    MOBS.iter()
+        .flat_map(|mob| mob.participants.clone())
         .filter_map(|participant| match participant {
             MobParticipant::Hidden => None,
             MobParticipant::Public(person) => Some(person),

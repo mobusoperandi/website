@@ -10,6 +10,7 @@ use ssg::FileSpec;
 
 use crate::components;
 use crate::components::mob_page::{event_content_template, MobPage};
+use crate::mobs::MOBS;
 use crate::{
     mobs::{self, Mob},
     url::Url,
@@ -50,8 +51,7 @@ fn mob_page(mob: Mob) -> FileSpec {
 }
 
 pub(crate) async fn all() -> Vec<FileSpec> {
-    let mobs = mobs::read_all_mobs().await;
-    let mut mob_pages = mobs.iter().cloned().map(mob_page).collect::<Vec<_>>();
+    let mut mob_pages = MOBS.iter().cloned().map(mob_page).collect::<Vec<_>>();
     let mut pages = vec![index::page().await, add::page()];
 
     pages.append(&mut mob_pages);
