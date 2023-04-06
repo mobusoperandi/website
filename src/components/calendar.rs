@@ -1,10 +1,11 @@
 use std::path::Path;
 
-use chrono::{DateTime, Utc};
+use chrono::Duration;
 use csscolorparser::Color;
 use maud::{html, Markup, PreEscaped, Render};
 use once_cell::sync::Lazy;
-use serde::Serialize;
+use rrule::RRuleSet;
+use serde::{Serialize, Serializer};
 use serde_json::json;
 use ssg::sources::bytes_with_file_spec_safety::Targets;
 
@@ -22,15 +23,44 @@ pub(crate) struct Calendar {
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct CalendarEvent {
-    pub(crate) start: DateTime<Utc>,
-    pub(crate) end: DateTime<Utc>,
+    pub(crate) rrule: RRuleSet,
+    #[serde(serialize_with = "serialize_duration")]
+    pub(crate) duration: Duration,
     pub(crate) event_content: String,
     pub(crate) background_color: Color,
     pub(crate) text_color: Color,
 }
 
+fn serialize_duration<S>(duration: &Duration, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let in_whole_hours = duration.num_hours();
+    let in_minutes = duration.num_minutes();
+    let hour_remainder_in_minutes = in_minutes - in_whole_hours * 60;
+
+    serializer.serialize_str(&format!(
+        "{in_whole_hours:02}:{hour_remainder_in_minutes:02}"
+    ))
+}
+
+const FULLCALENDAR_VERSION: &str = "6.0.2";
+
 pub(crate) static LIBRARY_URL: Lazy<Url> = Lazy::new(|| {
-    Url::parse("https://cdn.jsdelivr.net/npm/fullcalendar@6.0.2/index.global.min.js").unwrap()
+    Url::parse(
+        &(format!(
+            "https://cdn.jsdelivr.net/npm/fullcalendar@{FULLCALENDAR_VERSION}/index.global.min.js"
+        )),
+    )
+    .unwrap()
+});
+
+pub(crate) static RRULE_URL: Lazy<Url> = Lazy::new(|| {
+    Url::parse("https://cdn.jsdelivr.net/npm/rrule@2.7.2/dist/es5/rrule.min.js").unwrap()
+});
+
+pub(crate) static FULLCALENDAR_RRULE_URL: Lazy<Url> = Lazy::new(|| {
+    Url::parse(&format!("https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@{FULLCALENDAR_VERSION}/index.global.min.js")).unwrap()
 });
 
 impl Render for Calendar {
@@ -123,6 +153,8 @@ impl Render for Calendar {
 
             div class=(classes!(calendar_container_class, "[--fc-page-bg-color:transparent]")) {}
             script defer src=(self.targets.path_of(Path::new("/fullcalendar.js")).unwrap()) {}
+            script defer src=(self.targets.path_of(Path::new("/rrule.js")).unwrap()) {}
+            script defer src=(self.targets.path_of(Path::new("/fullcalendar_rrule.js")).unwrap()) {}
             script data-input=(calendar_fn_input.to_string()) {
                 (PreEscaped(format!("
                     const input = JSON.parse(document.querySelector('{input_selector}').getAttribute('{INPUT_ATTR}'))

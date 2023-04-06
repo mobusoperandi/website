@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::io;
 
 use anyhow::{anyhow, Result};
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Duration};
 use chrono::{NaiveDate, TimeZone};
 use chrono_tz::Tz;
 use csscolorparser::Color;
@@ -491,7 +491,13 @@ impl TryFrom<YamlRecurringSession> for RecurringSession {
             .datetime_from_str(&format!("{start_date}{start_time}"), "%F%R")
             .unwrap();
 
-        let recurrence = rrule.build(start_date_time).unwrap();
+        let recurrence = rrule
+            // workaround for https://github.com/fullcalendar/fullcalendar/issues/6834
+            // no ocurrences generated for recurring events with TZID and without UNTIL
+            // so we add an arbitrary UNTIL
+            .until((start_date_time + Duration::days(365 * 99)).with_timezone(&rrule::Tz::UTC))
+            .build(start_date_time)?;
+
         let duration = duration.into();
 
         Ok(RecurringSession {
@@ -513,8 +519,12 @@ pub(crate) async fn read_mob(dir_entry: Result<fs::DirEntry, io::Error>) -> Mob 
     (id, yaml_mob).try_into().unwrap()
 }
 
-type EventContentTemplate =
-    fn(DateTime<Utc>, DateTime<Utc>, &Mob, &Targets) -> Result<Markup, TargetNotFoundError>;
+type EventContentTemplate = fn(
+    DateTime<rrule::Tz>,
+    DateTime<rrule::Tz>,
+    &Mob,
+    &Targets,
+) -> Result<Markup, TargetNotFoundError>;
 
 impl Mob {
     pub(crate) fn events(
@@ -525,44 +535,32 @@ impl Mob {
         let events = self
             .schedule
             .iter()
-            .flat_map(|recurring_session| {
-                let duration = recurring_session.duration;
+            .map(|recurring_session| {
                 let mob = self.clone();
+                let start = *recurring_session.recurrence.get_dt_start();
+                let end = start + recurring_session.duration;
 
-                recurring_session
-                    .recurrence
-                    .into_iter()
-                    .map(move |occurrence| {
-                        let start = occurrence.with_timezone(&Utc);
-                        let end = (start + duration).with_timezone(&Utc);
+                let event_content = event_content_template(start, end, &mob, targets)?;
 
-                        let event_content = event_content_template(start, end, &mob, targets)?;
+                let background_color = mob.background_color.clone();
+                let text_color = mob.text_color;
 
-                        let background_color = mob.background_color.clone();
-                        let text_color = mob.text_color.clone();
+                let event_content = html! {
+                    div class=(classes!("h-full", "break-words")) {
+                        (event_content)
+                    }
+                }
+                .0;
 
-                        let event_content = html! {
-                            div class=(classes!("h-full", "break-words")) {
-                                (event_content)
-                            }
-                        }
-                        .0;
-
-                        Ok(CalendarEvent {
-                            start,
-                            end,
-                            event_content,
-                            background_color,
-                            text_color,
-                        })
-                    })
+                Ok(CalendarEvent {
+                    rrule: recurring_session.recurrence.clone(),
+                    duration: recurring_session.duration,
+                    event_content,
+                    background_color,
+                    text_color,
+                })
             })
-            .collect::<Result<Vec<_>, _>>()?
-            .into_iter()
-            .take_while(|event| {
-                event.start <= Utc::now().with_timezone(&rrule::Tz::Etc__UTC) + Duration::weeks(10)
-            })
-            .collect();
+            .collect::<Result<Vec<_>, _>>()?;
 
         Ok(events)
     }

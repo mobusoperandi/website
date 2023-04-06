@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use chrono::{DateTime, Utc};
+use chrono::DateTime;
 use itertools::Itertools;
 use maud::{html, Markup, Render};
 
@@ -64,8 +64,8 @@ impl Render for HomePage {
 }
 
 pub(crate) fn event_content_template(
-    _start: DateTime<Utc>,
-    _end: DateTime<Utc>,
+    _start: DateTime<rrule::Tz>,
+    _end: DateTime<rrule::Tz>,
     mob: &Mob,
     targets: &Targets,
 ) -> Result<Markup, TargetNotFoundError> {

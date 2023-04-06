@@ -11,7 +11,21 @@ pub(crate) async fn get() -> impl Iterator<Item = FileSpec> {
         ssg::sources::Http::from(components::CALENDAR_LIBRARY_URL.to_inner().clone()),
     );
 
-    [calendar_library]
+    let rrule_library = FileSpec::new(
+        "/rrule.js",
+        ssg::sources::Http::from(components::CALENDAR_RRULE_URL.to_inner().clone()),
+    );
+
+    let fullcalendar_rrule = FileSpec::new(
+        "/fullcalendar_rrule.js",
+        ssg::sources::Http::from(
+            components::CALENDAR_FULLCALENDAR_RRULE_URL
+                .to_inner()
+                .clone(),
+        ),
+    );
+
+    [calendar_library, rrule_library, fullcalendar_rrule]
         .into_iter()
         .chain(fonts)
         .chain(graphic_file_specs::get())

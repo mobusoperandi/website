@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::DateTime;
 use maud::{html, Markup, Render};
 use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
@@ -163,8 +163,8 @@ impl Render for MobPage {
 }
 
 pub(crate) fn event_content_template(
-    start: DateTime<Utc>,
-    end: DateTime<Utc>,
+    start: DateTime<rrule::Tz>,
+    end: DateTime<rrule::Tz>,
     _mob: &Mob,
     _targets: &Targets,
 ) -> Result<Markup, TargetNotFoundError> {
