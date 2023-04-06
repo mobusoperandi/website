@@ -23,6 +23,7 @@ pub(crate) struct HomePage {
     pub(crate) status_legend: mobs::StatusLegend,
     pub(crate) events: Vec<CalendarEvent>,
     pub(crate) base: PageBase,
+    pub(crate) add_page_path: String,
 }
 
 impl Render for HomePage {
@@ -38,7 +39,7 @@ impl Render for HomePage {
             div class=(classes!("flex", "flex-wrap", format!("gap-x-{BUTTON_GAP}"))) {
                 a
                 class=(*BUTTON_CLASSES)
-                    href=(self.targets.path_of("/add.html").unwrap())
+                    href=(self.add_page_path)
                     { "Add your mob" }
             }
             div class=(classes!("flex", "flex-wrap")) {
