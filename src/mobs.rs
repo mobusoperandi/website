@@ -487,7 +487,10 @@ impl TryFrom<YamlRecurringSession> for RecurringSession {
 
         let start_date_time = timezone
             .datetime_from_str(&format!("{start_date}{start_time}"), "%F%R")
-            .unwrap();
+            .unwrap()
+            // workaround for https://github.com/fullcalendar/fullcalendar/issues/6815
+            // timezones with non-zero offset result in occurrences with wrong datetimes
+            .with_timezone(&rrule::Tz::UTC);
 
         let recurrence = rrule
             // workaround for https://github.com/fullcalendar/fullcalendar/issues/6834

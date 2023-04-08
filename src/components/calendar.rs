@@ -44,7 +44,7 @@ where
     ))
 }
 
-const FULLCALENDAR_VERSION: &str = "6.1.5";
+const FULLCALENDAR_VERSION: &str = "6.0.2";
 
 pub(crate) static LIBRARY_URL: Lazy<Url> = Lazy::new(|| {
     Url::parse(
