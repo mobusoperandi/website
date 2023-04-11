@@ -38,7 +38,7 @@ ssg = { version = "0.0.0", path = "ssg" }
 strum = { version = "0.24.1", features = ["derive"] }
 syn = { version = "2.0.5", features = ["full"] }
 # TODO less features
-tokio = { version = "1.21.0", features = ["fs", "tokio-macros", "full"] }
+tokio = { version = "1.21.0", features = ["full"] }
 tokio-stream = { version = "0.1.9", features = ["fs", "sync"] }
 url = "2.3.1"
 
