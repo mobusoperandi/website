@@ -30,6 +30,7 @@
       displayEventTime,
       eventBorderColor: 'transparent',
       headerToolbar: false,
+      stickyHeaderDates: false,
     })
 
     const dateRangeElm = document.querySelector(selectors.dateRange)
