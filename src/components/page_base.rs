@@ -49,15 +49,21 @@ impl From<String> for PageDescription {
 
 #[derive(Debug, Clone)]
 pub(crate) struct PageBase {
-    targets: Targets,
     index_path: String,
+    current_path: String,
+    zulip_logo_path: String,
+    inverticat_path: String,
+    twitter_logo_path: String,
 }
 
 impl PageBase {
     pub(crate) fn new(targets: Targets) -> Result<Self, TargetNotFoundError> {
         Ok(Self {
             index_path: targets.path_of("/index.html")?,
-            targets,
+            current_path: targets.current_path(),
+            zulip_logo_path: targets.path_of("/zulip_logo.svg")?,
+            inverticat_path: targets.path_of("/inverticat.svg")?,
+            twitter_logo_path: targets.path_of("/twitter_logo.svg")?,
         })
     }
 
@@ -157,7 +163,7 @@ impl Render for Page {
                     div class=(header_classes) {
                         div class=(classes!("flex", "flex-col", "gap-x-2", "whitespace-nowrap"))
                             {
-                                @if self.base.index_path == self.base.targets.current_path() {
+                                @if self.base.index_path == self.base.current_path {
                                     p
                                         class=(brand_classes)
                                         { (NAME) }
@@ -175,21 +181,21 @@ impl Render for Page {
                                 img
                                     width=(NAV_ICON_SIZE)
                                     alt="Zulip"
-                                    src=(self.base.targets.path_of("/zulip_logo.svg").unwrap());
+                                    src=(self.base.zulip_logo_path);
                             }
 
                             a class=(classes!("invert")) href=(*GITHUB_ORGANIZATION_URL) {
                                 img
                                     width=(NAV_ICON_SIZE)
                                     alt="GitHub"
-                                    src=(self.base.targets.path_of("/inverticat.svg").unwrap());
+                                    src=(self.base.inverticat_path);
                             }
 
                             a href="https://twitter.com/mobusoperandi" {
                                 img
                                     width=(NAV_ICON_SIZE)
                                     alt="Twitter"
-                                    src=(self.base.targets.path_of("/twitter_logo.svg").unwrap());
+                                    src=(self.base.twitter_logo_path);
                             }
                         }
                     }

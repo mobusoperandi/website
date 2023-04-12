@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use chrono::Duration;
 use csscolorparser::Color;
 use maud::{html, Markup, PreEscaped, Render};
@@ -7,7 +5,6 @@ use once_cell::sync::Lazy;
 use rrule::RRuleSet;
 use serde::{Serialize, Serializer};
 use serde_json::json;
-use ssg::sources::bytes_with_file_spec_safety::Targets;
 
 use crate::html::css_class;
 use crate::mobs;
@@ -15,9 +12,11 @@ use crate::style::{BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR};
 use crate::url::Url;
 
 pub(crate) struct Calendar {
-    pub(crate) targets: Targets,
     pub(crate) events: Vec<CalendarEvent>,
     pub(crate) status_legend: Option<mobs::StatusLegend>,
+    pub(crate) fullcalendar_path: String,
+    pub(crate) rrule_path: String,
+    pub(crate) fullcalendar_rrule_path: String,
 }
 
 #[derive(Serialize, Clone)]
@@ -152,9 +151,9 @@ impl Render for Calendar {
             }
 
             div class=(classes!(calendar_container_class, "[--fc-page-bg-color:transparent]")) {}
-            script defer src=(self.targets.path_of(Path::new("/fullcalendar.js")).unwrap()) {}
-            script defer src=(self.targets.path_of(Path::new("/rrule.js")).unwrap()) {}
-            script defer src=(self.targets.path_of(Path::new("/fullcalendar_rrule.js")).unwrap()) {}
+            script defer src=(self.fullcalendar_path) {}
+            script defer src=(self.rrule_path) {}
+            script defer src=(self.fullcalendar_rrule_path) {}
             script data-input=(calendar_fn_input.to_string()) {
                 (PreEscaped(format!("
                     const input = JSON.parse(document.querySelector('{input_selector}').getAttribute('{INPUT_ATTR}'))

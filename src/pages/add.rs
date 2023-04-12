@@ -53,18 +53,25 @@ pub(crate) static INTERNAL_TYPES_DERIVE_INPUTS: Lazy<IndexMap<TypeIdent, DeriveI
         .collect()
     });
 
+#[derive(Debug, thiserror::Error)]
+#[error(transparent)]
+enum AddPageError {
+    Anyhow(#[from] anyhow::Error),
+    TargetNotFound(#[from] TargetNotFoundError),
+}
+
 pub fn page() -> FileSpec {
     FileSpec::new("/add.html", move |targets: Targets| {
         async move {
             let internal_types = INTERNAL_TYPES_DERIVE_INPUTS
                 .values()
-                .map(|derive_input| Type::try_from(derive_input.deref().clone()).unwrap())
-                .collect();
+                .map(|derive_input| Type::try_from(derive_input.deref().clone()))
+                .collect::<Result<Vec<Type>, anyhow::Error>>()?;
 
             let base = components::PageBase::new(targets.clone())?;
             let add_page = components::add_page::AddPage::new(internal_types, base);
 
-            Ok::<_, TargetNotFoundError>(add_page.render().0.into_bytes())
+            Ok::<_, AddPageError>(add_page.render().0.into_bytes())
         }
         .boxed()
     })

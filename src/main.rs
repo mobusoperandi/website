@@ -17,10 +17,11 @@ mod url;
 use std::{env::current_dir, path::PathBuf};
 
 use ::url::Url;
+use anyhow::anyhow;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use futures::{stream, StreamExt};
-use ssg::generate_static_site;
+use ssg::{generate_static_site, FileGenerationError};
 use tokio::process::Command;
 
 use crate::constants::{LOCALHOST, LOCAL_DEV_PORT, OUTPUT_DIR};
@@ -47,39 +48,43 @@ enum Mode {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     #[cfg(feature = "tokio_console")]
     console_subscriber::init();
 
     let cli = Cli::parse();
 
     match cli.mode {
-        None | Some(Mode::Build) => build().await,
-        Some(Mode::Dev { open }) => dev(open).await,
+        None | Some(Mode::Build) => build().await?,
+        Some(Mode::Dev { open }) => dev(open).await?,
         Some(Mode::PrintOutputDir) => print!("{OUTPUT_DIR}"),
     }
+
+    Ok(())
 }
 
-async fn build() {
+async fn build() -> anyhow::Result<()> {
     let file_specs = file_specs::get().await;
 
-    stream::iter(generate_static_site(
-        OUTPUT_DIR.parse().unwrap(),
-        file_specs,
-    ))
-    .for_each_concurrent(usize::MAX, |file_spec_task| async move {
-        file_spec_task.await.unwrap();
-    })
-    .await;
+    stream::iter(generate_static_site(OUTPUT_DIR.parse()?, file_specs))
+        .buffer_unordered(usize::MAX)
+        .collect::<Vec<Result<(), FileGenerationError>>>()
+        .await
+        .into_iter()
+        .collect::<Result<(), _>>()
+        .map_err(|error| anyhow!("{error}"))?;
 
-    tailwind::execute().await;
+    tailwind::execute().await?;
+    Ok(())
 }
 
-async fn dev(launch_browser: bool) {
+async fn dev(launch_browser: bool) -> anyhow::Result<()> {
     tokio::select! {
-        result = watch_for_changes_and_rebuild() => { result.unwrap(); },
-        result = start_development_web_server(launch_browser) => { result.unwrap(); },
+        result = watch_for_changes_and_rebuild() => { result?; },
+        result = start_development_web_server(launch_browser) => { result?; },
     };
+
+    Ok(())
 }
 
 async fn start_development_web_server(launch_browser: bool) -> Result<(), std::io::Error> {
@@ -88,24 +93,23 @@ async fn start_development_web_server(launch_browser: bool) -> Result<(), std::i
     println!("{message}");
 
     if launch_browser {
-        open::that(url.as_str()).unwrap();
+        open::that(url.as_str())?;
     }
 
     live_server::listen(
         LOCALHOST,
         *LOCAL_DEV_PORT,
-        [current_dir().unwrap(), OUTPUT_DIR.into()]
+        [current_dir()?, OUTPUT_DIR.into()]
             .into_iter()
             .collect::<PathBuf>(),
     )
     .await
 }
 
-async fn watch_for_changes_and_rebuild() -> Result<std::process::ExitStatus, std::io::Error> {
+async fn watch_for_changes_and_rebuild() -> anyhow::Result<std::process::ExitStatus> {
     let mut child = Command::new("cargo")
         .args(["bin", "cargo-watch", "--exec", "run -- build"])
-        .spawn()
-        .unwrap();
+        .spawn()?;
 
-    child.wait().await
+    Ok(child.wait().await?)
 }

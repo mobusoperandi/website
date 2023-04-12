@@ -15,10 +15,12 @@ use super::PageBase;
 
 pub(crate) struct MobPage {
     pub(crate) mob: Mob,
-    pub(crate) targets: Targets,
     pub(crate) links: Vec<(Url, String, &'static str)>,
     pub(crate) events: Vec<CalendarEvent>,
     pub(crate) base: PageBase,
+    pub(crate) fullcalendar_path: String,
+    pub(crate) rrule_path: String,
+    pub(crate) fullcalendar_rrule_path: String,
 }
 
 impl Render for MobPage {
@@ -41,9 +43,11 @@ impl Render for MobPage {
         };
 
         let calendar = components::Calendar {
-            targets: self.targets.clone(),
             events: self.events.clone(),
             status_legend: None,
+            fullcalendar_path: self.fullcalendar_path.clone(),
+            rrule_path: self.rrule_path.clone(),
+            fullcalendar_rrule_path: self.fullcalendar_rrule_path.clone(),
         };
 
         let (short_wrapper, open_wrapper, full_wrapper, public_wrapper): (

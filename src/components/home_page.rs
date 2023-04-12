@@ -19,19 +19,23 @@ use super::PageBase;
 
 pub(crate) struct HomePage {
     pub(crate) participants: BTreeSet<Person>,
-    pub(crate) targets: Targets,
     pub(crate) status_legend: mobs::StatusLegend,
     pub(crate) events: Vec<CalendarEvent>,
     pub(crate) base: PageBase,
     pub(crate) add_page_path: String,
+    pub(crate) fullcalendar_path: String,
+    pub(crate) rrule_path: String,
+    pub(crate) fullcalendar_rrule_path: String,
 }
 
 impl Render for HomePage {
     fn render(&self) -> maud::Markup {
         let calendar = components::Calendar {
-            targets: self.targets.clone(),
             events: self.events.clone(),
             status_legend: Some(self.status_legend.clone()),
+            fullcalendar_path: self.fullcalendar_path.clone(),
+            rrule_path: self.rrule_path.clone(),
+            fullcalendar_rrule_path: self.fullcalendar_rrule_path.clone(),
         };
 
         let content = html! {

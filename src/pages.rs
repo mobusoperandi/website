@@ -20,7 +20,7 @@ fn mob_page(mob: Mob) -> FileSpec {
     FileSpec::new(format!("/mobs/{}.html", mob.id), move |targets: Targets| {
         let mob = mob.clone();
 
-        async {
+        async move {
             let links = mob
                 .links
                 .iter()
@@ -38,10 +38,12 @@ fn mob_page(mob: Mob) -> FileSpec {
 
             let page = MobPage {
                 mob,
-                targets,
                 links,
                 events,
                 base,
+                fullcalendar_path: targets.path_of("/fullcalendar.js")?,
+                rrule_path: targets.path_of("/rrule.js")?,
+                fullcalendar_rrule_path: targets.path_of("/fullcalendar_rrule.js")?,
             };
 
             Ok::<_, TargetNotFoundError>(page.render().0.into_bytes())

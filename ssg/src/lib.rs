@@ -75,7 +75,12 @@ fn generate_file_from_spec(
 
         fs::create_dir_all(file_path.parent().unwrap())
             .await
-            .unwrap();
+            .map_err(|error| {
+                FileGenerationError::new(
+                    this_target.clone(),
+                    FileGenerationErrorCause::TargetIo(error),
+                )
+            })?;
 
         let contents = task.await.map_err(|error| {
             FileGenerationError::new(this_target.clone(), FileGenerationErrorCause::Source(error))

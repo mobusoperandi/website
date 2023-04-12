@@ -35,6 +35,7 @@ dependencies = [
  "ssg",
  "strum 0.24.1",
  "syn 2.0.11",
+ "thiserror",
  "tokio",
  "tokio-stream",
  "url",

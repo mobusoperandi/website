@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::io;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use chrono::{DateTime, Duration};
 use chrono::{NaiveDate, TimeZone};
 use chrono_tz::Tz;
@@ -486,8 +486,7 @@ impl TryFrom<YamlRecurringSession> for RecurringSession {
         let timezone: rrule::Tz = timezone.into();
 
         let start_date_time = timezone
-            .datetime_from_str(&format!("{start_date}{start_time}"), "%F%R")
-            .unwrap()
+            .datetime_from_str(&format!("{start_date}{start_time}"), "%F%R")?
             // workaround for https://github.com/fullcalendar/fullcalendar/issues/6815
             // timezones with non-zero offset result in occurrences with wrong datetimes
             .with_timezone(&rrule::Tz::UTC);
@@ -508,16 +507,21 @@ impl TryFrom<YamlRecurringSession> for RecurringSession {
     }
 }
 
-fn read_mob(dir_entry: Result<std::fs::DirEntry, io::Error>) -> Mob {
-    let data_file_path = dir_entry.unwrap().path();
-    let id = data_file_path.file_stem().unwrap().to_str().unwrap().into();
-    let data = std::fs::read_to_string(data_file_path.clone()).unwrap();
+fn read_mob(dir_entry: Result<std::fs::DirEntry, io::Error>) -> anyhow::Result<Mob> {
+    let data_file_path = dir_entry?.path();
+    let id = data_file_path
+        .file_stem()
+        .context("no filename extension")?
+        .to_str()
+        .context("invalid utf8")?
+        .into();
 
-    let yaml_mob: MobFile = serde_yaml::from_str(&data)
-        .map_err(|e| anyhow!("{:?} {:?}", data_file_path, e))
-        .unwrap();
+    let data = std::fs::read_to_string(data_file_path.clone())?;
 
-    (id, yaml_mob).try_into().unwrap()
+    let yaml_mob: MobFile =
+        serde_yaml::from_str(&data).map_err(|e| anyhow!("{:?} {:?}", data_file_path, e))?;
+
+    (id, yaml_mob).try_into()
 }
 
 type EventContentTemplate = fn(
@@ -571,7 +575,8 @@ pub(crate) static MOBS: Lazy<Vec<Mob>> = Lazy::new(|| {
     std::fs::read_dir(MOBS_PATH)
         .unwrap()
         .map(read_mob)
-        .collect::<Vec<Mob>>()
+        .collect::<Result<Vec<Mob>>>()
+        .unwrap()
 });
 
 pub(crate) fn get_all_participants() -> BTreeSet<Person> {

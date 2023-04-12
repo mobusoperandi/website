@@ -3,11 +3,12 @@ use std::{
     path::PathBuf,
 };
 
+use anyhow::ensure;
 use tokio::process::Command;
 
 use crate::OUTPUT_DIR;
 
-pub(crate) async fn execute() {
+pub(crate) async fn execute() -> anyhow::Result<()> {
     let output = Command::new("npx")
         .args([
             "tailwindcss",
@@ -29,10 +30,10 @@ pub(crate) async fn execute() {
                 .to_string_lossy(),
         ])
         .output()
-        .await
-        .unwrap();
+        .await?;
 
-    stdout().write_all(&output.stderr).unwrap();
+    stdout().write_all(&output.stderr)?;
 
-    assert!(output.status.success());
+    ensure!(output.status.success());
+    Ok(())
 }
