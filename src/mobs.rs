@@ -7,17 +7,19 @@ use chrono::{NaiveDate, TimeZone};
 use chrono_tz::Tz;
 use csscolorparser::Color;
 use custom_attrs::CustomAttrs;
+use futures::FutureExt;
 use maud::{html, Markup, PreEscaped, Render};
 use once_cell::sync::Lazy;
 use rrule::{RRule, RRuleSet, Unvalidated};
 use schema::Schema;
 use serde::Deserialize;
 use serde::Serialize;
+use ssg::FileSpec;
 use strum::{AsRefStr, EnumVariantNames, VariantNames};
 
 use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
-use crate::components::CalendarEvent;
+use crate::components::{self, CalendarEvent};
 use crate::constants::MOBS_PATH;
 use crate::markdown::Markdown;
 use crate::syn_helpers::Attribute;
@@ -568,6 +570,46 @@ impl Mob {
             .collect::<Result<Vec<_>, _>>()?;
 
         Ok(events)
+    }
+
+    pub(super) fn page(self) -> FileSpec {
+        FileSpec::new(
+            format!("/mobs/{}.html", self.id),
+            move |targets: Targets| {
+                let mob = self.clone();
+
+                async move {
+                    let links = mob
+                        .links
+                        .iter()
+                        .map(|link| match link {
+                            Link::YouTube(path) => {
+                                let mut url = Url::parse("https://www.youtube.com").unwrap();
+                                url.set_path(path);
+                                Ok((url, targets.path_of("/youtube_logo.svg")?, "YouTube"))
+                            }
+                        })
+                        .collect::<Result<Vec<_>, TargetNotFoundError>>()?;
+
+                    let events =
+                        mob.events(&targets, components::mob_page::event_content_template)?;
+                    let base = components::PageBase::new(targets.clone())?;
+
+                    let page = components::mob_page::MobPage {
+                        mob,
+                        links,
+                        events,
+                        base,
+                        fullcalendar_path: targets.path_of("/fullcalendar.js")?,
+                        rrule_path: targets.path_of("/rrule.js")?,
+                        fullcalendar_rrule_path: targets.path_of("/fullcalendar_rrule.js")?,
+                    };
+
+                    Ok::<_, TargetNotFoundError>(page.render().0.into_bytes())
+                }
+                .boxed()
+            },
+        )
     }
 }
 
