@@ -6,7 +6,7 @@ use crate::components::CalendarEvent;
 use crate::{
     components,
     constants::NAME,
-    mobs::{self, Mob, MobParticipant},
+    mob::{self, Mob, MobParticipant},
     style,
     url::Url,
 };
@@ -36,10 +36,10 @@ impl Render for MobPage {
         }
 
         let join_content = match &self.mob.status {
-            mobs::Status::Short(join_content) => Some(join_content.to_owned()),
-            mobs::Status::Open(join_content) => Some(join_content.to_owned()),
-            mobs::Status::Full(join_content) => join_content.to_owned(),
-            mobs::Status::Public(join_content) => Some(join_content.to_owned()),
+            mob::Status::Short(join_content) => Some(join_content.to_owned()),
+            mob::Status::Open(join_content) => Some(join_content.to_owned()),
+            mob::Status::Full(join_content) => join_content.to_owned(),
+            mob::Status::Public(join_content) => Some(join_content.to_owned()),
         };
 
         let calendar = components::Calendar {
@@ -56,25 +56,25 @@ impl Render for MobPage {
             WrapperFn,
             WrapperFn,
         ) = match self.mob.status {
-            mobs::Status::Short(_) => (
+            mob::Status::Short(_) => (
                 status_wrapper_true,
                 status_wrapper_false,
                 status_wrapper_false,
                 status_wrapper_false,
             ),
-            mobs::Status::Open(_) => (
+            mob::Status::Open(_) => (
                 status_wrapper_false,
                 status_wrapper_true,
                 status_wrapper_false,
                 status_wrapper_false,
             ),
-            mobs::Status::Full(_) => (
+            mob::Status::Full(_) => (
                 status_wrapper_false,
                 status_wrapper_false,
                 status_wrapper_true,
                 status_wrapper_false,
             ),
-            mobs::Status::Public(_) => (
+            mob::Status::Public(_) => (
                 status_wrapper_false,
                 status_wrapper_false,
                 status_wrapper_false,
@@ -127,7 +127,7 @@ impl Render for MobPage {
                 div class=(classes!("flex", "gap-4", "uppercase", "tracking-widest")) {
                     (short_wrapper("short")) (open_wrapper("open")) (full_wrapper("full")) (public_wrapper("public"))
                 }
-                p class="tracking-wide" { (mobs::Status::description(self.mob.status.as_ref())) }
+                p class="tracking-wide" { (mob::Status::description(self.mob.status.as_ref())) }
             }
 
             div class=(classes!("grid", "grid-flow-row", "sm:grid-flow-col", "auto-cols-fr", "gap-[1.25em]")) {

@@ -7,13 +7,13 @@ use serde::{Serialize, Serializer};
 use serde_json::json;
 
 use crate::html::css_class;
-use crate::mobs;
+use crate::mob;
 use crate::style::{BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR};
 use crate::url::Url;
 
 pub(crate) struct Calendar {
     pub(crate) events: Vec<CalendarEvent>,
-    pub(crate) status_legend: Option<mobs::StatusLegend>,
+    pub(crate) status_legend: Option<mob::StatusLegend>,
     pub(crate) fullcalendar_path: String,
     pub(crate) rrule_path: String,
     pub(crate) fullcalendar_rrule_path: String,

@@ -15,7 +15,7 @@ use crate::{
         self,
         schema::type_::{ident::TypeIdent, Type},
     },
-    mobs,
+    mob,
 };
 
 #[derive(Clone)]
@@ -41,12 +41,12 @@ impl std::ops::Deref for DeriveInputWrapper {
 pub(crate) static INTERNAL_TYPES_DERIVE_INPUTS: Lazy<IndexMap<TypeIdent, DeriveInputWrapper>> =
     Lazy::new(|| {
         [
-            mobs::MobFile::schema(),
-            mobs::MobParticipant::schema(),
-            mobs::Person::schema(),
-            mobs::YamlRecurringSession::schema(),
-            mobs::Link::schema(),
-            mobs::Status::schema(),
+            mob::MobFile::schema(),
+            mob::MobParticipant::schema(),
+            mob::Person::schema(),
+            mob::YamlRecurringSession::schema(),
+            mob::Link::schema(),
+            mob::Status::schema(),
         ]
         .map(|derive_input| (derive_input.ident.to_string().into(), derive_input.into()))
         .into_iter()

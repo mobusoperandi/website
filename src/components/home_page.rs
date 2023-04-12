@@ -11,7 +11,7 @@ use crate::constants::DESCRIPTION;
 use crate::{
     components,
     html::Class,
-    mobs::{self, Mob, Person},
+    mob::{self, Mob, Person},
     style::{BUTTON_CLASSES, BUTTON_GAP},
 };
 
@@ -19,7 +19,7 @@ use super::PageBase;
 
 pub(crate) struct HomePage {
     pub(crate) participants: BTreeSet<Person>,
-    pub(crate) status_legend: mobs::StatusLegend,
+    pub(crate) status_legend: mob::StatusLegend,
     pub(crate) events: Vec<CalendarEvent>,
     pub(crate) base: PageBase,
     pub(crate) add_page_path: String,

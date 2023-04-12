@@ -5,11 +5,11 @@ use ssg::sources::bytes_with_file_spec_safety::TargetNotFoundError;
 use ssg::{sources::bytes_with_file_spec_safety::Targets, FileSpec};
 
 use crate::components::home_page::event_content_template;
-use crate::mobs::MOBS;
-use crate::{components, mobs};
+use crate::mob::MOBS;
+use crate::{components, mob};
 
 pub async fn page() -> FileSpec {
-    let participants = mobs::get_all_participants();
+    let participants = mob::get_all_participants();
 
     FileSpec::new("/index.html", move |targets: Targets| {
         let participants = participants.clone();
@@ -29,7 +29,7 @@ pub async fn page() -> FileSpec {
 
             let home_page = components::home_page::HomePage {
                 participants,
-                status_legend: mobs::Status::legend(),
+                status_legend: mob::Status::legend(),
                 events,
                 base,
                 add_page_path,

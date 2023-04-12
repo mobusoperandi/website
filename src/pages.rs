@@ -3,7 +3,7 @@ mod index;
 
 use ssg::FileSpec;
 
-use crate::mobs::{Mob, MOBS};
+use crate::mob::{Mob, MOBS};
 
 pub(crate) async fn all() -> impl Iterator<Item = FileSpec> {
     [index::page().await, add::page()]

@@ -7,7 +7,7 @@ mod file_specs;
 mod fonts;
 mod graphic_file_specs;
 mod markdown;
-mod mobs;
+mod mob;
 mod pages;
 mod style;
 mod syn_helpers;
