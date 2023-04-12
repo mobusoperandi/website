@@ -1,17 +1,12 @@
 pub(crate) mod add;
 mod index;
 
-use std::vec;
-
 use ssg::FileSpec;
 
 use crate::mobs::{Mob, MOBS};
 
-pub(crate) async fn all() -> Vec<FileSpec> {
-    let mut mob_pages = MOBS.iter().cloned().map(Mob::page).collect::<Vec<_>>();
-    let mut pages = vec![index::page().await, add::page()];
-
-    pages.append(&mut mob_pages);
-
-    pages
+pub(crate) async fn all() -> impl Iterator<Item = FileSpec> {
+    [index::page().await, add::page()]
+        .into_iter()
+        .chain(MOBS.iter().cloned().map(Mob::page))
 }
