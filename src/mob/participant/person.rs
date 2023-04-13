@@ -1,10 +1,11 @@
+use getset::Getters;
 use maud::{Markup, Render};
 use schema::Schema;
 use serde::{Deserialize, Serialize};
 
 use crate::url::Url;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Schema)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Schema, Getters)]
 /// The public details about a person
 pub(crate) struct Person {
     /// The person's name
@@ -14,7 +15,8 @@ pub(crate) struct Person {
     /// ```yaml
     /// Nompomer Pilento
     /// ```
-    pub(crate) name: PersonName,
+    #[getset(get = "pub(crate)")]
+    name: PersonName,
     /// A social URL
     ///
     /// Example:
@@ -22,7 +24,8 @@ pub(crate) struct Person {
     /// ```yaml
     /// https://example.com/np
     /// ```
-    pub(crate) social_url: Url,
+    #[getset(get = "pub(crate)")]
+    social_url: Url,
     /// An avatar image URL
     ///
     /// Example:
@@ -30,7 +33,8 @@ pub(crate) struct Person {
     /// ```yaml
     /// https://example.com/np.png
     /// ```
-    pub(crate) avatar_url: Option<Url>,
+    #[getset(get = "pub(crate)")]
+    avatar_url: Option<Url>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]

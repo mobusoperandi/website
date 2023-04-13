@@ -1,12 +1,15 @@
 use chrono::{Duration, TimeZone};
+use getset::{CopyGetters, Getters};
 use rrule::{RRule, RRuleSet, Unvalidated};
 
 use super::file::yaml_recurring_session::YamlRecurringSession;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Getters, CopyGetters)]
 pub(crate) struct RecurringSession {
-    pub(crate) recurrence: RRuleSet,
-    pub(crate) duration: Duration,
+    #[getset(get = "pub(crate)")]
+    recurrence: RRuleSet,
+    #[getset(get_copy = "pub(crate)")]
+    duration: Duration,
 }
 
 impl TryFrom<YamlRecurringSession> for RecurringSession {

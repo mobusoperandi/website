@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 use chrono::DateTime;
+use getset::Getters;
 use itertools::Itertools;
 use maud::{html, Markup, Render};
 
@@ -17,26 +18,53 @@ use crate::{
 
 use super::PageBase;
 
+#[derive(Debug, Clone, Getters)]
 pub(crate) struct HomePage {
-    pub(crate) participants: BTreeSet<Person>,
-    pub(crate) status_legend: mob::status::Legend,
-    pub(crate) events: Vec<CalendarEvent>,
-    pub(crate) base: PageBase,
-    pub(crate) add_page_path: String,
-    pub(crate) fullcalendar_path: String,
-    pub(crate) rrule_path: String,
-    pub(crate) fullcalendar_rrule_path: String,
+    participants: BTreeSet<Person>,
+    status_legend: mob::status::Legend,
+    #[getset(get = "pub(crate)")]
+    events: Vec<CalendarEvent>,
+    base: PageBase,
+    add_page_path: String,
+    fullcalendar_path: String,
+    rrule_path: String,
+    fullcalendar_rrule_path: String,
+}
+
+impl HomePage {
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn new(
+        participants: BTreeSet<Person>,
+        status_legend: mob::status::Legend,
+        events: Vec<CalendarEvent>,
+        base: PageBase,
+        add_page_path: String,
+        fullcalendar_path: String,
+        rrule_path: String,
+        fullcalendar_rrule_path: String,
+    ) -> Self {
+        Self {
+            participants,
+            status_legend,
+            events,
+            base,
+            add_page_path,
+            fullcalendar_path,
+            rrule_path,
+            fullcalendar_rrule_path,
+        }
+    }
 }
 
 impl Render for HomePage {
     fn render(&self) -> maud::Markup {
-        let calendar = components::Calendar {
-            events: self.events.clone(),
-            status_legend: Some(self.status_legend.clone()),
-            fullcalendar_path: self.fullcalendar_path.clone(),
-            rrule_path: self.rrule_path.clone(),
-            fullcalendar_rrule_path: self.fullcalendar_rrule_path.clone(),
-        };
+        let calendar = components::Calendar::new(
+            self.events().clone(),
+            Some(self.status_legend.clone()),
+            self.fullcalendar_path.clone(),
+            self.rrule_path.clone(),
+            self.fullcalendar_rrule_path.clone(),
+        );
 
         let content = html! {
             (calendar)
@@ -48,9 +76,9 @@ impl Render for HomePage {
             }
             div class=(classes!("flex", "flex-wrap")) {
                 @for person in &self.participants {
-                    @if let Some(avatar_url) = &person.avatar_url {
-                        a href=(person.social_url) class=(classes!("w-20")) {
-                            img alt=(person.name) src=(avatar_url);
+                    @if let Some(avatar_url) = person.avatar_url() {
+                        a href=(person.social_url()) class=(classes!("w-20")) {
+                            img alt=(person.name()) src=(avatar_url);
                         }
                     }
                 }
@@ -74,7 +102,7 @@ pub(crate) fn event_content_template(
     mob: &Mob,
     targets: &Targets,
 ) -> Result<Markup, TargetNotFoundError> {
-    let mob_id = &mob.id;
+    let mob_id = mob.id();
     let target_path = targets.path_of(format!("/mobs/{mob_id}.html"))?;
 
     const OFFSET_VALUES: [i8; 2] = [-1, 1];
@@ -93,9 +121,9 @@ pub(crate) fn event_content_template(
 
     let content = html! {
         a class=(classes!("no-underline", "block", "h-full")) href=(target_path) {
-            (mob.title)
+            (mob.title())
 
-            @if let Some(status_indicator) = mob.status.indicator() {
+            @if let Some(status_indicator) = mob.status().indicator() {
                  " " span class=(indicator_text_shadow_class) { (status_indicator) }
             }
         }

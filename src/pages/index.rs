@@ -27,16 +27,16 @@ pub async fn page() -> FileSpec {
 
             let add_page_path = targets.path_of("/add.html")?;
 
-            let home_page = components::home_page::HomePage {
+            let home_page = components::home_page::HomePage::new(
                 participants,
-                status_legend: mob::Status::legend(),
+                mob::Status::legend(),
                 events,
                 base,
                 add_page_path,
-                fullcalendar_path: targets.path_of("/fullcalendar.js")?,
-                rrule_path: targets.path_of("/rrule.js")?,
-                fullcalendar_rrule_path: targets.path_of("/fullcalendar_rrule.js")?,
-            };
+                targets.path_of("/fullcalendar.js")?,
+                targets.path_of("/rrule.js")?,
+                targets.path_of("/fullcalendar_rrule.js")?,
+            );
 
             Ok::<_, TargetNotFoundError>(home_page.render().0.into_bytes())
         }

@@ -14,6 +14,7 @@ use anyhow::{anyhow, Context, Result};
 use chrono::DateTime;
 use csscolorparser::Color;
 use futures::FutureExt;
+use getset::Getters;
 use maud::{html, Markup, Render};
 use once_cell::sync::Lazy;
 
@@ -34,18 +35,24 @@ pub(crate) use self::status::Status;
 use self::subtitle::Subtitle;
 use self::title::Title;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Getters)]
 pub struct Mob {
-    pub(crate) id: Id,
-    pub(crate) title: Title,
-    pub(crate) subtitle: Option<Subtitle>,
-    pub(crate) participants: Vec<Participant>,
-    pub(crate) schedule: Vec<RecurringSession>,
-    pub(crate) freeform_copy_markdown: Markdown,
-    pub(crate) background_color: Color,
-    pub(crate) text_color: Color,
-    pub(crate) links: Vec<Link>,
-    pub(crate) status: Status,
+    #[getset(get = "pub(crate)")]
+    id: Id,
+    #[getset(get = "pub(crate)")]
+    title: Title,
+    #[getset(get = "pub(crate)")]
+    subtitle: Option<Subtitle>,
+    #[getset(get = "pub(crate)")]
+    participants: Vec<Participant>,
+    schedule: Vec<RecurringSession>,
+    #[getset(get = "pub(crate)")]
+    freeform_copy_markdown: Markdown,
+    background_color: Color,
+    text_color: Color,
+    links: Vec<Link>,
+    #[getset(get = "pub(crate)")]
+    status: Status,
 }
 
 impl TryFrom<(String, MobFile)> for Mob {
@@ -105,8 +112,8 @@ impl Mob {
             .iter()
             .map(|recurring_session| {
                 let mob = self.clone();
-                let start = *recurring_session.recurrence.get_dt_start();
-                let end = start + recurring_session.duration;
+                let start = *recurring_session.recurrence().get_dt_start();
+                let end = start + recurring_session.duration();
 
                 let event_content = event_content_template(start, end, &mob, targets)?;
 
@@ -120,13 +127,13 @@ impl Mob {
                 }
                 .0;
 
-                Ok(CalendarEvent {
-                    rrule: recurring_session.recurrence.clone(),
-                    duration: recurring_session.duration,
+                Ok(CalendarEvent::new(
+                    recurring_session.recurrence().clone(),
+                    recurring_session.duration(),
                     event_content,
                     background_color,
                     text_color,
-                })
+                ))
             })
             .collect::<Result<Vec<_>, _>>()?;
 
@@ -151,15 +158,15 @@ impl Mob {
                         mob.events(&targets, components::mob_page::event_content_template)?;
                     let base = components::PageBase::new(targets.clone())?;
 
-                    let page = components::mob_page::MobPage {
+                    let page = components::mob_page::MobPage::new(
                         mob,
                         links,
                         events,
                         base,
-                        fullcalendar_path: targets.path_of("/fullcalendar.js")?,
-                        rrule_path: targets.path_of("/rrule.js")?,
-                        fullcalendar_rrule_path: targets.path_of("/fullcalendar_rrule.js")?,
-                    };
+                        targets.path_of("/fullcalendar.js")?,
+                        targets.path_of("/rrule.js")?,
+                        targets.path_of("/fullcalendar_rrule.js")?,
+                    );
 
                     Ok::<_, TargetNotFoundError>(page.render().0.into_bytes())
                 }

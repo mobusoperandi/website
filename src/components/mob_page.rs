@@ -14,13 +14,35 @@ use crate::{
 use super::PageBase;
 
 pub(crate) struct MobPage {
-    pub(crate) mob: Mob,
-    pub(crate) links: Vec<LinkElement>,
-    pub(crate) events: Vec<CalendarEvent>,
-    pub(crate) base: PageBase,
-    pub(crate) fullcalendar_path: String,
-    pub(crate) rrule_path: String,
-    pub(crate) fullcalendar_rrule_path: String,
+    mob: Mob,
+    links: Vec<LinkElement>,
+    events: Vec<CalendarEvent>,
+    base: PageBase,
+    fullcalendar_path: String,
+    rrule_path: String,
+    fullcalendar_rrule_path: String,
+}
+
+impl MobPage {
+    pub(crate) fn new(
+        mob: Mob,
+        links: Vec<LinkElement>,
+        events: Vec<CalendarEvent>,
+        base: PageBase,
+        fullcalendar_path: String,
+        rrule_path: String,
+        fullcalendar_rrule_path: String,
+    ) -> Self {
+        Self {
+            mob,
+            links,
+            events,
+            base,
+            fullcalendar_path,
+            rrule_path,
+            fullcalendar_rrule_path,
+        }
+    }
 }
 
 impl Render for MobPage {
@@ -35,27 +57,27 @@ impl Render for MobPage {
             html!(span { (content) })
         }
 
-        let join_content = match &self.mob.status {
+        let join_content = match self.mob.status() {
             mob::Status::Short(join_content) => Some(join_content.to_owned()),
             mob::Status::Open(join_content) => Some(join_content.to_owned()),
             mob::Status::Full(join_content) => join_content.to_owned(),
             mob::Status::Public(join_content) => Some(join_content.to_owned()),
         };
 
-        let calendar = components::Calendar {
-            events: self.events.clone(),
-            status_legend: None,
-            fullcalendar_path: self.fullcalendar_path.clone(),
-            rrule_path: self.rrule_path.clone(),
-            fullcalendar_rrule_path: self.fullcalendar_rrule_path.clone(),
-        };
+        let calendar = components::Calendar::new(
+            self.events.clone(),
+            None,
+            self.fullcalendar_path.clone(),
+            self.rrule_path.clone(),
+            self.fullcalendar_rrule_path.clone(),
+        );
 
         let (short_wrapper, open_wrapper, full_wrapper, public_wrapper): (
             WrapperFn,
             WrapperFn,
             WrapperFn,
             WrapperFn,
-        ) = match self.mob.status {
+        ) = match self.mob.status() {
             mob::Status::Short(_) => (
                 status_wrapper_true,
                 status_wrapper_false,
@@ -94,8 +116,8 @@ impl Render for MobPage {
         let content = html! {
             div class=(root_classes) {
                 div class=(classes!("py-12")) {
-                    h1 class=(classes!("text-4xl")) { (self.mob.title) }
-                    @if let Some(subtitle) = &self.mob.subtitle {
+                    h1 class=(classes!("text-4xl")) { (self.mob.title()) }
+                    @if let Some(subtitle) = &self.mob.subtitle() {
                         (subtitle)
                     }
                 }
@@ -111,10 +133,10 @@ impl Render for MobPage {
                 div class=(classes!("py-12")) {
                     h2 { "Participants" }
                     div class=(classes!("font-bold")) {
-                        @for mob_participant in &self.mob.participants {
+                        @for mob_participant in self.mob.participants() {
                             @match mob_participant {
                                 Participant::Hidden => div { "(Anonymous participant)" },
-                                Participant::Public(person) => a class=(classes!("block")) href=(person.social_url) { (person.name) },
+                                Participant::Public(person) => a class=(classes!("block")) href=(person.social_url()) { (person.name()) },
                             }
                         }
                     }
@@ -125,12 +147,12 @@ impl Render for MobPage {
                 div class=(classes!("flex", "gap-4", "uppercase", "tracking-widest")) {
                     (short_wrapper("short")) (open_wrapper("open")) (full_wrapper("full")) (public_wrapper("public"))
                 }
-                p class="tracking-wide" { (mob::Status::description(self.mob.status.as_ref())) }
+                p class="tracking-wide" { (mob::Status::description(self.mob.status().as_ref())) }
             }
 
             div class=(classes!("grid", "grid-flow-row", "sm:grid-flow-col", "auto-cols-fr", "gap-[1.25em]")) {
                 div class=(*style::PROSE_CLASSES) {
-                    (self.mob.freeform_copy_markdown)
+                    (self.mob.freeform_copy_markdown())
                 }
                 div class=(*style::PROSE_CLASSES) {
                     @if let Some(join_content) = join_content {
@@ -147,14 +169,14 @@ impl Render for MobPage {
         self.base
             .clone()
             .into_page(
-                Some(self.mob.title.as_str().to_owned().into()),
+                Some(self.mob.title().as_str().to_owned().into()),
                 content,
                 classes!("flex", "flex-col", "gap-6"),
                 components::page_base::PageDescription::from(format!(
                     "{}{}; description, schedule and more on {NAME}",
-                    self.mob.title,
+                    self.mob.title(),
                     self.mob
-                        .subtitle
+                        .subtitle()
                         .as_ref()
                         .map(|subtitle| format!(", {}", subtitle.as_str()))
                         .unwrap_or_default()

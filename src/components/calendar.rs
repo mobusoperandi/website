@@ -12,22 +12,58 @@ use crate::style::{BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR};
 use crate::url::Url;
 
 pub(crate) struct Calendar {
-    pub(crate) events: Vec<CalendarEvent>,
-    pub(crate) status_legend: Option<mob::status::Legend>,
-    pub(crate) fullcalendar_path: String,
-    pub(crate) rrule_path: String,
-    pub(crate) fullcalendar_rrule_path: String,
+    events: Vec<CalendarEvent>,
+    status_legend: Option<mob::status::Legend>,
+    fullcalendar_path: String,
+    rrule_path: String,
+    fullcalendar_rrule_path: String,
 }
 
-#[derive(Serialize, Clone)]
+impl Calendar {
+    pub(crate) fn new(
+        events: Vec<CalendarEvent>,
+        status_legend: Option<mob::status::Legend>,
+        fullcalendar_path: String,
+        rrule_path: String,
+        fullcalendar_rrule_path: String,
+    ) -> Self {
+        Self {
+            events,
+            status_legend,
+            fullcalendar_path,
+            rrule_path,
+            fullcalendar_rrule_path,
+        }
+    }
+}
+
+#[derive(Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct CalendarEvent {
-    pub(crate) rrule: RRuleSet,
+    rrule: RRuleSet,
     #[serde(serialize_with = "serialize_duration")]
-    pub(crate) duration: Duration,
-    pub(crate) event_content: String,
-    pub(crate) background_color: Color,
-    pub(crate) text_color: Color,
+    duration: Duration,
+    event_content: String,
+    background_color: Color,
+    text_color: Color,
+}
+
+impl CalendarEvent {
+    pub(crate) fn new(
+        rrule: RRuleSet,
+        duration: Duration,
+        event_content: String,
+        background_color: Color,
+        text_color: Color,
+    ) -> Self {
+        Self {
+            rrule,
+            duration,
+            event_content,
+            background_color,
+            text_color,
+        }
+    }
 }
 
 fn serialize_duration<S>(duration: &Duration, serializer: S) -> Result<S::Ok, S::Error>

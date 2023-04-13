@@ -10,7 +10,7 @@ use self::variant::Variant;
 
 #[derive(Debug, Clone)]
 pub(crate) struct EnumType {
-    pub(crate) variants: Vec<Variant>,
+    variants: Vec<Variant>,
 }
 
 impl FromIterator<Variant> for EnumType {

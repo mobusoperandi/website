@@ -109,8 +109,8 @@ fn generate_file_from_spec(
 }
 
 pub struct FileSpec {
-    pub(crate) source: Box<dyn FileSource + Send>,
-    pub(crate) target: PathBuf,
+    source: Box<dyn FileSource + Send>,
+    target: PathBuf,
 }
 
 impl FileSpec {
