@@ -10,15 +10,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: rustup update
+      - id: get-rust-version
+        run: echo "rust_version=$(rustc --version)" >> $GITHUB_OUTPUT
+        shell: bash
       - uses: actions/cache@v3
         with:
           path: |
             .bin/
             target/
             ~/.cargo/
-          key: ${{ runner.os }}_cargo-run-bin_${{ hashFiles('rust-toolchain.toml', 'Cargo.toml', 'Cargo.lock') }}
+          key: ${{ runner.os }}_${{ steps.get-rust-version.outputs.rust_version }}_cargo-run-bin_${{ hashFiles('rust-toolchain.toml', 'Cargo.toml', 'Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}_cargo-run-bin_
+            ${{ runner.os }}_${{ steps.get-rust-version.outputs.rust_version }}_cargo-run-bin_
+            ${{ runner.os }}_${{ steps.get-rust-version.outputs.rust_version }}_
             ${{ runner.os }}_
       - run: cargo install cargo-run-bin
       - run: npm ci
