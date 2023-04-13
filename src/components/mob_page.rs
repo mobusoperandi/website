@@ -3,20 +3,19 @@ use maud::{html, Markup, Render};
 use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
 use crate::components::CalendarEvent;
-use crate::mob::Participant;
+use crate::mob::{LinkElement, Participant};
 use crate::{
     components,
     constants::NAME,
     mob::{self, Mob},
     style,
-    url::Url,
 };
 
 use super::PageBase;
 
 pub(crate) struct MobPage {
     pub(crate) mob: Mob,
-    pub(crate) links: Vec<(Url, String, &'static str)>,
+    pub(crate) links: Vec<LinkElement>,
     pub(crate) events: Vec<CalendarEvent>,
     pub(crate) base: PageBase,
     pub(crate) fullcalendar_path: String,
@@ -103,10 +102,8 @@ impl Render for MobPage {
 
                 @if !self.links.is_empty() {
                     div class=(classes!("flex", "sm:flex-col", "justify-center", "gap-2")) {
-                        @for (url, image_path, alt) in &self.links {
-                            a href=(url) {
-                                img class=(classes!("h-8")) alt=(alt) src=(image_path);
-                            }
+                        @for link in &self.links {
+                            (link)
                         }
                     }
                 }

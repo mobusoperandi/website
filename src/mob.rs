@@ -23,12 +23,11 @@ use ssg::FileSpec;
 use crate::components::{self, CalendarEvent};
 use crate::constants::MOBS_PATH;
 use crate::markdown::Markdown;
-use crate::url::Url;
 
 pub(crate) use self::file::MobFile;
 pub(crate) use self::file::YamlRecurringSession;
 use self::id::Id;
-pub(crate) use self::link::Link;
+pub(crate) use self::link::{Link, LinkElement};
 pub(crate) use self::participant::{Participant, Person};
 use self::recurring_session::RecurringSession;
 pub(crate) use self::status::Status;
@@ -144,14 +143,9 @@ impl Mob {
                     let links = mob
                         .links
                         .iter()
-                        .map(|link| match link {
-                            Link::YouTube(path) => {
-                                let mut url = Url::parse("https://www.youtube.com").unwrap();
-                                url.set_path(path);
-                                Ok((url, targets.path_of("/youtube_logo.svg")?, "YouTube"))
-                            }
-                        })
-                        .collect::<Result<Vec<_>, TargetNotFoundError>>()?;
+                        .cloned()
+                        .map(|link| (link, &targets).try_into())
+                        .collect::<Result<Vec<LinkElement>, TargetNotFoundError>>()?;
 
                     let events =
                         mob.events(&targets, components::mob_page::event_content_template)?;
