@@ -1,24 +1,17 @@
 pub(crate) mod ident;
 
 use anyhow::{anyhow, bail, Error, Result};
+use getset::{CopyGetters, Getters};
 use schema::syn;
 
 use crate::components::schema::node::Node;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Getters, CopyGetters)]
 pub(crate) struct Field {
+    #[getset(get = "pub(crate)")]
     node: Node,
+    #[getset(get_copy = "pub(crate)")]
     required: bool,
-}
-
-impl Field {
-    pub(crate) fn node(&self) -> &Node {
-        &self.node
-    }
-
-    pub(crate) fn required(&self) -> bool {
-        self.required
-    }
 }
 
 impl TryFrom<syn::Field> for Field {

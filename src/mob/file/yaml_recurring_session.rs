@@ -1,9 +1,10 @@
 use chrono::{Duration, NaiveDate};
 use chrono_tz::Tz;
+use getset::{CopyGetters, Getters};
 use schema::Schema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Schema, Clone)]
+#[derive(Deserialize, Schema, Clone, Getters, CopyGetters)]
 /// Specification for a recurring session
 pub(crate) struct YamlRecurringSession {
     /// Frequency of the recurrence in [RRULE](https://icalendar.org/iCalendar-RFC-5545/3-8-5-3-recurrence-rule.html) format
@@ -13,6 +14,7 @@ pub(crate) struct YamlRecurringSession {
     /// ```yaml
     /// FREQ=WEEKLY;BYDAY=MO,TU,WE,TH
     /// ```
+    #[getset(get = "pub(crate)")]
     frequency: RecurrenceFrequency,
     /// The schedule's timezone
     ///
@@ -21,6 +23,7 @@ pub(crate) struct YamlRecurringSession {
     /// ```yaml
     /// Africa/Dakar
     /// ```
+    #[getset(get_copy = "pub(crate)")]
     timezone: Tz,
     /// Date of the first session of this schedule
     ///
@@ -29,6 +32,7 @@ pub(crate) struct YamlRecurringSession {
     /// ```yaml
     /// 2023-02-27
     /// ```
+    #[getset(get_copy = "pub(crate)")]
     start_date: NaiveDate,
     /// Session start time
     ///
@@ -37,6 +41,7 @@ pub(crate) struct YamlRecurringSession {
     /// ```yaml
     /// 04:00
     /// ```
+    #[getset(get = "pub(crate)")]
     start_time: Time,
     /// Session duration in minutes
     ///
@@ -45,31 +50,9 @@ pub(crate) struct YamlRecurringSession {
     /// ```yaml
     /// 180
     /// ```
+    #[getset(get_copy = "pub(crate)")]
     duration: Minutes,
 }
-
-impl YamlRecurringSession {
-    pub(crate) fn frequency(&self) -> &RecurrenceFrequency {
-        &self.frequency
-    }
-
-    pub(crate) fn timezone(&self) -> Tz {
-        self.timezone
-    }
-
-    pub(crate) fn start_date(&self) -> NaiveDate {
-        self.start_date
-    }
-
-    pub(crate) fn start_time(&self) -> &Time {
-        &self.start_time
-    }
-
-    pub(crate) fn duration(&self) -> Minutes {
-        self.duration
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, derive_more::Display)]
 pub(crate) struct Time(String);
 

@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use futures::{future::BoxFuture, FutureExt, TryFutureExt};
+use getset::Getters;
 use readext::ReadExt;
 use reqwest::Url;
 
@@ -8,8 +9,9 @@ use crate::disk_caching_http_client;
 
 use super::{bytes_with_file_spec_safety::Targets, FileSource};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Getters)]
 pub struct GoogleFont {
+    #[getset(get = "pub")]
     family: String,
     version: u8,
     subset: String,
@@ -24,10 +26,6 @@ impl GoogleFont {
             subset,
             variant,
         }
-    }
-
-    pub fn family(&self) -> &str {
-        self.family.as_ref()
     }
 }
 

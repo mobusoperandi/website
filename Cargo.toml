@@ -21,6 +21,7 @@ csscolorparser = { version = "0.6.0", features = ["serde"] }
 custom_attrs = "1.6.0"
 derive_more = "0.99.17"
 futures = "0.3.24"
+getset = "0.1.2"
 global_counter = "0.2.2"
 indexmap = "1.9.2"
 itertools = "0.10.5"
