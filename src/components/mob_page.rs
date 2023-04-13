@@ -3,10 +3,11 @@ use maud::{html, Markup, Render};
 use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
 use crate::components::CalendarEvent;
+use crate::mob::Participant;
 use crate::{
     components,
     constants::NAME,
-    mob::{self, Mob, MobParticipant},
+    mob::{self, Mob},
     style,
     url::Url,
 };
@@ -115,8 +116,8 @@ impl Render for MobPage {
                     div class=(classes!("font-bold")) {
                         @for mob_participant in &self.mob.participants {
                             @match mob_participant {
-                                MobParticipant::Hidden => div { "(Anonymous participant)" },
-                                MobParticipant::Public(person) => a class=(classes!("block")) href=(person.social_url) { (person.name) },
+                                Participant::Hidden => div { "(Anonymous participant)" },
+                                Participant::Public(person) => a class=(classes!("block")) href=(person.social_url) { (person.name) },
                             }
                         }
                     }

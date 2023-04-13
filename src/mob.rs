@@ -1,36 +1,46 @@
-use std::collections::{BTreeMap, BTreeSet};
+pub(super) mod file;
+pub(super) mod id;
+pub(super) mod link;
+pub(super) mod participant;
+pub(super) mod recurring_session;
+pub(crate) mod status;
+pub(super) mod subtitle;
+pub(super) mod title;
+
+use std::collections::BTreeSet;
 use std::io;
 
 use anyhow::{anyhow, Context, Result};
-use chrono::{DateTime, Duration};
-use chrono::{NaiveDate, TimeZone};
-use chrono_tz::Tz;
+use chrono::DateTime;
 use csscolorparser::Color;
-use custom_attrs::CustomAttrs;
 use futures::FutureExt;
-use maud::{html, Markup, PreEscaped, Render};
+use maud::{html, Markup, Render};
 use once_cell::sync::Lazy;
-use rrule::{RRule, RRuleSet, Unvalidated};
-use schema::Schema;
-use serde::Deserialize;
-use serde::Serialize;
-use ssg::FileSpec;
-use strum::{AsRefStr, EnumVariantNames, VariantNames};
 
 use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
+use ssg::FileSpec;
 
 use crate::components::{self, CalendarEvent};
 use crate::constants::MOBS_PATH;
 use crate::markdown::Markdown;
-use crate::syn_helpers::Attribute;
 use crate::url::Url;
+
+pub(crate) use self::file::MobFile;
+pub(crate) use self::file::YamlRecurringSession;
+use self::id::Id;
+pub(crate) use self::link::Link;
+pub(crate) use self::participant::{Participant, Person};
+use self::recurring_session::RecurringSession;
+pub(crate) use self::status::Status;
+use self::subtitle::Subtitle;
+use self::title::Title;
 
 #[derive(Debug, Clone)]
 pub struct Mob {
-    pub(crate) id: MobId,
-    pub(crate) title: MobTitle,
-    pub(crate) subtitle: Option<MobSubtitle>,
-    pub(crate) participants: Vec<MobParticipant>,
+    pub(crate) id: Id,
+    pub(crate) title: Title,
+    pub(crate) subtitle: Option<Subtitle>,
+    pub(crate) participants: Vec<Participant>,
     pub(crate) schedule: Vec<RecurringSession>,
     pub(crate) freeform_copy_markdown: Markdown,
     pub(crate) background_color: Color,
@@ -39,472 +49,24 @@ pub struct Mob {
     pub(crate) status: Status,
 }
 
-#[derive(Debug, Clone, derive_more::Display)]
-pub(crate) struct MobId(String);
-#[derive(Debug, Clone, derive_more::Display, Serialize, Deserialize)]
-pub(crate) struct MobTitle(String);
-
-impl MobTitle {
-    pub fn as_str(&self) -> &str {
-        self.0.as_str()
-    }
-}
-
-impl Render for MobTitle {
-    fn render(&self) -> Markup {
-        PreEscaped(self.0.clone())
-    }
-}
-
-#[derive(Debug, Clone, derive_more::Display, Serialize, Deserialize)]
-pub(crate) struct MobSubtitle(String);
-
-impl MobSubtitle {
-    pub fn as_str(&self) -> &str {
-        self.0.as_str()
-    }
-}
-
-impl Render for MobSubtitle {
-    fn render(&self) -> Markup {
-        html! { p { (self.0) } }
-    }
-}
-
 impl TryFrom<(String, MobFile)> for Mob {
     type Error = anyhow::Error;
     fn try_from((id, yaml): (String, MobFile)) -> Result<Self, Self::Error> {
         Ok(Mob {
-            id: MobId(id),
-            title: yaml.title,
-            subtitle: yaml.subtitle,
-            participants: yaml.participants,
+            id: Id::new(id),
+            title: yaml.title().clone(),
+            subtitle: yaml.subtitle().cloned(),
+            participants: yaml.participants().clone(),
             schedule: yaml
-                .schedule
-                .into_iter()
+                .schedule()
+                .cloned()
                 .map(TryInto::try_into)
                 .collect::<Result<Vec<_>, _>>()?,
-            freeform_copy_markdown: yaml.freeform_copy,
-            background_color: yaml.background_color,
-            text_color: yaml.text_color,
-            links: yaml.links.unwrap_or_default(),
-            status: yaml.status,
-        })
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Schema, AsRefStr, EnumVariantNames, CustomAttrs)]
-#[attr(indicator: Option<char>)]
-/// A mob's status
-pub(crate) enum Status {
-    /// This mob is not active yet because it needs more members.
-    ///
-    /// The value explains how to apply.
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// !Short |
-    ///   To apply contact [Kelly](https://example.com/kelly).
-    /// ```
-    #[attr(indicator = '🌱')]
-    Short(Markdown),
-    /// This mob is taking applications for new participants.
-    ///
-    /// The value explains how to apply.
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// !Open |
-    ///   To apply contact [Dawn](https://example.com/dawn).
-    /// ```
-    #[attr(indicator = '👐')]
-    Open(Markdown),
-    /// This mob is not currently taking applications.
-    ///
-    /// The value is optional.
-    ///     
-    /// Example:
-    ///
-    /// ```yaml
-    /// !Full |
-    ///   We are currently full.
-    /// ```
-    Full(Option<Markdown>),
-    /// This mob's sessions are open for anyone to join.
-    ///
-    /// The value explains how to join.
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// !Public |
-    ///   [Room link](https://meet.jit.si/MedievalWebsPortrayLoud)
-    /// ```
-    #[attr(indicator = '⛲')]
-    Public(Markdown),
-}
-
-impl Status {
-    pub(crate) fn description(variant_ident: &str) -> StatusDescription {
-        let syn::Data::Enum(enum_data) = Self::schema().data else {
-            panic!("not an enum??")
-        };
-
-        let variant = enum_data
-            .variants
-            .into_iter()
-            .find(|variant| variant.ident == variant_ident)
-            .expect("variant not found");
-
-        let description = variant
-            .attrs
-            .into_iter()
-            .find_map(|attr| attr.doc_string())
-            .expect("no doc attr");
-
-        StatusDescription(description)
-    }
-
-    pub(crate) fn indicator(&self) -> Option<StatusIndicator> {
-        Some(StatusIndicator(self.get_indicator()?))
-    }
-
-    pub(crate) fn indicator_for_ident(variant_ident: &str) -> Option<StatusIndicator> {
-        let syn::Data::Enum(enum_data) = Self::schema().data else {
-            panic!("not an enum??")
-        };
-
-        let variant = enum_data
-            .variants
-            .into_iter()
-            .find(|variant| variant.ident == variant_ident)
-            .expect("variant not found");
-
-        let list_tokens = variant.attrs.into_iter().find_map(|attr| {
-            let syn::Meta::List(list_meta) = attr.meta else { return None; };
-
-            if !list_meta.path.is_ident("attr") {
-                return None;
-            };
-
-            Some(list_meta.tokens)
-        })?;
-
-        let name_value = syn::parse2::<syn::MetaNameValue>(list_tokens).ok()?;
-
-        if !name_value.path.is_ident("indicator") {
-            return None;
-        }
-
-        let syn::Expr::Lit(
-            syn::ExprLit {
-                lit: syn::Lit::Char(lit_char),
-                ..
-            }
-        ) = name_value.value else {
-            panic!("value is not a literal");
-        };
-
-        Some(StatusIndicator(lit_char.value()))
-    }
-
-    pub(crate) fn legend() -> StatusLegend {
-        Self::VARIANTS
-            .iter()
-            .filter_map(|&variant_ident| {
-                let indicator = Self::indicator_for_ident(variant_ident)?;
-                let description = Self::description(variant_ident);
-
-                Some((indicator, description))
-            })
-            .collect::<StatusLegend>()
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub(crate) struct StatusIndicator(char);
-
-impl Render for StatusIndicator {
-    fn render(&self) -> Markup {
-        self.0.render()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub(crate) struct StatusDescription(String);
-
-impl Render for StatusDescription {
-    fn render(&self) -> Markup {
-        self.0.render()
-    }
-}
-
-#[derive(Debug, Clone, derive_more::IntoIterator)]
-pub(crate) struct StatusLegend(BTreeMap<StatusIndicator, StatusDescription>);
-
-impl FromIterator<(StatusIndicator, StatusDescription)> for StatusLegend {
-    fn from_iter<T: IntoIterator<Item = (StatusIndicator, StatusDescription)>>(iter: T) -> Self {
-        Self(iter.into_iter().collect())
-    }
-}
-
-impl Render for StatusLegend {
-    fn render(&self) -> Markup {
-        html! {
-            "Legend:"
-            dl class=(classes!("grid", "grid-cols-[auto_auto_1fr]")) {
-                @for (indicator, description) in self.0.iter() {
-                    dt class=(classes!("text-2xl")) { (indicator) }
-                    "\u{00A0}—\u{00A0}"
-                    dd { (description) }
-                }
-            }
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Schema)]
-/// A link that showcases the mob
-pub enum Link {
-    /// A YouTube channel ID
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// !YouTube "@mobseattle"
-    /// ```
-    YouTube(String),
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Schema)]
-/// A participant in a mob
-pub(crate) enum MobParticipant {
-    /// A mob member who prefers to remain anonymous
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// !Hidden
-    /// ```
-    Hidden,
-    /// A mob member who wishes to be publically listed"whitespace-nowrap" "font-mono"
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// !Public
-    /// name: Forbany Klenbin
-    /// social_url: https://example.com/fk
-    /// avatar_url: https://example.com/fk.png
-    /// ```
-    Public(Person),
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Schema)]
-/// The public details about a person
-pub(crate) struct Person {
-    /// The person's name
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// Nompomer Pilento
-    /// ```
-    pub(crate) name: PersonName,
-    /// A social URL
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// https://example.com/np
-    /// ```
-    pub(crate) social_url: Url,
-    /// An avatar image URL
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// https://example.com/np.png
-    /// ```
-    pub(crate) avatar_url: Option<Url>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
-pub(crate) struct PersonName(String);
-
-impl Render for PersonName {
-    fn render(&self) -> Markup {
-        self.0.render()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct RecurringSession {
-    pub(crate) recurrence: RRuleSet,
-    pub(crate) duration: Duration,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, derive_more::Display)]
-struct RecurrenceFrequency(String);
-
-#[derive(Deserialize, Schema)]
-/// The contents of a mob file
-pub(crate) struct MobFile {
-    /// The mob's title
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// Agile Bandits
-    /// ```
-    title: MobTitle,
-    /// An optional mob's subtitle
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// Hackin' and cruisin'
-    /// ```
-    subtitle: Option<MobSubtitle>,
-    /// Regular participants of the mob
-    participants: Vec<MobParticipant>,
-    /// The mob's regular schedule
-    schedule: Vec<YamlRecurringSession>,
-    /// Color of the background of calendar event blocks
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// aliceblue
-    /// ```
-    background_color: Color,
-    /// Color of text inside calendar event blocks
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// orangered
-    /// ```
-    text_color: Color,
-    /// Links associated with the mob
-    ///
-    /// ```yaml
-    /// - !YouTube @agilebandits
-    /// ```
-    links: Option<Vec<Link>>,
-    /// A description of the mob, the purpose of it, its past attainments, etc.
-    ///
-    /// ```yaml
-    /// ## What we do
-    ///
-    /// We study the BrainShock programming language.
-    /// ```
-    freeform_copy: Markdown,
-    /// The mob's current status
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// !Public |
-    ///   ## Just show up!
-    ///
-    ///   [Room link](https://meet.jit.si/MedievalWebsPortrayLoud)
-    /// ```
-    status: Status,
-}
-
-#[derive(Deserialize, Schema)]
-/// Specification for a recurring session
-pub(crate) struct YamlRecurringSession {
-    /// Frequency of the recurrence in [RRULE](https://icalendar.org/iCalendar-RFC-5545/3-8-5-3-recurrence-rule.html) format
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// FREQ=WEEKLY;BYDAY=MO,TU,WE,TH
-    /// ```
-    frequency: RecurrenceFrequency,
-    /// The schedule's timezone
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// Africa/Dakar
-    /// ```
-    timezone: Tz,
-    /// Date of the first session of this schedule
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// 2023-02-27
-    /// ```
-    start_date: NaiveDate,
-    /// Session start time
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// 04:00
-    /// ```
-    start_time: Time,
-    /// Session duration in minutes
-    ///
-    /// Example:
-    ///
-    /// ```yaml
-    /// 180
-    /// ```
-    duration: Minutes,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, derive_more::Display)]
-struct Time(String);
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct Minutes(u16);
-
-impl From<Minutes> for Duration {
-    fn from(minutes: Minutes) -> Self {
-        Self::minutes(minutes.0.into())
-    }
-}
-
-impl TryFrom<YamlRecurringSession> for RecurringSession {
-    type Error = anyhow::Error;
-    fn try_from(yaml_recurring_session: YamlRecurringSession) -> Result<Self, Self::Error> {
-        let YamlRecurringSession {
-            frequency: recurrence,
-            timezone,
-            start_date,
-            start_time,
-            duration,
-        } = yaml_recurring_session;
-
-        let recurrence = format!("RRULE:{recurrence}");
-        let rrule: RRule<Unvalidated> = recurrence.parse()?;
-        let timezone: rrule::Tz = timezone.into();
-
-        let start_date_time = timezone
-            .datetime_from_str(&format!("{start_date}{start_time}"), "%F%R")?
-            // workaround for https://github.com/fullcalendar/fullcalendar/issues/6815
-            // timezones with non-zero offset result in occurrences with wrong datetimes
-            .with_timezone(&rrule::Tz::UTC);
-
-        let recurrence = rrule
-            // workaround for https://github.com/fullcalendar/fullcalendar/issues/6834
-            // no ocurrences generated for recurring events with TZID and without UNTIL
-            // so we add an arbitrary UNTIL
-            .until((start_date_time + Duration::days(365 * 99)).with_timezone(&rrule::Tz::UTC))
-            .build(start_date_time)?;
-
-        let duration = duration.into();
-
-        Ok(RecurringSession {
-            recurrence,
-            duration,
+            freeform_copy_markdown: yaml.freeform_copy().clone(),
+            background_color: yaml.background_color().clone(),
+            text_color: yaml.text_color().clone(),
+            links: yaml.links().cloned().unwrap_or_default(),
+            status: yaml.status().clone(),
         })
     }
 }
@@ -625,8 +187,8 @@ pub(crate) fn get_all_participants() -> BTreeSet<Person> {
     MOBS.iter()
         .flat_map(|mob| mob.participants.clone())
         .filter_map(|participant| match participant {
-            MobParticipant::Hidden => None,
-            MobParticipant::Public(person) => Some(person),
+            Participant::Hidden => None,
+            Participant::Public(person) => Some(person),
         })
         .collect()
 }

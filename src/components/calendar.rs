@@ -13,7 +13,7 @@ use crate::url::Url;
 
 pub(crate) struct Calendar {
     pub(crate) events: Vec<CalendarEvent>,
-    pub(crate) status_legend: Option<mob::StatusLegend>,
+    pub(crate) status_legend: Option<mob::status::Legend>,
     pub(crate) fullcalendar_path: String,
     pub(crate) rrule_path: String,
     pub(crate) fullcalendar_rrule_path: String,

@@ -42,7 +42,7 @@ pub(crate) static INTERNAL_TYPES_DERIVE_INPUTS: Lazy<IndexMap<TypeIdent, DeriveI
     Lazy::new(|| {
         [
             mob::MobFile::schema(),
-            mob::MobParticipant::schema(),
+            mob::Participant::schema(),
             mob::Person::schema(),
             mob::YamlRecurringSession::schema(),
             mob::Link::schema(),
