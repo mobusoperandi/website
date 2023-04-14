@@ -3995,6 +3995,7 @@ dependencies = [
  "futures",
  "getset",
  "http-cache-reqwest",
+ "once_cell",
  "readext",
  "reqwest",
  "reqwest-middleware",

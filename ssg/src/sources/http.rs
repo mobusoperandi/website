@@ -1,7 +1,7 @@
 use futures::{future::BoxFuture, FutureExt, TryFutureExt};
 use reqwest::Url;
 
-use crate::disk_caching_http_client;
+use crate::disk_caching_http_client::HTTP_CLIENT;
 
 use super::{bytes_with_file_spec_safety::Targets, FileSource};
 
@@ -26,7 +26,7 @@ impl FileSource for Http {
         let url = self.0.clone();
 
         async {
-            Ok(disk_caching_http_client::create()
+            Ok(HTTP_CLIENT
                 .get(url)
                 .send()
                 .await?

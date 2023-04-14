@@ -5,7 +5,7 @@ use getset::Getters;
 use readext::ReadExt;
 use reqwest::Url;
 
-use crate::disk_caching_http_client;
+use crate::disk_caching_http_client::HTTP_CLIENT;
 
 use super::{bytes_with_file_spec_safety::Targets, FileSource};
 
@@ -67,9 +67,7 @@ impl FileSource for GoogleFont {
                 ],
             )?;
 
-            let client = disk_caching_http_client::create();
-
-            let archive = client
+            let archive = HTTP_CLIENT
                 .get(url.clone())
                 .send()
                 .await?

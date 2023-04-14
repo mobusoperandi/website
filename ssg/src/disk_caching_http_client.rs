@@ -1,4 +1,5 @@
 use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
+use once_cell::sync::Lazy;
 use reqwest::{Client, Request, Response};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, Middleware, Next, Result};
 use task_local_extensions::Extensions;
@@ -29,7 +30,7 @@ impl Middleware for LoggingMiddleware {
     }
 }
 
-pub(crate) fn create() -> ClientWithMiddleware {
+pub(crate) static HTTP_CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
     ClientBuilder::new(Client::new())
         .with(LoggingMiddleware)
         .with(Cache(HttpCache {
@@ -40,4 +41,4 @@ pub(crate) fn create() -> ClientWithMiddleware {
             options: None,
         }))
         .build()
-}
+});
