@@ -6,14 +6,17 @@
 
   cargo-run-bin = pkgs.rustPlatform.buildRustPackage rec {
     pname = "cargo-run-bin";
-    version = "0.3.1";
+    version = "0.4.1";
     src = pkgs.fetchCrate {
       inherit pname version;
-      sha256 = "sha256-4zu3vXlGKmBlB5we3qR0V6LIALqPxVGosBF4EkO7aHE=";
+      sha256 = "sha256-Muy21AuCpHCOO/XNds5Tn07d4mjhuyk1KzbCQdBT0bQ=";
     };
     cargoLock = {
       lockFile = src + "/Cargo.lock";
     };
+    nativeBuildInputs = with pkgs; [
+      cargo-llvm-cov
+    ];
   };
 
   targetTriple = "x86_64-unknown-linux-gnu";
