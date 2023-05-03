@@ -9,6 +9,10 @@ participants:
     name: Kelly Rankin
     social_url: https://twitter.com/kellyrankin19
     avatar_url: https://avatars.githubusercontent.com/u/1892611?v=4
+  - !Public
+    name: Tim McNamara
+    social_url: https://twitter.com/timClicks
+    avatar_url: https://avatars.githubusercontent.com/u/27889?v=4
 schedule:
   - frequency: FREQ=WEEKLY;BYDAY=MO,TU,WE,TH
     timezone: Etc/UTC
