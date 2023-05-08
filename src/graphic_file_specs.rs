@@ -27,7 +27,7 @@ pub(crate) fn get() -> [FileSpec; 5] {
         "/inverticat.svg",
         ssg::sources::Http::from(
             Url::parse(
-                "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg",
+                "https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg",
             )
             .unwrap()
             .to_inner()
