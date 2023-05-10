@@ -14,17 +14,15 @@ mod syn_helpers;
 mod tailwind;
 mod url;
 
-use std::{env::current_dir, path::PathBuf};
+use std::path::PathBuf;
 
-use ::url::Url;
 use anyhow::anyhow;
 use clap::{Parser, Subcommand};
-use colored::Colorize;
 use futures::{stream, StreamExt};
-use ssg::{generate_static_site, FileGenerationError};
+use ssg::{generate_static_site, start_development_web_server, FileGenerationError};
 use tokio::process::Command;
 
-use crate::constants::{LOCALHOST, LOCAL_DEV_PORT, OUTPUT_DIR};
+use crate::constants::OUTPUT_DIR;
 
 #[derive(Debug, Parser)]
 struct Cli {
@@ -81,29 +79,10 @@ async fn build() -> anyhow::Result<()> {
 async fn dev(launch_browser: bool) -> anyhow::Result<()> {
     tokio::select! {
         result = watch_for_changes_and_rebuild() => { result?; },
-        result = start_development_web_server(launch_browser) => { result?; },
+        result = start_development_web_server(launch_browser, PathBuf::from(OUTPUT_DIR)) => { result?; },
     };
 
     Ok(())
-}
-
-async fn start_development_web_server(launch_browser: bool) -> Result<(), std::io::Error> {
-    let url = Url::parse(&format!("http://{LOCALHOST}:{}", *LOCAL_DEV_PORT)).unwrap();
-    let message = format!("\nServer started at {url}\n").blue();
-    println!("{message}");
-
-    if launch_browser {
-        open::that(url.as_str())?;
-    }
-
-    live_server::listen(
-        LOCALHOST,
-        *LOCAL_DEV_PORT,
-        [current_dir()?, OUTPUT_DIR.into()]
-            .into_iter()
-            .collect::<PathBuf>(),
-    )
-    .await
 }
 
 async fn watch_for_changes_and_rebuild() -> anyhow::Result<std::process::ExitStatus> {

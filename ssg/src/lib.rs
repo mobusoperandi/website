@@ -1,5 +1,8 @@
 mod disk_caching_http_client;
+mod server;
 pub mod sources;
+
+pub use server::start_development_web_server;
 
 use std::{collections::BTreeSet, path::PathBuf};
 
