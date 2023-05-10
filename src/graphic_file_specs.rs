@@ -9,7 +9,7 @@ pub(crate) fn get() -> [FileSpec; 5] {
     let twitter_logo = FileSpec::new(
         "/twitter_logo.svg",
         ssg::sources::Http::from(
-            Url::parse("https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg")
+            Url::parse("https://cdn.svgporn.com/logos/twitter.svg")
                 .unwrap()
                 .to_inner()
                 .clone(),
