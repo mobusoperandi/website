@@ -4,7 +4,6 @@ use ssg::{sources::GoogleFont, FileSpec};
 pub(crate) static VOLLKORN: Lazy<GoogleFont> = Lazy::new(|| {
     GoogleFont::new(
         "Vollkorn".to_owned(),
-        21,
         "latin".to_owned(),
         "regular".to_owned(),
     )

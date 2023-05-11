@@ -2,8 +2,9 @@ use std::fmt::Display;
 
 use futures::{future::BoxFuture, FutureExt, TryFutureExt};
 use getset::Getters;
+use lazy_regex::regex_captures;
 use readext::ReadExt;
-use reqwest::Url;
+use reqwest::{header::CONTENT_DISPOSITION, Url};
 
 use crate::disk_caching_http_client::HTTP_CLIENT;
 
@@ -13,16 +14,14 @@ use super::{bytes_with_file_spec_safety::Targets, FileSource};
 pub struct GoogleFont {
     #[getset(get = "pub")]
     family: String,
-    version: u8,
     subset: String,
     variant: String,
 }
 
 impl GoogleFont {
-    pub fn new(family: String, version: u8, subset: String, variant: String) -> Self {
+    pub fn new(family: String, subset: String, variant: String) -> Self {
         Self {
             family,
-            version,
             subset,
             variant,
         }
@@ -39,6 +38,12 @@ enum DownloadError {
     Zip(#[from] zip::result::ZipError),
     #[error(transparent)]
     Io(#[from] std::io::Error),
+    #[error("no Content-Disposition header present")]
+    NoContentDisposition,
+    #[error("Content-Disposition value not UTF-8")]
+    ContentDispositionNotUtf8(#[from] reqwest::header::ToStrError),
+    #[error("could not parse value of Content-Disposition")]
+    BadContentDisposition(String),
 }
 
 impl FileSource for GoogleFont {
@@ -48,7 +53,6 @@ impl FileSource for GoogleFont {
     ) -> BoxFuture<'static, Result<Vec<u8>, Box<dyn std::error::Error + Send>>> {
         let Self {
             family,
-            version,
             subset,
             variant,
         } = self.clone();
@@ -67,12 +71,29 @@ impl FileSource for GoogleFont {
                 ],
             )?;
 
-            let archive = HTTP_CLIENT
+            let response = HTTP_CLIENT
                 .get(url.clone())
                 .send()
                 .await?
                 .error_for_status()
-                .map_err(reqwest_middleware::Error::Reqwest)?
+                .map_err(reqwest_middleware::Error::Reqwest)?;
+
+            let content_disposition = response
+                .headers()
+                .get(CONTENT_DISPOSITION)
+                .ok_or(DownloadError::NoContentDisposition)?
+                .to_str()?;
+
+            let (_, version) = regex_captures!(
+                // `attachment; filename=vollkorn-v22-latin.zip`
+                r"attachment; filename=.*-v(\d*)-.*",
+                content_disposition
+            )
+            .ok_or_else(|| DownloadError::BadContentDisposition(content_disposition.to_owned()))?;
+
+            let version = version.to_owned();
+
+            let archive = response
                 .bytes()
                 .await
                 .map_err(reqwest_middleware::Error::Reqwest)?;
