@@ -14,16 +14,11 @@ participants:
     social_url: https://twitter.com/timClicks
     avatar_url: https://avatars.githubusercontent.com/u/27889?v=4
 schedule:
-  - frequency: FREQ=WEEKLY;BYDAY=MO,TU,WE
+  - frequency: FREQ=WEEKLY;BYDAY=MO,TU,WE,TH
     timezone: Etc/UTC
     start_date: 2023-01-23
     start_time: 04:00
     duration: 180
-  - frequency: FREQ=WEEKLY;BYDAY=TH
-    timezone: Etc/UTC
-    start_date: 2023-01-23
-    start_time: 04:00
-    duration: 120
 background_color: firebrick
 text_color: floralwhite
 freeform_copy: |
