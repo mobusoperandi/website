@@ -11,14 +11,20 @@ use reqwest::Url;
 pub async fn start_development_web_server(
     launch_browser: bool,
     output_dir: PathBuf,
-) -> Result<(), std::io::Error> {
+) -> std::io::Error {
     let url = Url::parse(&format!("http://{LOCALHOST}:{}", *LOCAL_DEV_PORT)).unwrap();
     let message = format!("\nServer started at {url}\n").blue();
     println!("{message}");
 
     if launch_browser {
-        open::that(url.as_str())?;
+        if let Err(error) = open::that(url.as_str()) {
+            return error;
+        }
     }
 
-    live_server::listen(LOCALHOST, *LOCAL_DEV_PORT, output_dir).await
+    let Err(error) = live_server::listen(LOCALHOST, *LOCAL_DEV_PORT, output_dir).await else {
+        panic!("success not expected")
+    };
+
+    error
 }

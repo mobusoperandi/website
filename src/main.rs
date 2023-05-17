@@ -54,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
 
     match cli.mode {
         None | Some(Mode::Build) => build().await?,
-        Some(Mode::Dev { open }) => dev(open).await?,
+        Some(Mode::Dev { open }) => return Err(dev(open).await),
         Some(Mode::PrintOutputDir) => print!("{OUTPUT_DIR}"),
     }
 
@@ -76,19 +76,26 @@ async fn build() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn dev(launch_browser: bool) -> anyhow::Result<()> {
+async fn dev(launch_browser: bool) -> anyhow::Error {
     tokio::select! {
-        result = watch_for_changes_and_rebuild() => { result?; },
-        result = start_development_web_server(launch_browser, PathBuf::from(OUTPUT_DIR)) => { result?; },
-    };
-
-    Ok(())
+        error = watch_for_changes_and_rebuild() => { error },
+        error = start_development_web_server(launch_browser, PathBuf::from(OUTPUT_DIR)) => { anyhow!("{error}") },
+    }
 }
 
-async fn watch_for_changes_and_rebuild() -> anyhow::Result<std::process::ExitStatus> {
-    let mut child = Command::new("cargo")
+async fn watch_for_changes_and_rebuild() -> anyhow::Error {
+    let child = Command::new("cargo")
         .args(["bin", "cargo-watch", "--exec", "run -- build"])
-        .spawn()?;
+        .spawn();
 
-    Ok(child.wait().await?)
+    let mut child = match child {
+        Ok(child) => child,
+        Err(err) => return anyhow!("{err}"),
+    };
+
+    // success case is indefinitely awaiting here
+    match child.wait().await {
+        Ok(exit_status) => anyhow!("{exit_status}"),
+        Err(err) => anyhow!("{err}"),
+    }
 }
