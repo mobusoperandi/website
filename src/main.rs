@@ -19,8 +19,10 @@ use std::path::PathBuf;
 use anyhow::anyhow;
 use clap::{Parser, Subcommand};
 use futures::{stream, StreamExt};
-use ssg::{generate_static_site, start_development_web_server, FileGenerationError};
-use tokio::process::Command;
+use ssg::{
+    generate_static_site, start_development_web_server, watch_for_changes_and_rebuild,
+    FileGenerationError,
+};
 
 use crate::constants::OUTPUT_DIR;
 
@@ -78,24 +80,7 @@ async fn build() -> anyhow::Result<()> {
 
 async fn dev(launch_browser: bool) -> anyhow::Error {
     tokio::select! {
-        error = watch_for_changes_and_rebuild() => { error },
+        error = watch_for_changes_and_rebuild() => { anyhow!("{error}") },
         error = start_development_web_server(launch_browser, PathBuf::from(OUTPUT_DIR)) => { anyhow!("{error}") },
-    }
-}
-
-async fn watch_for_changes_and_rebuild() -> anyhow::Error {
-    let child = Command::new("cargo")
-        .args(["bin", "cargo-watch", "--exec", "run -- build"])
-        .spawn();
-
-    let mut child = match child {
-        Ok(child) => child,
-        Err(err) => return anyhow!("{err}"),
-    };
-
-    // success case is indefinitely awaiting here
-    match child.wait().await {
-        Ok(exit_status) => anyhow!("{exit_status}"),
-        Err(err) => anyhow!("{err}"),
     }
 }

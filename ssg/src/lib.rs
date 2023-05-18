@@ -1,7 +1,9 @@
 mod disk_caching_http_client;
+mod rebuild_and_run;
 mod server;
 pub mod sources;
 
+pub use rebuild_and_run::watch_for_changes_and_rebuild;
 pub use server::start_development_web_server;
 
 use std::{collections::BTreeSet, path::PathBuf};
