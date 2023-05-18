@@ -14,15 +14,10 @@ mod syn_helpers;
 mod tailwind;
 mod url;
 
-use std::path::PathBuf;
-
-use anyhow::anyhow;
+use anyhow::{anyhow, bail};
 use clap::{Parser, Subcommand};
 use futures::{stream, StreamExt};
-use ssg::{
-    generate_static_site, start_development_web_server, watch_for_changes_and_rebuild,
-    FileGenerationError,
-};
+use ssg::{dev, generate_static_site, FileGenerationError};
 
 use crate::constants::OUTPUT_DIR;
 
@@ -56,7 +51,7 @@ async fn main() -> anyhow::Result<()> {
 
     match cli.mode {
         None | Some(Mode::Build) => build().await?,
-        Some(Mode::Dev { open }) => return Err(dev(open).await),
+        Some(Mode::Dev { open }) => bail!(dev(open, OUTPUT_DIR).await),
         Some(Mode::PrintOutputDir) => print!("{OUTPUT_DIR}"),
     }
 
@@ -76,11 +71,4 @@ async fn build() -> anyhow::Result<()> {
 
     tailwind::execute().await?;
     Ok(())
-}
-
-async fn dev(launch_browser: bool) -> anyhow::Error {
-    tokio::select! {
-        error = watch_for_changes_and_rebuild() => { anyhow!("{error}") },
-        error = start_development_web_server(launch_browser, PathBuf::from(OUTPUT_DIR)) => { anyhow!("{error}") },
-    }
 }
