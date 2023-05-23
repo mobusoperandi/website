@@ -11,7 +11,14 @@ pub enum WatchError {
 
 pub async fn watch_for_changes_and_rebuild() -> WatchError {
     let child = Command::new("cargo")
-        .args(["bin", "cargo-watch", "--exec", "run -- build"])
+        .args([
+            "bin",
+            "cargo-watch",
+            "--workdir",
+            "builder",
+            "--exec",
+            "run",
+        ])
         .spawn();
 
     let mut child = match child {

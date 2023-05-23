@@ -18,16 +18,21 @@ pub(crate) async fn execute() -> anyhow::Result<()> {
                 .collect::<PathBuf>()
                 .to_string_lossy(),
             "--output",
-            &[".", OUTPUT_DIR, "index.css"]
+            &[".".as_ref(), OUTPUT_DIR.as_path(), "index.css".as_ref()]
                 .iter()
                 .collect::<PathBuf>()
                 .to_string_lossy(),
             "--content",
             // TODO explicit list instead of pattern
-            &[".", OUTPUT_DIR, "**", "*.html"]
-                .iter()
-                .collect::<PathBuf>()
-                .to_string_lossy(),
+            &[
+                ".".as_ref(),
+                OUTPUT_DIR.as_path(),
+                "**".as_ref(),
+                "*.html".as_ref(),
+            ]
+            .iter()
+            .collect::<PathBuf>()
+            .to_string_lossy(),
         ])
         .output()
         .await?;

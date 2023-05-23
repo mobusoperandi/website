@@ -7,34 +7,20 @@ name = "_"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "builder",
  "cargo-watch",
  "chrono",
- "chrono-tz",
  "clap 4.2.0",
- "comrak",
  "console-subscriber",
- "const_format",
- "csscolorparser",
- "custom_attrs",
- "derive_more",
  "futures",
  "getset",
- "global_counter",
  "indexmap",
- "itertools",
- "maud",
  "once_cell",
- "rrule",
- "schema",
  "serde",
  "serde_json",
- "serde_yaml",
  "ssg",
- "strum 0.24.1",
- "syn 2.0.11",
  "thiserror",
  "tokio",
- "tokio-stream",
  "url",
 ]
 
@@ -693,6 +679,40 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba3569f383e8f1598449f1a423e72e99569137b47740b1da11ef19af3d5c3223"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "builder"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "chrono-tz",
+ "comrak",
+ "console-subscriber",
+ "const_format",
+ "csscolorparser",
+ "custom_attrs",
+ "derive_more",
+ "futures",
+ "getset",
+ "global_counter",
+ "indexmap",
+ "itertools",
+ "maud",
+ "once_cell",
+ "rrule",
+ "schema",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "ssg",
+ "strum 0.24.1",
+ "syn 2.0.11",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "url",
 ]
 
 [[package]]

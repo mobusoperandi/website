@@ -177,7 +177,7 @@ impl Mob {
 }
 
 pub(crate) static MOBS: Lazy<Vec<Mob>> = Lazy::new(|| {
-    std::fs::read_dir(MOBS_PATH)
+    std::fs::read_dir(MOBS_PATH.clone())
         .unwrap()
         .map(read_mob)
         .collect::<Result<Vec<Mob>>>()

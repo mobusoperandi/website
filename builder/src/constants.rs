@@ -1,10 +1,19 @@
+use std::path::PathBuf;
+
 use once_cell::sync::Lazy;
 
 use crate::url::Url;
 
 pub(crate) const NAME: &str = "Mobus Operandi";
 pub(crate) const DESCRIPTION: &str = "A mob programming community";
-pub(crate) const MOBS_PATH: &str = "mobs";
+
+pub(crate) const MOBS_DIR: &str = "mobs";
+
+pub(crate) static MOBS_PATH: Lazy<PathBuf> = Lazy::new(|| {
+    [env!("CARGO_MANIFEST_DIR"), "..", MOBS_DIR]
+        .iter()
+        .collect()
+});
 
 pub(crate) static ZULIP_URL: Lazy<Url> =
     Lazy::new(|| "https://mobusoperandi.zulipchat.com".parse().unwrap());
@@ -41,8 +50,6 @@ pub(crate) static REPO_URL: Lazy<Url> = Lazy::new(|| {
 });
 
 pub(crate) const DEFAULT_BRANCH: &str = "master";
-
-pub(crate) const OUTPUT_DIR: &str = ".vercel/output/static";
 
 pub(crate) const GITHUB_PULL_REQUESTS_URL: &str = "https://docs.github.com\
     /en/pull-requests/collaborating-with-pull-requests\

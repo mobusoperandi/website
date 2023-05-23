@@ -1,7 +1,7 @@
 use maud::{html, Render};
 
 use crate::components;
-use crate::constants::{DEFAULT_BRANCH, GITHUB_PULL_REQUESTS_URL, MOBS_PATH, NAME, REPO_URL};
+use crate::constants::{DEFAULT_BRANCH, GITHUB_PULL_REQUESTS_URL, MOBS_DIR, NAME, REPO_URL};
 use crate::style::{PROSE_CLASSES, VERTICAL_GAP_CLASS};
 
 use super::schema::type_::Type;
@@ -30,7 +30,7 @@ impl Render for AddPage {
             .unwrap()
             .push("tree")
             .push(DEFAULT_BRANCH)
-            .push(MOBS_PATH);
+            .push(MOBS_DIR);
 
         let content = html! {
             div class=(*PROSE_CLASSES) {
@@ -39,7 +39,7 @@ impl Render for AddPage {
                     "Mobs are specified in files in "
                     a href=(existing_mobs_url) {
                         "the "
-                        code { (MOBS_PATH) }
+                        code { (MOBS_DIR) }
                         " directory."
                     }
                     " Take a look at some of those files for examples."
