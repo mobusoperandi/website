@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1.64"
+dirs = "5.0.1"
 futures = "0.3.24"
 getset = "0.1.2"
 http-cache-reqwest = "0.5.0"

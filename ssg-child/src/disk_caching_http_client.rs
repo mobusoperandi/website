@@ -31,13 +31,21 @@ impl Middleware for LoggingMiddleware {
 }
 
 pub(crate) static HTTP_CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
+    const CRATE_NAME: &str = env!("CARGO_CRATE_NAME");
+    const UUID: &str = "a6c07a0f-7599-468d-8627-88b85ede9fde";
+
+    let cache_path = dirs::cache_dir()
+        .unwrap()
+        .join(format!("{CRATE_NAME}.{UUID}"));
+
     ClientBuilder::new(Client::new())
         .with(LoggingMiddleware)
         .with(Cache(HttpCache {
             // TODO don't leave it as ForceCache
             mode: CacheMode::ForceCache,
-            // TODO where do I want the cache?
-            manager: CACacheManager::default(),
+            manager: CACacheManager {
+                path: cache_path.to_str().unwrap().to_owned(),
+            },
             options: None,
         }))
         .build()
