@@ -13,7 +13,7 @@ pub(crate) async fn execute() -> anyhow::Result<()> {
         .args([
             "tailwindcss",
             "--input",
-            &["src", "input.css"]
+            &[env!("CARGO_MANIFEST_DIR"), "src", "input.css"]
                 .iter()
                 .collect::<PathBuf>()
                 .to_string_lossy(),
