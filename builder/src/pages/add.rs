@@ -5,7 +5,7 @@ use indexmap::IndexMap;
 use maud::Render;
 use once_cell::sync::Lazy;
 use schema::{DeriveInput, Schema};
-use ssg::{
+use ssg_child::{
     sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets},
     FileSpec,
 };

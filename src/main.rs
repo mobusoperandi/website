@@ -1,7 +1,7 @@
 use anyhow::bail;
 use builder::OUTPUT_DIR;
 use clap::{Parser, Subcommand};
-use ssg::dev;
+use ssg_parent::dev;
 
 #[derive(Debug, Parser)]
 struct Cli {

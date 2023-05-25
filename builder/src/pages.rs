@@ -1,7 +1,7 @@
 pub(crate) mod add;
 mod index;
 
-use ssg::FileSpec;
+use ssg_child::FileSpec;
 
 use crate::mob::{Mob, MOBS};
 

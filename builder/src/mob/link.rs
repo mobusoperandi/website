@@ -1,7 +1,7 @@
 use maud::{html, Render};
 use schema::Schema;
 use serde::{Deserialize, Serialize};
-use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
+use ssg_child::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
 use crate::url::Url;
 

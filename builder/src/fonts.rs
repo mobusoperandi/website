@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use ssg::{sources::GoogleFont, FileSpec};
+use ssg_child::{sources::GoogleFont, FileSpec};
 
 pub(crate) static VOLLKORN: Lazy<GoogleFont> = Lazy::new(|| {
     GoogleFont::new(

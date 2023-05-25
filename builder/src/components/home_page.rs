@@ -5,7 +5,7 @@ use getset::Getters;
 use itertools::Itertools;
 use maud::{html, Markup, Render};
 
-use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
+use ssg_child::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
 use crate::components::CalendarEvent;
 use crate::constants::DESCRIPTION;

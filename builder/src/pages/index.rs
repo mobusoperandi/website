@@ -1,8 +1,8 @@
 use futures::FutureExt;
 use maud::Render;
 
-use ssg::sources::bytes_with_file_spec_safety::TargetNotFoundError;
-use ssg::{sources::bytes_with_file_spec_safety::Targets, FileSpec};
+use ssg_child::sources::bytes_with_file_spec_safety::TargetNotFoundError;
+use ssg_child::{sources::bytes_with_file_spec_safety::Targets, FileSpec};
 
 use crate::components::home_page::event_content_template;
 use crate::mob::MOBS;

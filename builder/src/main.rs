@@ -17,7 +17,7 @@ mod url;
 use anyhow::anyhow;
 use builder::OUTPUT_DIR;
 use futures::{stream, StreamExt};
-use ssg::{generate_static_site, FileGenerationError};
+use ssg_child::{generate_static_site, FileGenerationError};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

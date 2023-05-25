@@ -18,8 +18,8 @@ use getset::Getters;
 use maud::{html, Markup, Render};
 use once_cell::sync::Lazy;
 
-use ssg::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
-use ssg::FileSpec;
+use ssg_child::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
+use ssg_child::FileSpec;
 
 use crate::components::{self, CalendarEvent};
 use crate::constants::MOBS_PATH;
