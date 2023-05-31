@@ -12,8 +12,6 @@ dependencies = [
  "chrono",
  "clap 4.2.0",
  "console-subscriber",
- "futures",
- "getset",
  "indexmap",
  "once_cell",
  "serde",
