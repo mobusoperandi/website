@@ -14,22 +14,17 @@ mod syn_helpers;
 mod tailwind;
 mod url;
 
-use anyhow::anyhow;
+use anyhow::bail;
 use builder::OUTPUT_DIR;
-use futures::{stream, StreamExt};
-use ssg_child::{generate_static_site, FileGenerationError};
+use ssg_child::generate_static_site;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let file_specs = file_specs::get().await;
 
-    stream::iter(generate_static_site(OUTPUT_DIR.clone(), file_specs))
-        .buffer_unordered(usize::MAX)
-        .collect::<Vec<Result<(), FileGenerationError>>>()
-        .await
-        .into_iter()
-        .collect::<Result<(), _>>()
-        .map_err(|error| anyhow!("{error}"))?;
+    if let Err(err) = generate_static_site(OUTPUT_DIR.clone(), file_specs).await {
+        bail!("{err}")
+    };
 
     tailwind::execute().await?;
     Ok(())
