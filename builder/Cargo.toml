@@ -34,5 +34,4 @@ syn = { version = "2.0.5", features = ["full"] }
 thiserror = "1.0.40"
 # TODO less features
 tokio = { version = "1.21.0", features = ["full"] }
-tokio-stream = { version = "0.1.9", features = ["fs", "sync"] }
 url = "2.3.1"
