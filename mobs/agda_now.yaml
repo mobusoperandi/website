@@ -14,7 +14,7 @@ schedule:
     timezone: America/Toronto
     start_date: 2023-02-13
     start_time: 08:00
-    duration: 90
+    duration: 120
 background_color: salmon
 text_color: black
 freeform_copy: |
