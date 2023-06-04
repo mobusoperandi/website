@@ -3,7 +3,7 @@ pub mod sources;
 
 use std::{collections::BTreeSet, path::PathBuf};
 
-use futures::{future::BoxFuture, stream, FutureExt, StreamExt};
+use futures::{future::BoxFuture, stream, FutureExt, Stream, StreamExt};
 use sources::{bytes_with_file_spec_safety::Targets, FileSource};
 use tokio::{fs, io::AsyncWriteExt};
 
@@ -32,10 +32,10 @@ enum TargetErrorCause {
 }
 
 /// Panics on duplicate `FileSpec` targets
-pub async fn generate_static_site(
+pub fn generate_static_site(
     output_dir: PathBuf,
     file_specs: impl IntoIterator<Item = FileSpec>,
-) -> Result<(), TargetError> {
+) -> impl Stream<Item = Result<(), TargetError>> {
     let (paths, file_specs) = file_specs.into_iter().fold(
         (BTreeSet::<PathBuf>::new(), Vec::<FileSpec>::new()),
         |(mut paths, mut file_specs), file_spec| {
@@ -56,12 +56,6 @@ pub async fn generate_static_site(
             generate_file_from_spec(source, paths.clone(), target, output_dir.clone())
         })
         .buffer_unordered(usize::MAX)
-        .collect::<Vec<Result<(), TargetError>>>()
-        .await
-        .into_iter()
-        .collect::<Result<(), _>>()?;
-
-    Ok(())
 }
 
 fn generate_file_from_spec(

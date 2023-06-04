@@ -31,7 +31,7 @@ in
       rustup
       cargo-run-bin
       mob
-      nodejs-19_x
+      nodejs-18_x
       nodePackages.typescript-language-server
       nodePackages.typescript
     ];
