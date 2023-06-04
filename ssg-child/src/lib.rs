@@ -9,13 +9,13 @@ use tokio::{fs, io::AsyncWriteExt};
 
 #[derive(Debug, thiserror::Error)]
 #[error("Failed to generate {spec_target_path}: {source}")]
-pub struct FileGenerationError {
+pub struct TargetError {
     spec_target_path: PathBuf,
-    source: FileGenerationErrorCause,
+    source: TargetErrorCause,
 }
 
-impl FileGenerationError {
-    fn new(spec_target_path: PathBuf, source: FileGenerationErrorCause) -> Self {
+impl TargetError {
+    fn new(spec_target_path: PathBuf, source: TargetErrorCause) -> Self {
         Self {
             spec_target_path,
             source,
@@ -24,7 +24,7 @@ impl FileGenerationError {
 }
 
 #[derive(Debug, thiserror::Error)]
-enum FileGenerationErrorCause {
+enum TargetErrorCause {
     #[error(transparent)]
     Source(Box<dyn std::error::Error + Send>),
     #[error(transparent)]
@@ -35,7 +35,7 @@ enum FileGenerationErrorCause {
 pub async fn generate_static_site(
     output_dir: PathBuf,
     file_specs: impl IntoIterator<Item = FileSpec>,
-) -> Result<(), FileGenerationError> {
+) -> Result<(), TargetError> {
     let (paths, file_specs) = file_specs.into_iter().fold(
         (BTreeSet::<PathBuf>::new(), Vec::<FileSpec>::new()),
         |(mut paths, mut file_specs), file_spec| {
@@ -56,7 +56,7 @@ pub async fn generate_static_site(
             generate_file_from_spec(source, paths.clone(), target, output_dir.clone())
         })
         .buffer_unordered(usize::MAX)
-        .collect::<Vec<Result<(), FileGenerationError>>>()
+        .collect::<Vec<Result<(), TargetError>>>()
         .await
         .into_iter()
         .collect::<Result<(), _>>()?;
@@ -69,7 +69,7 @@ fn generate_file_from_spec(
     targets: BTreeSet<PathBuf>,
     this_target: PathBuf,
     output_dir: PathBuf,
-) -> BoxFuture<'static, Result<(), FileGenerationError>> {
+) -> BoxFuture<'static, Result<(), TargetError>> {
     async move {
         let targets = Targets::new(this_target.clone(), targets);
         let task = source.obtain_content(targets);
@@ -82,14 +82,11 @@ fn generate_file_from_spec(
         fs::create_dir_all(file_path.parent().unwrap())
             .await
             .map_err(|error| {
-                FileGenerationError::new(
-                    this_target.clone(),
-                    FileGenerationErrorCause::TargetIo(error),
-                )
+                TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
             })?;
 
         let contents = task.await.map_err(|error| {
-            FileGenerationError::new(this_target.clone(), FileGenerationErrorCause::Source(error))
+            TargetError::new(this_target.clone(), TargetErrorCause::Source(error))
         })?;
 
         let mut file_handle = fs::OpenOptions::new()
@@ -99,15 +96,13 @@ fn generate_file_from_spec(
             .open(file_path)
             .await
             .map_err(|error| {
-                FileGenerationError::new(
-                    this_target.clone(),
-                    FileGenerationErrorCause::TargetIo(error),
-                )
+                TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
             })?;
 
-        file_handle.write_all(&contents).await.map_err(|error| {
-            FileGenerationError::new(this_target, FileGenerationErrorCause::TargetIo(error))
-        })?;
+        file_handle
+            .write_all(&contents)
+            .await
+            .map_err(|error| TargetError::new(this_target, TargetErrorCause::TargetIo(error)))?;
 
         Ok(())
     }
