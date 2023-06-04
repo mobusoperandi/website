@@ -14,18 +14,26 @@ mod syn_helpers;
 mod tailwind;
 mod url;
 
-use anyhow::bail;
 use builder::OUTPUT_DIR;
 use ssg_child::generate_static_site;
 
+use bool_ext::BoolExt;
+use futures::StreamExt;
+
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), ()> {
     let file_specs = file_specs::get().await;
 
-    if let Err(err) = generate_static_site(OUTPUT_DIR.clone(), file_specs).await {
-        bail!("{err}")
-    };
+    generate_static_site(OUTPUT_DIR.clone(), file_specs)
+        .all(|progress_report| async move {
+            eprintln!("{progress_report:?}");
 
-    tailwind::execute().await?;
+            progress_report.is_ok()
+        })
+        .await
+        .to_result()?;
+
+    tailwind::execute().await.map_err(|_| ())?;
+
     Ok(())
 }
