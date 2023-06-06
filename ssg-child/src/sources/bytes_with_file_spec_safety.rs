@@ -1,8 +1,6 @@
-use std::{
-    collections::BTreeSet,
-    path::{Path, PathBuf},
-};
+use std::collections::BTreeSet;
 
+use camino::{Utf8Path, Utf8PathBuf};
 use futures::{future::BoxFuture, FutureExt, TryFutureExt};
 
 use super::FileSource;
@@ -24,40 +22,35 @@ where
 
 #[derive(Debug, Clone)]
 pub struct Targets {
-    current: PathBuf,
-    all: BTreeSet<PathBuf>,
+    current: Utf8PathBuf,
+    all: BTreeSet<Utf8PathBuf>,
 }
 
 #[derive(Debug, thiserror::Error)]
 #[error("target not found: {target}")]
 pub struct TargetNotFoundError {
-    target: PathBuf,
+    target: Utf8PathBuf,
 }
 
 impl TargetNotFoundError {
-    pub fn new(target: PathBuf) -> Self {
+    pub fn new(target: Utf8PathBuf) -> Self {
         Self { target }
     }
 }
 
 impl Targets {
-    pub(crate) fn new(current: PathBuf, all: BTreeSet<PathBuf>) -> Self {
+    pub(crate) fn new(current: Utf8PathBuf, all: BTreeSet<Utf8PathBuf>) -> Self {
         Self { current, all }
     }
 
-    pub fn path_of(&self, path: impl AsRef<Path>) -> Result<String, TargetNotFoundError> {
+    pub fn path_of(&self, path: impl AsRef<Utf8Path>) -> Result<String, TargetNotFoundError> {
         let path = path.as_ref();
 
         assert!(path.is_absolute(), "path not absolute: {path:?}");
 
         self.all
             .contains(path)
-            .then(|| {
-                PathBuf::from_iter([PathBuf::from("/"), path.to_owned()])
-                    .to_str()
-                    .map(|path| path.to_owned())
-            })
-            .flatten()
+            .then(|| Utf8PathBuf::from_iter([Utf8PathBuf::from("/"), path.to_owned()]).to_string())
             .map(|path| {
                 if path == "/index.html" {
                     String::from("/")

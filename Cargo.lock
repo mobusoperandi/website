@@ -691,6 +691,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "bool_ext",
+ "camino",
  "chrono",
  "chrono-tz",
  "comrak",
@@ -4097,6 +4098,7 @@ name = "ssg-child"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "camino",
  "dirs 5.0.1",
  "futures",
  "getset",
@@ -4118,6 +4120,7 @@ name = "ssg-parent"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "camino",
  "colored",
  "live-server",
  "once_cell",

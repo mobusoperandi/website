@@ -1,5 +1,4 @@
-use std::path::PathBuf;
-
+use camino::Utf8PathBuf;
 use once_cell::sync::Lazy;
 
 use crate::url::Url;
@@ -9,7 +8,7 @@ pub(crate) const DESCRIPTION: &str = "A mob programming community";
 
 pub(crate) const MOBS_DIR: &str = "mobs";
 
-pub(crate) static MOBS_PATH: Lazy<PathBuf> = Lazy::new(|| {
+pub(crate) static MOBS_PATH: Lazy<Utf8PathBuf> = Lazy::new(|| {
     [env!("CARGO_MANIFEST_DIR"), "..", MOBS_DIR]
         .iter()
         .collect()
