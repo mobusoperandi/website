@@ -48,17 +48,15 @@ impl Targets {
 
         assert!(path.is_absolute(), "path not absolute: {path:?}");
 
-        self.all
-            .contains(path)
-            .then(|| Utf8PathBuf::from_iter([Utf8PathBuf::from("/"), path.to_owned()]).to_string())
-            .map(|path| {
-                if path == "/index.html" {
-                    String::from("/")
-                } else {
-                    path
-                }
-            })
-            .ok_or_else(|| TargetNotFoundError::new(path.to_owned()))
+        if !self.all.contains(path) {
+            return Err(TargetNotFoundError::new(path.to_owned()));
+        }
+
+        Ok(if path == "/index.html" {
+            String::from("/")
+        } else {
+            path.to_string()
+        })
     }
 
     pub fn current_path(&self) -> String {
