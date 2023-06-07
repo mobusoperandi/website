@@ -707,6 +707,7 @@ dependencies = [
  "itertools",
  "maud",
  "once_cell",
+ "relative-path",
  "rrule",
  "schema",
  "serde",
@@ -3553,6 +3554,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f162c6dd7b008981e4d40210aca20b4bd0f9b60ca9271061b07f78537722f2e1"
 
 [[package]]
+name = "relative-path"
+version = "1.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4bf2521270932c3c7bed1a59151222bd7643c79310f2916f01925e1e16255698"
+
+[[package]]
 name = "reqwest"
 version = "0.11.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4106,6 +4113,7 @@ dependencies = [
  "lazy-regex",
  "once_cell",
  "readext",
+ "relative-path",
  "reqwest",
  "reqwest-middleware",
  "task-local-extensions",

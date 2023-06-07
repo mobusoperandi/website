@@ -5,18 +5,19 @@ use std::collections::BTreeSet;
 
 use camino::Utf8PathBuf;
 use futures::{future::BoxFuture, stream, FutureExt, Stream, StreamExt};
+use relative_path::RelativePathBuf;
 use sources::{bytes_with_file_spec_safety::Targets, FileSource};
 use tokio::{fs, io::AsyncWriteExt};
 
 #[derive(Debug, thiserror::Error)]
 #[error("Failed to generate {spec_target_path}: {source}")]
 pub struct TargetError {
-    spec_target_path: Utf8PathBuf,
+    spec_target_path: RelativePathBuf,
     source: TargetErrorCause,
 }
 
 impl TargetError {
-    fn new(spec_target_path: Utf8PathBuf, source: TargetErrorCause) -> Self {
+    fn new(spec_target_path: RelativePathBuf, source: TargetErrorCause) -> Self {
         Self {
             spec_target_path,
             source,
@@ -38,7 +39,7 @@ pub fn generate_static_site(
     file_specs: impl IntoIterator<Item = FileSpec>,
 ) -> impl Stream<Item = Result<(), TargetError>> {
     let (paths, file_specs) = file_specs.into_iter().fold(
-        (BTreeSet::<Utf8PathBuf>::new(), Vec::<FileSpec>::new()),
+        (BTreeSet::<RelativePathBuf>::new(), Vec::<FileSpec>::new()),
         |(mut paths, mut file_specs), file_spec| {
             let newly_inserted = paths.insert(file_spec.target.clone());
 
@@ -61,18 +62,15 @@ pub fn generate_static_site(
 
 fn generate_file_from_spec(
     source: Box<dyn FileSource + Send>,
-    targets: BTreeSet<Utf8PathBuf>,
-    this_target: Utf8PathBuf,
+    targets: BTreeSet<RelativePathBuf>,
+    this_target: RelativePathBuf,
     output_dir: Utf8PathBuf,
 ) -> BoxFuture<'static, Result<(), TargetError>> {
     async move {
         let targets = Targets::new(this_target.clone(), targets);
         let task = source.obtain_content(targets);
-        let this_target_relative = this_target.iter().skip(1).collect();
 
-        let file_path = [output_dir, this_target_relative]
-            .into_iter()
-            .collect::<Utf8PathBuf>();
+        let file_path = this_target.to_path(output_dir);
 
         fs::create_dir_all(file_path.parent().unwrap())
             .await
@@ -106,21 +104,17 @@ fn generate_file_from_spec(
 
 pub struct FileSpec {
     source: Box<dyn FileSource + Send>,
-    target: Utf8PathBuf,
+    target: RelativePathBuf,
 }
 
 impl FileSpec {
     pub fn new<T>(target: T, source: impl FileSource + 'static + Send) -> Self
     where
-        Utf8PathBuf: From<T>,
+        RelativePathBuf: From<T>,
     {
-        let target: Utf8PathBuf = target.into();
-
-        assert!(target.is_absolute(), "path not absolute: {target:?}");
-
         Self {
             source: Box::new(source),
-            target,
+            target: target.into(),
         }
     }
 }

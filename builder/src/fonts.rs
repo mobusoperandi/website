@@ -1,7 +1,7 @@
 use once_cell::sync::Lazy;
 use ssg_child::{sources::GoogleFont, FileSpec};
 
-use crate::path::PathBuf;
+use crate::relative_path::RelativePathBuf;
 
 pub(crate) static VOLLKORN: Lazy<GoogleFont> = Lazy::new(|| {
     GoogleFont::new(
@@ -18,6 +18,6 @@ pub(crate) fn all() -> [FileSpec; 1] {
         .map(|font| FileSpec::new(format!("/{}.ttf", font.family().to_lowercase()), font))
 }
 
-pub(crate) fn output_filename(font: &GoogleFont) -> PathBuf {
+pub(crate) fn output_filename(font: &GoogleFont) -> RelativePathBuf {
     format!("{}.ttf", font.family().to_lowercase()).into()
 }

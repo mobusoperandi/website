@@ -9,7 +9,7 @@ mod graphic_file_specs;
 mod markdown;
 mod mob;
 mod pages;
-mod path;
+mod relative_path;
 mod style;
 mod syn_helpers;
 mod tailwind;

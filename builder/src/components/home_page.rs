@@ -9,7 +9,7 @@ use ssg_child::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targe
 
 use crate::components::CalendarEvent;
 use crate::constants::DESCRIPTION;
-use crate::path::PathBuf;
+use crate::relative_path::RelativePathBuf;
 use crate::targets::TargetsExt;
 use crate::{
     components,
@@ -27,10 +27,10 @@ pub(crate) struct HomePage {
     #[getset(get = "pub(crate)")]
     events: Vec<CalendarEvent>,
     base: PageBase,
-    add_page_path: PathBuf,
-    fullcalendar_path: PathBuf,
-    rrule_path: PathBuf,
-    fullcalendar_rrule_path: PathBuf,
+    add_page_path: RelativePathBuf,
+    fullcalendar_path: RelativePathBuf,
+    rrule_path: RelativePathBuf,
+    fullcalendar_rrule_path: RelativePathBuf,
 }
 
 impl HomePage {
@@ -40,10 +40,10 @@ impl HomePage {
         status_legend: mob::status::Legend,
         events: Vec<CalendarEvent>,
         base: PageBase,
-        add_page_path: PathBuf,
-        fullcalendar_path: PathBuf,
-        rrule_path: PathBuf,
-        fullcalendar_rrule_path: PathBuf,
+        add_page_path: RelativePathBuf,
+        fullcalendar_path: RelativePathBuf,
+        rrule_path: RelativePathBuf,
+        fullcalendar_rrule_path: RelativePathBuf,
     ) -> Self {
         Self {
             participants,

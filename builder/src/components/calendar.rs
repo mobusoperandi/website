@@ -8,25 +8,25 @@ use serde_json::json;
 
 use crate::html::css_class;
 use crate::mob;
-use crate::path::PathBuf;
+use crate::relative_path::RelativePathBuf;
 use crate::style::{BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR};
 use crate::url::Url;
 
 pub(crate) struct Calendar {
     events: Vec<CalendarEvent>,
     status_legend: Option<mob::status::Legend>,
-    fullcalendar_path: PathBuf,
-    rrule_path: PathBuf,
-    fullcalendar_rrule_path: PathBuf,
+    fullcalendar_path: RelativePathBuf,
+    rrule_path: RelativePathBuf,
+    fullcalendar_rrule_path: RelativePathBuf,
 }
 
 impl Calendar {
     pub(crate) fn new(
         events: Vec<CalendarEvent>,
         status_legend: Option<mob::status::Legend>,
-        fullcalendar_path: PathBuf,
-        rrule_path: PathBuf,
-        fullcalendar_rrule_path: PathBuf,
+        fullcalendar_path: RelativePathBuf,
+        rrule_path: RelativePathBuf,
+        fullcalendar_rrule_path: RelativePathBuf,
     ) -> Self {
         Self {
             events,

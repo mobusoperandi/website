@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
-use camino::{Utf8Path, Utf8PathBuf};
 use futures::{future::BoxFuture, FutureExt, TryFutureExt};
+use relative_path::{RelativePath, RelativePathBuf};
 
 use super::FileSource;
 
@@ -22,44 +22,45 @@ where
 
 #[derive(Debug, Clone)]
 pub struct Targets {
-    current: Utf8PathBuf,
-    all: BTreeSet<Utf8PathBuf>,
+    current: RelativePathBuf,
+    all: BTreeSet<RelativePathBuf>,
 }
 
 #[derive(Debug, thiserror::Error)]
 #[error("target not found: {target}")]
 pub struct TargetNotFoundError {
-    target: Utf8PathBuf,
+    target: RelativePathBuf,
 }
 
 impl TargetNotFoundError {
-    pub fn new(target: Utf8PathBuf) -> Self {
+    pub fn new(target: RelativePathBuf) -> Self {
         Self { target }
     }
 }
 
 impl Targets {
-    pub(crate) fn new(current: Utf8PathBuf, all: BTreeSet<Utf8PathBuf>) -> Self {
+    pub(crate) fn new(current: RelativePathBuf, all: BTreeSet<RelativePathBuf>) -> Self {
         Self { current, all }
     }
 
-    pub fn path_of_(&self, path: impl AsRef<Utf8Path>) -> Result<Utf8PathBuf, TargetNotFoundError> {
+    pub fn path_of_(
+        &self,
+        path: impl AsRef<RelativePath>,
+    ) -> Result<RelativePathBuf, TargetNotFoundError> {
         let path = path.as_ref();
-
-        assert!(path.is_absolute(), "path not absolute: {path:?}");
 
         if !self.all.contains(path) {
             return Err(TargetNotFoundError::new(path.to_owned()));
         }
 
-        Ok(if path == "/index.html" {
-            Utf8PathBuf::from("/")
+        Ok(if path == "index.html" {
+            RelativePathBuf::from("/")
         } else {
             path.to_owned()
         })
     }
 
-    pub fn current_path_(&self) -> Utf8PathBuf {
+    pub fn current_path_(&self) -> RelativePathBuf {
         self.path_of_(&self.current).unwrap()
     }
 }
