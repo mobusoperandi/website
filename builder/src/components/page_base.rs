@@ -8,8 +8,9 @@ use crate::{
     constants::{COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL},
     fonts,
     html::Classes,
+    relative_path::RelativePathBuf,
     style,
-    targets::TargetsExt, relative_path::RelativePathBuf,
+    targets::TargetsExt,
 };
 
 #[derive(Debug, Clone)]
