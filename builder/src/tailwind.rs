@@ -1,10 +1,9 @@
 use std::io::{stdout, Write};
 
 use anyhow::ensure;
-use camino::Utf8PathBuf;
 use tokio::process::Command;
 
-use crate::OUTPUT_DIR;
+use crate::{path::PathBuf, OUTPUT_DIR};
 
 pub(crate) async fn execute() -> anyhow::Result<()> {
     let output = Command::new("npx")
@@ -13,12 +12,12 @@ pub(crate) async fn execute() -> anyhow::Result<()> {
             "--input",
             [env!("CARGO_MANIFEST_DIR"), "src", "input.css"]
                 .iter()
-                .collect::<Utf8PathBuf>()
+                .collect::<PathBuf>()
                 .as_ref(),
             "--output",
             [".".as_ref(), OUTPUT_DIR.as_path(), "index.css".as_ref()]
                 .iter()
-                .collect::<Utf8PathBuf>()
+                .collect::<PathBuf>()
                 .as_ref(),
             "--content",
             // TODO explicit list instead of pattern
@@ -29,7 +28,7 @@ pub(crate) async fn execute() -> anyhow::Result<()> {
                 "*.html".as_ref(),
             ]
             .iter()
-            .collect::<Utf8PathBuf>()
+            .collect::<PathBuf>()
             .as_ref(),
         ])
         .output()
