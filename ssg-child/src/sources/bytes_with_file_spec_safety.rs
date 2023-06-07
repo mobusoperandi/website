@@ -43,7 +43,7 @@ impl Targets {
         Self { current, all }
     }
 
-    pub fn path_of(&self, path: impl AsRef<Utf8Path>) -> Result<String, TargetNotFoundError> {
+    pub fn path_of_(&self, path: impl AsRef<Utf8Path>) -> Result<Utf8PathBuf, TargetNotFoundError> {
         let path = path.as_ref();
 
         assert!(path.is_absolute(), "path not absolute: {path:?}");
@@ -53,13 +53,13 @@ impl Targets {
         }
 
         Ok(if path == "/index.html" {
-            String::from("/")
+            Utf8PathBuf::from("/")
         } else {
-            path.to_string()
+            path.to_owned()
         })
     }
 
-    pub fn current_path(&self) -> String {
-        self.path_of(&self.current).unwrap()
+    pub fn current_path_(&self) -> Utf8PathBuf {
+        self.path_of_(&self.current).unwrap()
     }
 }

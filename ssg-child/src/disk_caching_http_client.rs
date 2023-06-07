@@ -1,3 +1,4 @@
+use camino::Utf8PathBuf;
 use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
 use once_cell::sync::Lazy;
 use reqwest::{Client, Request, Response};
@@ -34,7 +35,7 @@ pub(crate) static HTTP_CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
     const CRATE_NAME: &str = env!("CARGO_CRATE_NAME");
     const UUID: &str = "a6c07a0f-7599-468d-8627-88b85ede9fde";
 
-    let cache_path = dirs::cache_dir()
+    let cache_path = Utf8PathBuf::try_from(dirs::cache_dir().unwrap())
         .unwrap()
         .join(format!("{CRATE_NAME}.{UUID}"));
 
@@ -44,7 +45,7 @@ pub(crate) static HTTP_CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
             // TODO don't leave it as ForceCache
             mode: CacheMode::ForceCache,
             manager: CACacheManager {
-                path: cache_path.to_str().unwrap().to_owned(),
+                path: cache_path.to_string(),
             },
             options: None,
         }))

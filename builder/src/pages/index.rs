@@ -6,6 +6,7 @@ use ssg_child::{sources::bytes_with_file_spec_safety::Targets, FileSpec};
 
 use crate::components::home_page::event_content_template;
 use crate::mob::MOBS;
+use crate::targets::TargetsExt;
 use crate::{components, mob};
 
 pub async fn page() -> FileSpec {

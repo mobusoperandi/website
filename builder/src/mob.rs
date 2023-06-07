@@ -24,6 +24,7 @@ use ssg_child::FileSpec;
 use crate::components::{self, CalendarEvent};
 use crate::constants::MOBS_PATH;
 use crate::markdown::Markdown;
+use crate::targets::TargetsExt;
 
 pub(crate) use self::file::MobFile;
 pub(crate) use self::file::YamlRecurringSession;

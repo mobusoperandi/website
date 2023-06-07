@@ -3,7 +3,7 @@ use schema::Schema;
 use serde::{Deserialize, Serialize};
 use ssg_child::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
 
-use crate::url::Url;
+use crate::{path::PathBuf, targets::TargetsExt, url::Url};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Schema)]
 /// A link that showcases the mob
@@ -38,11 +38,11 @@ impl TryFrom<(Link, &Targets)> for LinkElement {
 pub(crate) struct LinkElement {
     url: Url,
     alt: &'static str,
-    image_path: String,
+    image_path: PathBuf,
 }
 
 impl LinkElement {
-    fn new(url: Url, alt: &'static str, image_path: String) -> Self {
+    fn new(url: Url, alt: &'static str, image_path: PathBuf) -> Self {
         Self {
             url,
             alt,

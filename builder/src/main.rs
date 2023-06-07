@@ -13,6 +13,7 @@ mod path;
 mod style;
 mod syn_helpers;
 mod tailwind;
+mod targets;
 mod url;
 
 use builder::OUTPUT_DIR;

@@ -8,7 +8,9 @@ use crate::{
     constants::{COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL},
     fonts,
     html::Classes,
+    path::PathBuf,
     style,
+    targets::TargetsExt,
 };
 
 #[derive(Debug, Clone)]
@@ -49,11 +51,11 @@ impl From<String> for PageDescription {
 
 #[derive(Debug, Clone)]
 pub(crate) struct PageBase {
-    index_path: String,
-    current_path: String,
-    zulip_logo_path: String,
-    inverticat_path: String,
-    twitter_logo_path: String,
+    index_path: PathBuf,
+    current_path: PathBuf,
+    zulip_logo_path: PathBuf,
+    inverticat_path: PathBuf,
+    twitter_logo_path: PathBuf,
 }
 
 impl PageBase {

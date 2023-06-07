@@ -4,6 +4,7 @@ use ssg_child::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targe
 
 use crate::components::CalendarEvent;
 use crate::mob::{LinkElement, Participant};
+use crate::path::PathBuf;
 use crate::{
     components,
     constants::NAME,
@@ -18,9 +19,9 @@ pub(crate) struct MobPage {
     links: Vec<LinkElement>,
     events: Vec<CalendarEvent>,
     base: PageBase,
-    fullcalendar_path: String,
-    rrule_path: String,
-    fullcalendar_rrule_path: String,
+    fullcalendar_path: PathBuf,
+    rrule_path: PathBuf,
+    fullcalendar_rrule_path: PathBuf,
 }
 
 impl MobPage {
@@ -29,9 +30,9 @@ impl MobPage {
         links: Vec<LinkElement>,
         events: Vec<CalendarEvent>,
         base: PageBase,
-        fullcalendar_path: String,
-        rrule_path: String,
-        fullcalendar_rrule_path: String,
+        fullcalendar_path: PathBuf,
+        rrule_path: PathBuf,
+        fullcalendar_rrule_path: PathBuf,
     ) -> Self {
         Self {
             mob,
