@@ -2,6 +2,7 @@ mod disk_caching_http_client;
 mod file_spec;
 pub mod sources;
 pub mod target_error;
+pub mod target_success;
 
 use std::collections::BTreeSet;
 
@@ -11,13 +12,14 @@ use futures::{future::BoxFuture, stream, FutureExt, Stream, StreamExt};
 use relative_path::RelativePathBuf;
 use sources::{bytes_with_file_spec_safety::Targets, FileSource};
 use target_error::{TargetError, TargetErrorCause};
+use target_success::TargetSuccess;
 use tokio::{fs, io::AsyncWriteExt};
 
 /// Panics on duplicate `FileSpec` targets
 pub fn generate_static_site(
     output_dir: Utf8PathBuf,
     file_specs: impl IntoIterator<Item = FileSpec>,
-) -> impl Stream<Item = Result<(), TargetError>> {
+) -> impl Stream<Item = Result<TargetSuccess, TargetError>> {
     let (paths, file_specs) = file_specs.into_iter().fold(
         (BTreeSet::<RelativePathBuf>::new(), Vec::<FileSpec>::new()),
         |(mut paths, mut file_specs), file_spec| {
@@ -52,7 +54,7 @@ fn generate_file_from_spec(
     targets: BTreeSet<RelativePathBuf>,
     this_target: RelativePathBuf,
     output_dir: Utf8PathBuf,
-) -> BoxFuture<'static, Result<(), TargetError>> {
+) -> BoxFuture<'static, Result<TargetSuccess, TargetError>> {
     async move {
         let targets = Targets::new(this_target.clone(), targets);
         let task = source.obtain_content(targets);
@@ -79,12 +81,11 @@ fn generate_file_from_spec(
                 TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
             })?;
 
-        file_handle
-            .write_all(&contents)
-            .await
-            .map_err(|error| TargetError::new(this_target, TargetErrorCause::TargetIo(error)))?;
+        file_handle.write_all(&contents).await.map_err(|error| {
+            TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
+        })?;
 
-        Ok(())
+        Ok(TargetSuccess::new(this_target))
     }
     .boxed()
 }
