@@ -1,5 +1,6 @@
 mod disk_caching_http_client;
 pub mod sources;
+pub mod target_error;
 
 use std::collections::BTreeSet;
 
@@ -7,31 +8,8 @@ use camino::Utf8PathBuf;
 use futures::{future::BoxFuture, stream, FutureExt, Stream, StreamExt};
 use relative_path::RelativePathBuf;
 use sources::{bytes_with_file_spec_safety::Targets, FileSource};
+use target_error::{TargetError, TargetErrorCause};
 use tokio::{fs, io::AsyncWriteExt};
-
-#[derive(Debug, thiserror::Error)]
-#[error("Failed to generate {spec_target_path}: {source}")]
-pub struct TargetError {
-    spec_target_path: RelativePathBuf,
-    source: TargetErrorCause,
-}
-
-impl TargetError {
-    fn new(spec_target_path: RelativePathBuf, source: TargetErrorCause) -> Self {
-        Self {
-            spec_target_path,
-            source,
-        }
-    }
-}
-
-#[derive(Debug, thiserror::Error)]
-enum TargetErrorCause {
-    #[error(transparent)]
-    Source(Box<dyn std::error::Error + Send>),
-    #[error(transparent)]
-    TargetIo(#[from] std::io::Error),
-}
 
 /// Panics on duplicate `FileSpec` targets
 pub fn generate_static_site(
