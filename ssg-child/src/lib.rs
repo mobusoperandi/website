@@ -10,7 +10,7 @@ use camino::Utf8PathBuf;
 pub use file_spec::FileSpec;
 use futures::{future::BoxFuture, stream, FutureExt, Stream, StreamExt};
 use relative_path::RelativePathBuf;
-use sources::{bytes_with_file_spec_safety::Targets, FileSource};
+use sources::bytes_with_file_spec_safety::Targets;
 use target_error::{TargetError, TargetErrorCause};
 use target_success::TargetSuccess;
 use tokio::{fs, io::AsyncWriteExt};
@@ -36,27 +36,19 @@ pub fn generate_static_site(
     );
 
     stream::iter(file_specs)
-        .map(move |file_spec| {
-            let target = file_spec.target().to_owned();
-
-            generate_file_from_spec(
-                file_spec.into_source(),
-                paths.clone(),
-                target,
-                output_dir.clone(),
-            )
-        })
+        .map(move |file_spec| generate_file_from_spec(file_spec, paths.clone(), output_dir.clone()))
         .buffer_unordered(usize::MAX)
 }
 
 fn generate_file_from_spec(
-    source: Box<dyn FileSource + Send>,
+    file_spec: FileSpec,
     targets: BTreeSet<RelativePathBuf>,
-    this_target: RelativePathBuf,
     output_dir: Utf8PathBuf,
 ) -> BoxFuture<'static, Result<TargetSuccess, TargetError>> {
     async move {
+        let this_target = file_spec.target().clone();
         let targets = Targets::new(this_target.clone(), targets);
+        let source = file_spec.into_source();
         let task = source.obtain_content(targets);
 
         let file_path = this_target.to_path(output_dir);
