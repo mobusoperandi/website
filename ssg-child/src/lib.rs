@@ -8,12 +8,11 @@ use std::collections::BTreeSet;
 
 use camino::Utf8PathBuf;
 pub use file_spec::FileSpec;
-use futures::{future::BoxFuture, stream, FutureExt, Stream, StreamExt};
+use futures::{stream, Stream, StreamExt};
 use relative_path::RelativePathBuf;
 use sources::bytes_with_file_spec_safety::Targets;
-use target_error::{TargetError, TargetErrorCause};
+use target_error::TargetError;
 use target_success::TargetSuccess;
-use tokio::{fs, io::AsyncWriteExt};
 
 /// Panics on duplicate `FileSpec` targets
 pub fn generate_static_site(
@@ -36,48 +35,6 @@ pub fn generate_static_site(
     );
 
     stream::iter(file_specs)
-        .map(move |file_spec| generate_file_from_spec(file_spec, paths.clone(), output_dir.clone()))
+        .map(move |file_spec| file_spec.generate(paths.clone(), output_dir.clone()))
         .buffer_unordered(usize::MAX)
-}
-
-fn generate_file_from_spec(
-    file_spec: FileSpec,
-    targets: BTreeSet<RelativePathBuf>,
-    output_dir: Utf8PathBuf,
-) -> BoxFuture<'static, Result<TargetSuccess, TargetError>> {
-    async move {
-        let this_target = file_spec.target().clone();
-        let targets = Targets::new(this_target.clone(), targets);
-        let source = file_spec.into_source();
-        let task = source.obtain_content(targets);
-
-        let file_path = this_target.to_path(output_dir);
-
-        fs::create_dir_all(file_path.parent().unwrap())
-            .await
-            .map_err(|error| {
-                TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
-            })?;
-
-        let contents = task.await.map_err(|error| {
-            TargetError::new(this_target.clone(), TargetErrorCause::Source(error))
-        })?;
-
-        let mut file_handle = fs::OpenOptions::new()
-            .write(true)
-            .create(true)
-            .truncate(true)
-            .open(file_path)
-            .await
-            .map_err(|error| {
-                TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
-            })?;
-
-        file_handle.write_all(&contents).await.map_err(|error| {
-            TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
-        })?;
-
-        Ok(TargetSuccess::new(this_target))
-    }
-    .boxed()
 }
