@@ -1,10 +1,10 @@
-title: Malaga
-subtitle: The Malaga All Tech Flock
+title: #helloworld_rb 
+subtitle: The free to join global ruby mob. Help us go continuous.
 participants:
   - !Public
     name: Ian Moss
     social_url: https://twitter.com/alterisian
-    avatar_url:
+    avatar_url: https://avatars.githubusercontent.com/u/40766?v=4
 schedule:
   - frequency: FREQ=WEEKLY;BYDAY=MO
     timezone: Etc/UTC
@@ -13,13 +13,14 @@ schedule:
     duration: 120
 background_color: Peru
 text_color: SeaShell
-links:  
+links:  https://alterisian.github.io/helloworld
 freeform_copy: |
   ## What we do
-  We are working on a simple way to get people collaborating by extending helloworld.
+  We are working on a simple way to get people collaborating by creating a global ensemble platform
 status: !Open |
   ## Join us
   
-  We welcome all who are able to join regardless of ruby ability. From newbies onwards. All friendly humans are welcome.
+  No application process, we would welcome all who are able to join regardless of ruby ability. From newbies onwards. All friendly humans are welcome.
   Please contact [Ian](https://twitter.com/alterisian) with any questions about mobs/ensembles/flocks.
-  Will post the join url here.
+  Simply add your twitter handle to: [helloworld.rb](https://github.com/alterisian/helloworld/blob/main/helloworld.rb) 
+  See the discussion for when the next mob is on [#helloworld_rb](https://twitter.com/search?q=%23helloworld_rb&src=typed_query&f=live)
