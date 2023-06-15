@@ -1,4 +1,4 @@
-mod bytes;
+mod static_byte_slice;
 pub mod bytes_with_file_spec_safety;
 pub mod google_font;
 pub mod http;
