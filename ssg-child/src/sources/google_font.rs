@@ -19,6 +19,7 @@ pub struct GoogleFont {
 }
 
 impl GoogleFont {
+    #[must_use]
     pub fn new(family: String, subset: String, variant: String) -> Self {
         Self {
             family,

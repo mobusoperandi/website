@@ -3,9 +3,9 @@ use ssg_child::FileSpec;
 
 use crate::{components, fonts, graphic_file_specs, pages};
 
-pub(crate) async fn get() -> Result<impl Iterator<Item = FileSpec>> {
+pub(crate) fn get() -> Result<impl Iterator<Item = FileSpec>> {
     let fonts = fonts::all();
-    let pages = pages::all().await?;
+    let pages = pages::all()?;
 
     let calendar_library = FileSpec::new(
         "/fullcalendar.js",

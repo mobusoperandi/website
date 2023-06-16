@@ -35,7 +35,7 @@ impl TryFrom<syn::DeriveInput> for Type {
         let data = match derive_input.data {
             syn::Data::Struct(struct_data) => TypeData::Map(struct_data.try_into()?),
             syn::Data::Enum(enum_data) => TypeData::Enum(enum_data.try_into()?),
-            _ => bail!("only struct or enum"),
+            syn::Data::Union(_) => bail!("only struct or enum"),
         };
 
         let documentation = derive_input.attrs.try_into()?;

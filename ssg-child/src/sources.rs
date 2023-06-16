@@ -23,6 +23,7 @@ pub struct FileContents {
 }
 
 impl FileContents {
+    #[must_use]
     pub fn new(bytes: Vec<u8>, expected_targets: Option<ExpectedTargets>) -> Self {
         Self {
             bytes,

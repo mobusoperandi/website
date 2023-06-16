@@ -107,10 +107,10 @@ impl Render for Calendar {
             Right,
         }
 
-        fn arrow(direction: Direction) -> Markup {
+        fn arrow(direction: &Direction) -> Markup {
             let mut classes = classes!("w-[1em]", format!("fill-{TEXT_COLOR}"));
 
-            if direction == Direction::Right {
+            if direction == &Direction::Right {
                 classes.push("rotate-180".parse().unwrap());
             }
 
@@ -125,6 +125,7 @@ impl Render for Calendar {
         }
 
         const CALENDAR_FN_SNIPPET: &str = include_str!("calendar/snippet.js");
+        const INPUT_ATTR: &str = "data-input";
         let calendar_container_class = css_class();
         let date_range_class = css_class();
         let timezone_class = css_class();
@@ -144,7 +145,6 @@ impl Render for Calendar {
             },
         });
 
-        const INPUT_ATTR: &str = "data-input";
         let input_selector = format!("[{INPUT_ATTR}]");
 
         let top_classes = classes!(
@@ -172,11 +172,11 @@ impl Render for Calendar {
 
                 div class=(classes!("flex" ,format!("gap-x-{BUTTON_GAP}"))) {
                     div class=({BUTTON_CLASSES.clone() + classes!(button_prev_class)}) {
-                        (arrow(Direction::Left))
+                        (arrow(&Direction::Left))
                     }
 
                     div class=({BUTTON_CLASSES.clone() + classes!(button_next_class)}) {
-                        (arrow(Direction::Right))
+                        (arrow(&Direction::Right))
                     }
 
                     button class=({BUTTON_CLASSES.clone() + classes!(button_today_class)}) { "Today" }

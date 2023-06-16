@@ -10,7 +10,7 @@ use crate::mob::MOBS;
 use crate::relative_path::RelativePathBuf;
 use crate::{components, mob};
 
-pub async fn page() -> FileSpec {
+pub fn page() -> FileSpec {
     let target_path = RelativePathBuf::from("/index.html");
     let mut expected_targets = ExpectedTargets::default();
 
@@ -24,7 +24,7 @@ pub async fn page() -> FileSpec {
         .flatten()
         .collect();
 
-    let base = components::PageBase::new(&mut expected_targets, target_path.to_owned());
+    let base = components::PageBase::new(&mut expected_targets, target_path.clone());
 
     let add_page_path = expected_targets.insert_("/add.html");
 

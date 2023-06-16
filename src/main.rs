@@ -1,3 +1,13 @@
+#![deny(
+    clippy::all,
+    clippy::complexity,
+    clippy::correctness,
+    clippy::pedantic,
+    clippy::perf,
+    clippy::style,
+    clippy::suspicious
+)]
+
 use anyhow::bail;
 use builder::OUTPUT_DIR;
 use clap::{Parser, Subcommand};

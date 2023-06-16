@@ -10,7 +10,7 @@ impl ProcessedTargetsCount {
         self.0.entry(path)
     }
 
-    pub(crate) fn keys(&self) -> impl Iterator<Item = RelativePathBuf> {
-        self.0.clone().into_keys()
+    pub(crate) fn into_keys(self) -> impl Iterator<Item = RelativePathBuf> {
+        self.0.into_keys()
     }
 }

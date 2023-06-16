@@ -18,7 +18,7 @@ impl Render for Legend {
         html! {
             "Legend:"
             dl class=(classes!("grid", "grid-cols-[auto_auto_1fr]")) {
-                @for (indicator, description) in self.0.iter() {
+                @for (indicator, description) in &self.0 {
                     dt class=(classes!("text-2xl")) { (indicator) }
                     "\u{00A0}—\u{00A0}"
                     dd { (description) }

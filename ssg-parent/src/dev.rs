@@ -7,6 +7,7 @@ use crate::{
 };
 
 #[derive(Debug, Error)]
+#[allow(clippy::module_name_repetitions)]
 pub enum DevError {
     #[error(transparent)]
     Watch(WatchError),

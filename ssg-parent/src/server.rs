@@ -9,6 +9,7 @@ use once_cell::sync::Lazy;
 use portpicker::{pick_unused_port, Port};
 use reqwest::Url;
 
+#[allow(clippy::module_name_repetitions)]
 pub async fn start_development_web_server(
     launch_browser: bool,
     output_dir: Utf8PathBuf,

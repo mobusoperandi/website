@@ -48,6 +48,7 @@ impl MobPage {
 }
 
 impl Render for MobPage {
+    #[allow(clippy::too_many_lines)]
     fn render(&self) -> maud::Markup {
         type WrapperFn = fn(&str) -> Markup;
 
@@ -60,10 +61,11 @@ impl Render for MobPage {
         }
 
         let join_content = match self.mob.status() {
-            mob::Status::Short(join_content) => Some(join_content.to_owned()),
-            mob::Status::Open(join_content) => Some(join_content.to_owned()),
-            mob::Status::Full(join_content) => join_content.to_owned(),
-            mob::Status::Public(join_content) => Some(join_content.to_owned()),
+            mob::Status::Short(join_content) | mob::Status::Open(join_content) => {
+                Some(join_content.clone())
+            }
+            mob::Status::Full(join_content) => join_content.clone(),
+            mob::Status::Public(join_content) => Some(join_content.clone()),
         };
 
         let calendar = components::Calendar::new(

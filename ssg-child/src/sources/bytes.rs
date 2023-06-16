@@ -3,12 +3,14 @@ use futures::{future::BoxFuture, FutureExt};
 use super::{ExpectedTargets, FileContents, FileSource};
 
 #[derive(Debug)]
+#[allow(clippy::module_name_repetitions)]
 pub struct BytesSource {
     bytes: Vec<u8>,
     expected_targets: ExpectedTargets,
 }
 
 impl BytesSource {
+    #[must_use]
     pub fn new(bytes: Vec<u8>, expected_targets: Option<ExpectedTargets>) -> Self {
         let expected_targets = expected_targets.unwrap_or_default();
 

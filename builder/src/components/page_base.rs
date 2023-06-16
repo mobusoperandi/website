@@ -98,15 +98,15 @@ pub(crate) struct Page {
 }
 
 impl Render for Page {
+    #[allow(clippy::too_many_lines)]
     fn render(&self) -> Markup {
+        const NAV_ICON_SIZE: u8 = 32;
         let version = Utc::now().timestamp_millis();
 
         let title = self
             .title
             .clone()
             .map_or(NAME.to_owned(), |title| format!("{title}; {NAME}"));
-
-        const NAV_ICON_SIZE: u8 = 32;
 
         let brand_classes = classes!("tracking-widest", "text-center");
 

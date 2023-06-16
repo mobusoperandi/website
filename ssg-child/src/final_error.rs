@@ -27,15 +27,15 @@ pub struct FinalError {
 impl Display for FinalError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(duplicates) = &self.duplicates {
-            writeln!(f, "{duplicates}")?
+            writeln!(f, "{duplicates}")?;
         }
 
         if let Some(missing_targets) = &self.missing_targets {
-            writeln!(f, "{missing_targets}")?
+            writeln!(f, "{missing_targets}")?;
         }
 
         if let Some(failed_targets) = &self.failed_targets {
-            writeln!(f, "{failed_targets}")?
+            writeln!(f, "{failed_targets}")?;
         }
 
         Ok(())
@@ -50,7 +50,7 @@ pub(crate) struct FinalErrorBuilder {
 }
 
 impl FinalErrorBuilder {
-    pub(crate) fn add(mut self, processing_result: Result<TargetSuccess, TargetError>) -> Self {
+    pub(crate) fn add(mut self, processing_result: &Result<TargetSuccess, TargetError>) -> Self {
         let (target, expected_targets) = match &processing_result {
             Ok(success) => {
                 let target = success.path().clone();
@@ -77,10 +77,13 @@ impl FinalErrorBuilder {
     }
 
     pub(crate) fn build(self) -> Option<FinalError> {
-        let missing_targets = MissingTargets::new(
-            self.expected_targets,
-            self.processed_targets_count.keys().collect(),
-        );
+        let processed_targets = self
+            .processed_targets_count
+            .clone()
+            .into_keys()
+            .collect::<BTreeSet<RelativePathBuf>>();
+
+        let missing_targets = MissingTargets::new(self.expected_targets, &processed_targets);
 
         let duplicates = Duplicates::from_processed_targets_count(self.processed_targets_count);
 
@@ -93,8 +96,8 @@ impl FinalErrorBuilder {
         if duplicates.is_some() || missing_targets.is_some() || failed_targets.is_some() {
             Some(FinalError {
                 duplicates,
-                failed_targets,
                 missing_targets,
+                failed_targets,
             })
         } else {
             None

@@ -49,8 +49,8 @@ impl IntoFuture for GenerationTask {
 
                     target_result
                 })
-                .fold(FinalErrorBuilder::default(), |builder, result| async {
-                    builder.add(result)
+                .fold(FinalErrorBuilder::default(), |builder, result| async move {
+                    builder.add(&result)
                 })
                 .await
                 .build();

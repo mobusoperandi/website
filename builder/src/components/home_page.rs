@@ -104,10 +104,9 @@ pub(crate) fn event_content_template(
     mob: &Mob,
     expected_targets: &mut ExpectedTargets,
 ) -> Markup {
+    const OFFSET_VALUES: [i8; 2] = [-1, 1];
     let mob_id = mob.id();
     let target_path = expected_targets.insert_(format!("/mobs/{mob_id}.html"));
-
-    const OFFSET_VALUES: [i8; 2] = [-1, 1];
 
     let indicator_text_shadow_value = OFFSET_VALUES
         .into_iter()

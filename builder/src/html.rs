@@ -51,7 +51,7 @@ pub(crate) struct Classes(Vec<Class>);
 
 impl Classes {
     pub(crate) fn push(&mut self, value: Class) {
-        self.0.push(value)
+        self.0.push(value);
     }
 }
 

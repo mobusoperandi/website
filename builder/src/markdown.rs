@@ -1,4 +1,4 @@
-use comrak::markdown_to_html;
+use comrak::{markdown_to_html, ComrakOptions};
 use maud::{Markup, PreEscaped, Render};
 use serde::{Deserialize, Serialize};
 
@@ -7,7 +7,7 @@ pub(crate) struct Markdown(String);
 
 impl Markdown {
     fn to_html(&self) -> Markup {
-        PreEscaped(markdown_to_html(&self.0, &Default::default()))
+        PreEscaped(markdown_to_html(&self.0, &ComrakOptions::default()))
     }
 }
 

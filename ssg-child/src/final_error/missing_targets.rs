@@ -10,7 +10,7 @@ pub(super) struct MissingTargets(BTreeMap<RelativePathBuf, BTreeSet<RelativePath
 impl MissingTargets {
     pub(crate) fn new(
         expected_targets: BTreeMap<RelativePathBuf, BTreeSet<RelativePathBuf>>,
-        processed_targets: BTreeSet<RelativePathBuf>,
+        processed_targets: &BTreeSet<RelativePathBuf>,
     ) -> Option<Self> {
         let missing_targets: BTreeMap<_, _> = expected_targets
             .into_iter()

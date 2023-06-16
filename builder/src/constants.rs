@@ -33,9 +33,11 @@ pub(crate) static COMMIT_HASH: Lazy<String> = Lazy::new(|| {
         .output()
         .unwrap();
 
-    if !output.status.success() {
-        panic!("exit code: {:?}", output.status.code());
-    };
+    assert!(
+        output.status.success(),
+        "exit code: {:?}",
+        output.status.code()
+    );
 
     String::from_utf8(output.stdout).unwrap()
 });
