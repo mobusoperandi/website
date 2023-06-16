@@ -8,7 +8,6 @@ tokio_console = ["dep:console-subscriber"]
 
 [dependencies]
 anyhow = { version = "1.0.66", features = ["backtrace"] }
-bool_ext = "0.5.3"
 camino = "1.1.4"
 chrono = { version = "0.4.19", features = ["serde"] }
 chrono-tz = { version = "0.6.1", features = ["serde"] }
@@ -18,7 +17,6 @@ const_format = "0.2.30"
 csscolorparser = { version = "0.6.0", features = ["serde"] }
 custom_attrs = "1.6.0"
 derive_more = "0.99.17"
-futures = "0.3.24"
 getset = "0.1.2"
 global_counter = "0.2.2"
 indexmap = "1.9.2"

@@ -2,15 +2,15 @@ use std::fmt::Display;
 
 use chrono::Utc;
 use maud::{html, Markup, PreEscaped, Render, DOCTYPE};
-use ssg_child::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
+use ssg_child::sources::ExpectedTargets;
 
 use crate::{
     constants::{COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL},
+    expected_targets::ExpectedTargetsExt,
     fonts,
     html::Classes,
     relative_path::RelativePathBuf,
     style,
-    targets::TargetsExt,
 };
 
 #[derive(Debug, Clone)]
@@ -59,14 +59,17 @@ pub(crate) struct PageBase {
 }
 
 impl PageBase {
-    pub(crate) fn new(targets: Targets) -> Result<Self, TargetNotFoundError> {
-        Ok(Self {
-            index_path: targets.path_of("/index.html")?,
-            current_path: targets.current_path(),
-            zulip_logo_path: targets.path_of("/zulip_logo.svg")?,
-            inverticat_path: targets.path_of("/inverticat.svg")?,
-            twitter_logo_path: targets.path_of("/twitter_logo.svg")?,
-        })
+    pub(crate) fn new(
+        expected_targets: &mut ExpectedTargets,
+        current_path: RelativePathBuf,
+    ) -> Self {
+        Self {
+            index_path: expected_targets.insert_("/index.html"),
+            current_path,
+            zulip_logo_path: expected_targets.insert_("/zulip_logo.svg"),
+            inverticat_path: expected_targets.insert_("/inverticat.svg"),
+            twitter_logo_path: expected_targets.insert_("/twitter_logo.svg"),
+        }
     }
 
     pub(crate) fn into_page(

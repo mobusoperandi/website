@@ -1,8 +1,10 @@
+use getset::Getters;
 use relative_path::RelativePathBuf;
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, Getters)]
 #[error("Failed to generate {spec_target_path}: {source}")]
 pub struct TargetError {
+    #[getset(get = "pub(crate)")]
     spec_target_path: RelativePathBuf,
     source: TargetErrorCause,
 }

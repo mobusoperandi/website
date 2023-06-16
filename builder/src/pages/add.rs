@@ -1,12 +1,12 @@
 use std::ops::Deref;
 
-use futures::FutureExt;
+use anyhow::Result;
 use indexmap::IndexMap;
 use maud::Render;
 use once_cell::sync::Lazy;
 use schema::{DeriveInput, Schema};
 use ssg_child::{
-    sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets},
+    sources::{bytes::BytesSource, ExpectedTargets},
     FileSpec,
 };
 
@@ -16,6 +16,7 @@ use crate::{
         schema::type_::{ident::TypeIdent, Type},
     },
     mob,
+    relative_path::RelativePathBuf,
 };
 
 #[derive(Clone)]
@@ -53,26 +54,22 @@ pub(crate) static INTERNAL_TYPES_DERIVE_INPUTS: Lazy<IndexMap<TypeIdent, DeriveI
         .collect()
     });
 
-#[derive(Debug, thiserror::Error)]
-#[error(transparent)]
-enum AddPageError {
-    Anyhow(#[from] anyhow::Error),
-    TargetNotFound(#[from] TargetNotFoundError),
-}
+pub fn page() -> Result<FileSpec> {
+    let current_path = RelativePathBuf::from("/add.html");
 
-pub fn page() -> FileSpec {
-    FileSpec::new("/add.html", move |targets: Targets| {
-        async move {
-            let internal_types = INTERNAL_TYPES_DERIVE_INPUTS
-                .values()
-                .map(|derive_input| Type::try_from(derive_input.deref().clone()))
-                .collect::<Result<Vec<Type>, anyhow::Error>>()?;
+    let internal_types = INTERNAL_TYPES_DERIVE_INPUTS
+        .values()
+        .map(|derive_input| Type::try_from(derive_input.deref().clone()))
+        .collect::<Result<Vec<Type>, anyhow::Error>>()?;
 
-            let base = components::PageBase::new(targets.clone())?;
-            let add_page = components::add_page::AddPage::new(internal_types, base);
+    let mut expected_targets = ExpectedTargets::default();
+    let base = components::PageBase::new(&mut expected_targets, current_path.clone());
+    let add_page = components::add_page::AddPage::new(internal_types, base);
 
-            Ok::<_, AddPageError>(add_page.render().0.into_bytes())
-        }
-        .boxed()
-    })
+    let bytes = add_page.render().0.into_bytes();
+
+    Ok(FileSpec::new(
+        current_path,
+        BytesSource::new(bytes, Some(expected_targets)),
+    ))
 }

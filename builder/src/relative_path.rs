@@ -14,3 +14,15 @@ impl From<String> for RelativePathBuf {
         Self(path.into())
     }
 }
+
+impl From<&str> for RelativePathBuf {
+    fn from(path: &str) -> Self {
+        Self(path.into())
+    }
+}
+
+impl From<RelativePathBuf> for relative_path::RelativePathBuf {
+    fn from(value: RelativePathBuf) -> Self {
+        value.0
+    }
+}

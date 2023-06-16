@@ -5,12 +5,12 @@ use getset::Getters;
 use itertools::Itertools;
 use maud::{html, Markup, Render};
 
-use ssg_child::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
+use ssg_child::sources::ExpectedTargets;
 
 use crate::components::CalendarEvent;
 use crate::constants::DESCRIPTION;
+use crate::expected_targets::ExpectedTargetsExt;
 use crate::relative_path::RelativePathBuf;
-use crate::targets::TargetsExt;
 use crate::{
     components,
     html::Class,
@@ -102,10 +102,10 @@ pub(crate) fn event_content_template(
     _start: DateTime<rrule::Tz>,
     _end: DateTime<rrule::Tz>,
     mob: &Mob,
-    targets: &Targets,
-) -> Result<Markup, TargetNotFoundError> {
+    expected_targets: &mut ExpectedTargets,
+) -> Markup {
     let mob_id = mob.id();
-    let target_path = targets.path_of(format!("/mobs/{mob_id}.html"))?;
+    let target_path = expected_targets.insert_(format!("/mobs/{mob_id}.html"));
 
     const OFFSET_VALUES: [i8; 2] = [-1, 1];
 
@@ -131,5 +131,5 @@ pub(crate) fn event_content_template(
         }
     };
 
-    Ok(content)
+    content
 }

@@ -13,18 +13,19 @@ use std::io;
 use anyhow::{anyhow, Context, Result};
 use chrono::DateTime;
 use csscolorparser::Color;
-use futures::FutureExt;
 use getset::Getters;
 use maud::{html, Markup, Render};
 use once_cell::sync::Lazy;
 
-use ssg_child::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
+use ssg_child::sources::bytes::BytesSource;
+use ssg_child::sources::ExpectedTargets;
 use ssg_child::FileSpec;
 
 use crate::components::{self, CalendarEvent};
 use crate::constants::MOBS_PATH;
+use crate::expected_targets::ExpectedTargetsExt;
 use crate::markdown::Markdown;
-use crate::targets::TargetsExt;
+use crate::relative_path::RelativePathBuf;
 
 pub(crate) use self::file::MobFile;
 pub(crate) use self::file::YamlRecurringSession;
@@ -95,19 +96,15 @@ fn read_mob(dir_entry: Result<std::fs::DirEntry, io::Error>) -> anyhow::Result<M
     (id, yaml_mob).try_into()
 }
 
-type EventContentTemplate = fn(
-    DateTime<rrule::Tz>,
-    DateTime<rrule::Tz>,
-    &Mob,
-    &Targets,
-) -> Result<Markup, TargetNotFoundError>;
+type EventContentTemplate =
+    fn(DateTime<rrule::Tz>, DateTime<rrule::Tz>, &Mob, &mut ExpectedTargets) -> Markup;
 
 impl Mob {
     pub(crate) fn events(
         &self,
-        targets: &Targets,
+        expected_targets: &mut ExpectedTargets,
         event_content_template: EventContentTemplate,
-    ) -> Result<Vec<CalendarEvent>, TargetNotFoundError> {
+    ) -> Vec<CalendarEvent> {
         let events = self
             .schedule
             .iter()
@@ -116,7 +113,7 @@ impl Mob {
                 let start = *recurring_session.recurrence().get_dt_start();
                 let end = start + recurring_session.duration();
 
-                let event_content = event_content_template(start, end, &mob, targets)?;
+                let event_content = event_content_template(start, end, &mob, expected_targets);
 
                 let background_color = mob.background_color.clone();
                 let text_color = mob.text_color;
@@ -128,52 +125,50 @@ impl Mob {
                 }
                 .0;
 
-                Ok(CalendarEvent::new(
+                CalendarEvent::new(
                     recurring_session.recurrence().clone(),
                     recurring_session.duration(),
                     event_content,
                     background_color,
                     text_color,
-                ))
+                )
             })
-            .collect::<Result<Vec<_>, _>>()?;
+            .collect::<Vec<_>>();
 
-        Ok(events)
+        events
     }
 
     pub(super) fn page(self) -> FileSpec {
-        FileSpec::new(
-            format!("/mobs/{}.html", self.id),
-            move |targets: Targets| {
-                let mob = self.clone();
+        let target_path = RelativePathBuf::from(format!("/mobs/{}.html", self.id));
+        let mut expected_targets = ExpectedTargets::default();
 
-                async move {
-                    let links = mob
-                        .links
-                        .iter()
-                        .cloned()
-                        .map(|link| (link, &targets).try_into())
-                        .collect::<Result<Vec<LinkElement>, TargetNotFoundError>>()?;
+        let links = self
+            .links
+            .iter()
+            .cloned()
+            .map(|link| (link, &mut expected_targets).into())
+            .collect::<Vec<LinkElement>>();
 
-                    let events =
-                        mob.events(&targets, components::mob_page::event_content_template)?;
-                    let base = components::PageBase::new(targets.clone())?;
+        let events = self.events(
+            &mut expected_targets,
+            components::mob_page::event_content_template,
+        );
 
-                    let page = components::mob_page::MobPage::new(
-                        mob,
-                        links,
-                        events,
-                        base,
-                        targets.path_of("/fullcalendar.js")?,
-                        targets.path_of("/rrule.js")?,
-                        targets.path_of("/fullcalendar_rrule.js")?,
-                    );
+        let base = components::PageBase::new(&mut expected_targets, target_path.clone());
 
-                    Ok::<_, TargetNotFoundError>(page.render().0.into_bytes())
-                }
-                .boxed()
-            },
-        )
+        let page = components::mob_page::MobPage::new(
+            self,
+            links,
+            events,
+            base,
+            expected_targets.insert_("/fullcalendar.js"),
+            expected_targets.insert_("/rrule.js"),
+            expected_targets.insert_("/fullcalendar_rrule.js"),
+        );
+
+        let bytes = page.render().0.into_bytes();
+
+        FileSpec::new(target_path, BytesSource::new(bytes, Some(expected_targets)))
     }
 }
 

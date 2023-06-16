@@ -8,7 +8,7 @@ use reqwest::{header::CONTENT_DISPOSITION, Url};
 
 use crate::disk_caching_http_client::HTTP_CLIENT;
 
-use super::{bytes_with_file_spec_safety::Targets, FileSource};
+use super::{FileContents, FileSource};
 
 #[derive(Debug, Clone, Getters)]
 pub struct GoogleFont {
@@ -49,8 +49,7 @@ enum DownloadError {
 impl FileSource for GoogleFont {
     fn obtain_content(
         &self,
-        _targets: Targets,
-    ) -> BoxFuture<'static, Result<Vec<u8>, Box<dyn std::error::Error + Send>>> {
+    ) -> BoxFuture<'static, Result<FileContents, Box<dyn std::error::Error + Send>>> {
         let Self {
             family,
             subset,
@@ -108,7 +107,7 @@ impl FileSource for GoogleFont {
                 variant
             ))?;
 
-            Ok(font_file.read_into_vec()?)
+            Ok(FileContents::new(font_file.read_into_vec()?, None))
         }
         .map_err(
             move |error: DownloadError| -> Box<dyn std::error::Error + Send> { Box::new(error) },

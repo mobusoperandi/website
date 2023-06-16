@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 use camino::Utf8PathBuf;
 use futures::{future::BoxFuture, FutureExt};
 use getset::Getters;
@@ -7,7 +5,7 @@ use relative_path::RelativePathBuf;
 use tokio::{fs, io::AsyncWriteExt};
 
 use crate::{
-    sources::{bytes_with_file_spec_safety::Targets, FileSource},
+    sources::FileSource,
     target_error::{TargetError, TargetErrorCause},
     target_success::TargetSuccess,
 };
@@ -36,14 +34,12 @@ impl FileSpec {
 
     pub(crate) fn generate(
         self,
-        targets: BTreeSet<RelativePathBuf>,
         output_dir: Utf8PathBuf,
     ) -> BoxFuture<'static, Result<TargetSuccess, TargetError>> {
         async move {
             let this_target = self.target().clone();
-            let targets = Targets::new(this_target.clone(), targets);
             let source = self.into_source();
-            let task = source.obtain_content(targets);
+            let task = source.obtain_content();
 
             let file_path = this_target.to_path(output_dir);
 
@@ -67,11 +63,16 @@ impl FileSpec {
                     TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
                 })?;
 
-            file_handle.write_all(&contents).await.map_err(|error| {
-                TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
-            })?;
+            file_handle
+                .write_all(contents.bytes())
+                .await
+                .map_err(|error| {
+                    TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
+                })?;
 
-            Ok(TargetSuccess::new(this_target))
+            let expected_targets = contents.expected_targets().cloned();
+
+            Ok(TargetSuccess::new(this_target, expected_targets))
         }
         .boxed()
     }

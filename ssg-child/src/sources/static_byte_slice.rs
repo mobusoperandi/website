@@ -1,14 +1,11 @@
 use futures::{future::BoxFuture, FutureExt};
 
-use crate::Targets;
-
-use super::FileSource;
+use super::{FileContents, FileSource};
 
 impl FileSource for &'static [u8] {
     fn obtain_content(
         &self,
-        _targets: Targets,
-    ) -> BoxFuture<'static, Result<Vec<u8>, Box<dyn std::error::Error + Send>>> {
-        async { Ok(self.to_vec()) }.boxed()
+    ) -> BoxFuture<'static, Result<FileContents, Box<dyn std::error::Error + Send>>> {
+        async { Ok(FileContents::new(self.to_vec(), None)) }.boxed()
     }
 }

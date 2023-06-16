@@ -1,46 +1,45 @@
-use futures::FutureExt;
 use maud::Render;
 
-use ssg_child::sources::bytes_with_file_spec_safety::TargetNotFoundError;
-use ssg_child::{sources::bytes_with_file_spec_safety::Targets, FileSpec};
+use ssg_child::sources::bytes::BytesSource;
+use ssg_child::sources::ExpectedTargets;
+use ssg_child::FileSpec;
 
 use crate::components::home_page::event_content_template;
+use crate::expected_targets::ExpectedTargetsExt;
 use crate::mob::MOBS;
-use crate::targets::TargetsExt;
+use crate::relative_path::RelativePathBuf;
 use crate::{components, mob};
 
 pub async fn page() -> FileSpec {
+    let target_path = RelativePathBuf::from("/index.html");
+    let mut expected_targets = ExpectedTargets::default();
+
     let participants = mob::get_all_participants();
 
-    FileSpec::new("/index.html", move |targets: Targets| {
-        let participants = participants.clone();
+    let events = MOBS
+        .iter()
+        .map(|mob| mob.events(&mut expected_targets, event_content_template))
+        .collect::<Vec<_>>()
+        .into_iter()
+        .flatten()
+        .collect();
 
-        async move {
-            let events = MOBS
-                .iter()
-                .map(|mob| mob.events(&targets, event_content_template))
-                .collect::<Result<Vec<_>, _>>()?
-                .into_iter()
-                .flatten()
-                .collect();
+    let base = components::PageBase::new(&mut expected_targets, target_path.to_owned());
 
-            let base = components::PageBase::new(targets.clone())?;
+    let add_page_path = expected_targets.insert_("/add.html");
 
-            let add_page_path = targets.path_of("/add.html")?;
+    let home_page = components::home_page::HomePage::new(
+        participants,
+        mob::Status::legend(),
+        events,
+        base,
+        add_page_path,
+        expected_targets.insert_("/fullcalendar.js"),
+        expected_targets.insert_("/rrule.js"),
+        expected_targets.insert_("/fullcalendar_rrule.js"),
+    );
 
-            let home_page = components::home_page::HomePage::new(
-                participants,
-                mob::Status::legend(),
-                events,
-                base,
-                add_page_path,
-                targets.path_of("/fullcalendar.js")?,
-                targets.path_of("/rrule.js")?,
-                targets.path_of("/fullcalendar_rrule.js")?,
-            );
+    let bytes = home_page.render().0.into_bytes();
 
-            Ok::<_, TargetNotFoundError>(home_page.render().0.into_bytes())
-        }
-        .boxed()
-    })
+    FileSpec::new(target_path, BytesSource::new(bytes, Some(expected_targets)))
 }

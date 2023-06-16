@@ -3,7 +3,7 @@ use reqwest::Url;
 
 use crate::disk_caching_http_client::HTTP_CLIENT;
 
-use super::{bytes_with_file_spec_safety::Targets, FileSource};
+use super::{FileContents, FileSource};
 
 #[derive(Debug, Clone)]
 pub struct Http(Url);
@@ -21,12 +21,11 @@ struct HttpError(#[from] reqwest_middleware::Error);
 impl FileSource for Http {
     fn obtain_content(
         &self,
-        _targets: Targets,
-    ) -> BoxFuture<'static, Result<Vec<u8>, Box<dyn std::error::Error + Send>>> {
+    ) -> BoxFuture<'static, Result<FileContents, Box<dyn std::error::Error + Send>>> {
         let url = self.0.clone();
 
         async {
-            Ok(HTTP_CLIENT
+            let bytes = HTTP_CLIENT
                 .get(url)
                 .send()
                 .await?
@@ -35,7 +34,9 @@ impl FileSource for Http {
                 .bytes()
                 .await
                 .map_err(reqwest_middleware::Error::Reqwest)?
-                .to_vec())
+                .to_vec();
+
+            Ok(FileContents::new(bytes, None))
         }
         .map_err(|error: HttpError| -> Box<dyn std::error::Error + Send> { Box::new(error) })
         .boxed()

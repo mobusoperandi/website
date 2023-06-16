@@ -1,6 +1,7 @@
 use chrono::DateTime;
 use maud::{html, Markup, Render};
-use ssg_child::sources::bytes_with_file_spec_safety::{TargetNotFoundError, Targets};
+
+use ssg_child::sources::ExpectedTargets;
 
 use crate::components::CalendarEvent;
 use crate::mob::{LinkElement, Participant};
@@ -191,12 +192,12 @@ pub(crate) fn event_content_template(
     start: DateTime<rrule::Tz>,
     end: DateTime<rrule::Tz>,
     _mob: &Mob,
-    _targets: &Targets,
-) -> Result<Markup, TargetNotFoundError> {
+    _expected_targets: &mut ExpectedTargets,
+) -> Markup {
     let start = start.format("%k:%M").to_string();
     let end = end.format("%k:%M").to_string();
     let content = html! {
         (start) "–" (end) " UTC"
     };
-    Ok(content)
+    content
 }
