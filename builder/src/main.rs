@@ -16,6 +16,7 @@ mod constants;
 mod expected_targets;
 mod file_specs;
 mod fonts;
+mod google_font;
 mod graphic_file_specs;
 mod markdown;
 mod mob;

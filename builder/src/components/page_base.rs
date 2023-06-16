@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use chrono::Utc;
-use maud::{html, Markup, PreEscaped, Render, DOCTYPE};
+use maud::{html, Markup, Render, DOCTYPE};
 use ssg_child::sources::ExpectedTargets;
 
 use crate::{
@@ -98,7 +98,6 @@ pub(crate) struct Page {
 }
 
 impl Render for Page {
-    #[allow(clippy::too_many_lines)]
     fn render(&self) -> Markup {
         const NAV_ICON_SIZE: u8 = 32;
         let version = Utc::now().timestamp_millis();
@@ -152,16 +151,7 @@ impl Render for Page {
                   meta name="viewport" content="width=device-width, initial-scale=1.0";
                   link rel="stylesheet" href={ "/index.css?v=" (version) };
                   style {
-                    // TODO extract as font utility
-                    @for font in fonts::ALL.as_slice() {
-                        (PreEscaped(format!("
-                            @font-face {{
-                                font-family: '{}';
-                                src: url('/{}') format('truetype');
-                            }}",
-                            font.family(), fonts::output_filename(font)))
-                        )
-                    }
+                    @for font in fonts::ALL.as_slice() { (font) }
                   }
                 }
                 body class=(body_classes) {
