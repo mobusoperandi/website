@@ -1,12 +1,4 @@
-#![deny(
-    clippy::all,
-    clippy::complexity,
-    clippy::correctness,
-    clippy::pedantic,
-    clippy::perf,
-    clippy::style,
-    clippy::suspicious
-)]
+#![deny(clippy::all, clippy::pedantic)]
 
 mod dev;
 mod rebuild_and_run;

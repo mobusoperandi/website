@@ -1,12 +1,4 @@
-#![deny(
-    clippy::all,
-    clippy::complexity,
-    clippy::correctness,
-    clippy::pedantic,
-    clippy::perf,
-    clippy::style,
-    clippy::suspicious
-)]
+#![deny(clippy::all, clippy::pedantic)]
 
 use camino::Utf8PathBuf;
 use once_cell::sync::Lazy;

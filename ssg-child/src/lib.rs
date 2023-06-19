@@ -1,12 +1,4 @@
-#![deny(
-    clippy::all,
-    clippy::complexity,
-    clippy::correctness,
-    clippy::pedantic,
-    clippy::perf,
-    clippy::style,
-    clippy::suspicious
-)]
+#![deny(clippy::all, clippy::pedantic)]
 
 mod disk_caching_http_client;
 mod file_spec;
