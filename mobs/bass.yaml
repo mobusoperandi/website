@@ -13,8 +13,8 @@ schedule:
   - frequency: FREQ=WEEKLY;BYDAY=MO,TU,WE,TH
     timezone: Etc/UTC
     start_date: 2023-01-23
-    start_time: 04:00
-    duration: 180
+    start_time: 03:00
+    duration: 240
 background_color: firebrick
 text_color: floralwhite
 freeform_copy: |
