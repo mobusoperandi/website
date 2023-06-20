@@ -19,31 +19,31 @@ pub trait FileSource {
 pub struct FileContents {
     #[getset(get = "pub(crate)")]
     bytes: Vec<u8>,
-    expected_targets: ExpectedTargets,
+    expected_files: ExpectedFiles,
 }
 
 impl FileContents {
     #[must_use]
-    pub fn new(bytes: Vec<u8>, expected_targets: Option<ExpectedTargets>) -> Self {
+    pub fn new(bytes: Vec<u8>, expected_files: Option<ExpectedFiles>) -> Self {
         Self {
             bytes,
-            expected_targets: expected_targets.unwrap_or_default(),
+            expected_files: expected_files.unwrap_or_default(),
         }
     }
 
-    pub(crate) fn expected_targets(&self) -> Option<&ExpectedTargets> {
-        if self.expected_targets.is_empty() {
+    pub(crate) fn expected_files(&self) -> Option<&ExpectedFiles> {
+        if self.expected_files.is_empty() {
             None
         } else {
-            Some(&self.expected_targets)
+            Some(&self.expected_files)
         }
     }
 }
 
 #[derive(Debug, Clone, Default, derive_more::IntoIterator)]
-pub struct ExpectedTargets(BTreeSet<RelativePathBuf>);
+pub struct ExpectedFiles(BTreeSet<RelativePathBuf>);
 
-impl ExpectedTargets {
+impl ExpectedFiles {
     pub fn insert<P>(&mut self, path: P) -> RelativePathBuf
     where
         RelativePathBuf: From<P>,

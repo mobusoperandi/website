@@ -2,11 +2,11 @@ use std::fmt::Display;
 
 use chrono::Utc;
 use maud::{html, Markup, Render, DOCTYPE};
-use ssg_child::sources::ExpectedTargets;
+use ssg_child::sources::ExpectedFiles;
 
 use crate::{
     constants::{COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL},
-    expected_targets::ExpectedTargetsExt,
+    expected_files::ExpectedFilesExt,
     fonts,
     html::Classes,
     relative_path::RelativePathBuf,
@@ -59,16 +59,13 @@ pub(crate) struct PageBase {
 }
 
 impl PageBase {
-    pub(crate) fn new(
-        expected_targets: &mut ExpectedTargets,
-        current_path: RelativePathBuf,
-    ) -> Self {
+    pub(crate) fn new(expected_files: &mut ExpectedFiles, current_path: RelativePathBuf) -> Self {
         Self {
-            index_path: expected_targets.insert_("/index.html"),
+            index_path: expected_files.insert_("/index.html"),
             current_path,
-            zulip_logo_path: expected_targets.insert_("/zulip_logo.svg"),
-            inverticat_path: expected_targets.insert_("/inverticat.svg"),
-            twitter_logo_path: expected_targets.insert_("/twitter_logo.svg"),
+            zulip_logo_path: expected_files.insert_("/zulip_logo.svg"),
+            inverticat_path: expected_files.insert_("/inverticat.svg"),
+            twitter_logo_path: expected_files.insert_("/twitter_logo.svg"),
         }
     }
 

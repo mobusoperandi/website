@@ -5,26 +5,26 @@ use relative_path::RelativePathBuf;
 use tokio::{fs, io::AsyncWriteExt};
 
 use crate::{
+    file_error::{FileError, FileErrorCause},
+    file_success::FileSuccess,
     sources::FileSource,
-    target_error::{TargetError, TargetErrorCause},
-    target_success::TargetSuccess,
 };
 
 #[derive(Getters)]
 pub struct FileSpec {
     source: Box<dyn FileSource + Send>,
     #[getset(get = "pub(crate)")]
-    target: RelativePathBuf,
+    path: RelativePathBuf,
 }
 
 impl FileSpec {
-    pub fn new<T>(target: T, source: impl FileSource + 'static + Send) -> Self
+    pub fn new<T>(path: T, source: impl FileSource + 'static + Send) -> Self
     where
         RelativePathBuf: From<T>,
     {
         Self {
             source: Box::new(source),
-            target: target.into(),
+            path: path.into(),
         }
     }
 
@@ -35,22 +35,22 @@ impl FileSpec {
     pub(crate) fn generate(
         self,
         output_dir: Utf8PathBuf,
-    ) -> BoxFuture<'static, Result<TargetSuccess, TargetError>> {
+    ) -> BoxFuture<'static, Result<FileSuccess, FileError>> {
         async move {
-            let this_target = self.target().clone();
+            let this_path = self.path().clone();
             let source = self.into_source();
             let task = source.obtain_content();
 
-            let file_path = this_target.to_path(output_dir);
+            let file_path = this_path.to_path(output_dir);
 
             fs::create_dir_all(file_path.parent().unwrap())
                 .await
                 .map_err(|error| {
-                    TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
+                    FileError::new(this_path.clone(), FileErrorCause::OutputIo(error))
                 })?;
 
             let contents = task.await.map_err(|error| {
-                TargetError::new(this_target.clone(), TargetErrorCause::Source(error))
+                FileError::new(this_path.clone(), FileErrorCause::Source(error))
             })?;
 
             let mut file_handle = fs::OpenOptions::new()
@@ -60,19 +60,19 @@ impl FileSpec {
                 .open(file_path)
                 .await
                 .map_err(|error| {
-                    TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
+                    FileError::new(this_path.clone(), FileErrorCause::OutputIo(error))
                 })?;
 
             file_handle
                 .write_all(contents.bytes())
                 .await
                 .map_err(|error| {
-                    TargetError::new(this_target.clone(), TargetErrorCause::TargetIo(error))
+                    FileError::new(this_path.clone(), FileErrorCause::OutputIo(error))
                 })?;
 
-            let expected_targets = contents.expected_targets().cloned();
+            let expected_files = contents.expected_files().cloned();
 
-            Ok(TargetSuccess::new(this_target, expected_targets))
+            Ok(FileSuccess::new(this_path, expected_files))
         }
         .boxed()
     }

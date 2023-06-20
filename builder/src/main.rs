@@ -5,7 +5,7 @@ mod html;
 
 mod components;
 mod constants;
-mod expected_targets;
+mod expected_files;
 mod file_specs;
 mod fonts;
 mod google_font;
@@ -29,7 +29,7 @@ async fn main() -> Result<()> {
     let file_specs = file_specs::get()?;
     let mut generation_task = generate_static_site(OUTPUT_DIR.clone(), file_specs);
 
-    generation_task.on_target_result(|progress_report| {
+    generation_task.set_file_result_fn(|progress_report| {
         eprintln!("{progress_report:?}");
     });
 

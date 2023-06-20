@@ -3,7 +3,7 @@ pub(super) mod status;
 use chrono::DateTime;
 use maud::{html, Markup, Render};
 
-use ssg_child::sources::ExpectedTargets;
+use ssg_child::sources::ExpectedFiles;
 
 use crate::components::CalendarEvent;
 use crate::mob::{LinkElement, Participant};
@@ -150,7 +150,7 @@ pub(crate) fn event_content_template(
     start: DateTime<rrule::Tz>,
     end: DateTime<rrule::Tz>,
     _mob: &Mob,
-    _expected_targets: &mut ExpectedTargets,
+    _expected_files: &mut ExpectedFiles,
 ) -> Markup {
     let start = start.format("%k:%M").to_string();
     let end = end.format("%k:%M").to_string();

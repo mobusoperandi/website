@@ -5,11 +5,11 @@ use getset::Getters;
 use itertools::Itertools;
 use maud::{html, Markup, Render};
 
-use ssg_child::sources::ExpectedTargets;
+use ssg_child::sources::ExpectedFiles;
 
 use crate::components::CalendarEvent;
 use crate::constants::DESCRIPTION;
-use crate::expected_targets::ExpectedTargetsExt;
+use crate::expected_files::ExpectedFilesExt;
 use crate::relative_path::RelativePathBuf;
 use crate::{
     components,
@@ -102,11 +102,11 @@ pub(crate) fn event_content_template(
     _start: DateTime<rrule::Tz>,
     _end: DateTime<rrule::Tz>,
     mob: &Mob,
-    expected_targets: &mut ExpectedTargets,
+    expected_files: &mut ExpectedFiles,
 ) -> Markup {
     const OFFSET_VALUES: [i8; 2] = [-1, 1];
     let mob_id = mob.id();
-    let target_path = expected_targets.insert_(format!("/mobs/{mob_id}.html"));
+    let path = expected_files.insert_(format!("/mobs/{mob_id}.html"));
 
     let indicator_text_shadow_value = OFFSET_VALUES
         .into_iter()
@@ -121,7 +121,7 @@ pub(crate) fn event_content_template(
             .unwrap();
 
     let content = html! {
-        a class=(classes!("no-underline", "block", "h-full")) href=(target_path) {
+        a class=(classes!("no-underline", "block", "h-full")) href=(path) {
             (mob.title())
 
             @if let Some(status_indicator) = mob.status().indicator() {

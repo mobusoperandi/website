@@ -3,30 +3,33 @@ use std::{future::IntoFuture, pin::Pin};
 use futures::{Future, Stream, StreamExt};
 
 use crate::{
+    file_error::FileError,
+    file_success::FileSuccess,
     final_error::{FinalError, FinalErrorBuilder},
-    target_error::TargetError,
-    target_success::TargetSuccess,
 };
 
-type OnTargetResult = Box<dyn Fn(&Result<TargetSuccess, TargetError>) + 'static>;
+type FileResultFn = Box<dyn Fn(&Result<FileSuccess, FileError>) + 'static>;
 
 pub struct GenerationTask {
-    target_results: Pin<Box<dyn Stream<Item = Result<TargetSuccess, TargetError>>>>,
-    on_target_result: Option<OnTargetResult>,
+    file_results: Pin<Box<dyn Stream<Item = Result<FileSuccess, FileError>>>>,
+    file_result_fn: Option<FileResultFn>,
 }
 
 impl GenerationTask {
     pub(crate) fn new(
-        stream: impl Stream<Item = Result<TargetSuccess, TargetError>> + 'static,
+        stream: impl Stream<Item = Result<FileSuccess, FileError>> + 'static,
     ) -> Self {
         Self {
-            target_results: Box::pin(stream),
-            on_target_result: None,
+            file_results: Box::pin(stream),
+            file_result_fn: None,
         }
     }
 
-    pub fn on_target_result(&mut self, f: impl Fn(&Result<TargetSuccess, TargetError>) + 'static) {
-        self.on_target_result = Some(Box::new(f));
+    pub fn set_file_result_fn(
+        &mut self,
+        file_result_fn: impl Fn(&Result<FileSuccess, FileError>) + 'static,
+    ) {
+        self.file_result_fn = Some(Box::new(file_result_fn));
     }
 }
 
@@ -36,18 +39,18 @@ impl IntoFuture for GenerationTask {
 
     fn into_future(self) -> Self::IntoFuture {
         let Self {
-            target_results,
-            on_target_result,
+            file_results,
+            file_result_fn,
         } = self;
 
         let future = async {
-            let final_error = target_results
-                .map(move |target_result| {
-                    if let Some(f) = &on_target_result {
-                        f(&target_result);
+            let final_error = file_results
+                .map(move |file_result| {
+                    if let Some(f) = &file_result_fn {
+                        f(&file_result);
                     };
 
-                    target_result
+                    file_result
                 })
                 .fold(FinalErrorBuilder::default(), |builder, result| async move {
                     builder.add(&result)

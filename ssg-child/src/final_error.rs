@@ -1,7 +1,7 @@
 mod duplicates;
-mod failed_targets;
-mod missing_targets;
-mod processed_targets_count;
+mod failed_files;
+mod missing_files;
+mod processed_files_count;
 
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -10,18 +10,18 @@ use std::{
 
 use relative_path::RelativePathBuf;
 
-use crate::{sources::ExpectedTargets, target_success::TargetSuccess, TargetError};
+use crate::{file_success::FileSuccess, sources::ExpectedFiles, FileError};
 
 use self::{
-    duplicates::Duplicates, failed_targets::FailedTargets, missing_targets::MissingTargets,
-    processed_targets_count::ProcessedTargetsCount,
+    duplicates::Duplicates, failed_files::FailedFiles, missing_files::MissingFiles,
+    processed_files_count::ProcessedFilesCount,
 };
 
 #[derive(Debug, Clone, getset::Getters, thiserror::Error)]
 pub struct FinalError {
     duplicates: Option<Duplicates>,
-    missing_targets: Option<MissingTargets>,
-    failed_targets: Option<FailedTargets>,
+    missing_files: Option<MissingFiles>,
+    failed_files: Option<FailedFiles>,
 }
 
 impl Display for FinalError {
@@ -30,12 +30,12 @@ impl Display for FinalError {
             writeln!(f, "{duplicates}")?;
         }
 
-        if let Some(missing_targets) = &self.missing_targets {
-            writeln!(f, "{missing_targets}")?;
+        if let Some(missing_files) = &self.missing_files {
+            writeln!(f, "{missing_files}")?;
         }
 
-        if let Some(failed_targets) = &self.failed_targets {
-            writeln!(f, "{failed_targets}")?;
+        if let Some(failed_files) = &self.failed_files {
+            writeln!(f, "{failed_files}")?;
         }
 
         Ok(())
@@ -44,60 +44,60 @@ impl Display for FinalError {
 
 #[derive(Debug, Clone, Default)]
 pub(crate) struct FinalErrorBuilder {
-    processed_targets_count: ProcessedTargetsCount,
-    expected_targets: BTreeMap<RelativePathBuf, BTreeSet<RelativePathBuf>>,
-    failed_targets: BTreeSet<RelativePathBuf>,
+    processed_files_count: ProcessedFilesCount,
+    expected_files: BTreeMap<RelativePathBuf, BTreeSet<RelativePathBuf>>,
+    failed_files: BTreeSet<RelativePathBuf>,
 }
 
 impl FinalErrorBuilder {
-    pub(crate) fn add(mut self, processing_result: &Result<TargetSuccess, TargetError>) -> Self {
-        let (target, expected_targets) = match &processing_result {
+    pub(crate) fn add(mut self, processing_result: &Result<FileSuccess, FileError>) -> Self {
+        let (path, expected_files) = match &processing_result {
             Ok(success) => {
-                let target = success.path().clone();
-                let expected_targets = success.expected_targets().clone();
-                (target, expected_targets)
+                let path = success.path().clone();
+                let expected_files = success.expected_files().clone();
+                (path, expected_files)
             }
-            Err(target_error) => {
-                let target = target_error.spec_target_path().clone();
-                self.failed_targets.insert(target.clone());
-                (target, ExpectedTargets::default())
+            Err(file_error) => {
+                let path = file_error.path().clone();
+                self.failed_files.insert(path.clone());
+                (path, ExpectedFiles::default())
             }
         };
 
-        expected_targets.into_iter().for_each(|expected_target| {
-            self.expected_targets
-                .entry(expected_target)
+        expected_files.into_iter().for_each(|expected_file| {
+            self.expected_files
+                .entry(expected_file)
                 .or_default()
-                .insert(target.clone());
+                .insert(path.clone());
         });
 
-        *self.processed_targets_count.entry(target).or_default() += 1;
+        *self.processed_files_count.entry(path).or_default() += 1;
 
         self
     }
 
     pub(crate) fn build(self) -> Option<FinalError> {
-        let processed_targets = self
-            .processed_targets_count
+        let processed_files = self
+            .processed_files_count
             .clone()
             .into_keys()
             .collect::<BTreeSet<RelativePathBuf>>();
 
-        let missing_targets = MissingTargets::new(self.expected_targets, &processed_targets);
+        let missing_files = MissingFiles::new(self.expected_files, &processed_files);
 
-        let duplicates = Duplicates::from_processed_targets_count(self.processed_targets_count);
+        let duplicates = Duplicates::from_processed_files_count(self.processed_files_count);
 
-        let failed_targets = if self.failed_targets.is_empty() {
+        let failed_files = if self.failed_files.is_empty() {
             None
         } else {
-            Some(FailedTargets::new(self.failed_targets))
+            Some(FailedFiles::new(self.failed_files))
         };
 
-        if duplicates.is_some() || missing_targets.is_some() || failed_targets.is_some() {
+        if duplicates.is_some() || missing_files.is_some() || failed_files.is_some() {
             Some(FinalError {
                 duplicates,
-                missing_targets,
-                failed_targets,
+                missing_files,
+                failed_files,
             })
         } else {
             None

@@ -6,7 +6,7 @@ use maud::Render;
 use once_cell::sync::Lazy;
 use schema::{DeriveInput, Schema};
 use ssg_child::{
-    sources::{bytes::BytesSource, ExpectedTargets},
+    sources::{bytes::BytesSource, ExpectedFiles},
     FileSpec,
 };
 
@@ -62,14 +62,14 @@ pub fn page() -> Result<FileSpec> {
         .map(|derive_input| Type::try_from(derive_input.deref().clone()))
         .collect::<Result<Vec<Type>, anyhow::Error>>()?;
 
-    let mut expected_targets = ExpectedTargets::default();
-    let base = components::PageBase::new(&mut expected_targets, current_path.clone());
+    let mut expected_files = ExpectedFiles::default();
+    let base = components::PageBase::new(&mut expected_files, current_path.clone());
     let add_page = components::add_page::AddPage::new(internal_types, base);
 
     let bytes = add_page.render().0.into_bytes();
 
     Ok(FileSpec::new(
         current_path,
-        BytesSource::new(bytes, Some(expected_targets)),
+        BytesSource::new(bytes, Some(expected_files)),
     ))
 }

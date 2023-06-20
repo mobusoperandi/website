@@ -1,19 +1,19 @@
 #![deny(clippy::all, clippy::pedantic)]
 
 mod disk_caching_http_client;
+pub mod file_error;
 mod file_spec;
+pub mod file_success;
 pub mod final_error;
 pub mod generation_task;
 pub mod sources;
-pub mod target_error;
-pub mod target_success;
 
 use camino::Utf8PathBuf;
 pub use file_spec::FileSpec;
 use futures::{stream, StreamExt};
 use generation_task::GenerationTask;
 
-use target_error::TargetError;
+use file_error::FileError;
 
 pub fn generate_static_site(
     output_dir: Utf8PathBuf,

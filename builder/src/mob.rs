@@ -18,12 +18,12 @@ use maud::{html, Markup, Render};
 use once_cell::sync::Lazy;
 
 use ssg_child::sources::bytes::BytesSource;
-use ssg_child::sources::ExpectedTargets;
+use ssg_child::sources::ExpectedFiles;
 use ssg_child::FileSpec;
 
 use crate::components::{self, CalendarEvent};
 use crate::constants::MOBS_PATH;
-use crate::expected_targets::ExpectedTargetsExt;
+use crate::expected_files::ExpectedFilesExt;
 use crate::markdown::Markdown;
 use crate::relative_path::RelativePathBuf;
 
@@ -97,12 +97,12 @@ fn read_mob(dir_entry: Result<std::fs::DirEntry, io::Error>) -> anyhow::Result<M
 }
 
 type EventContentTemplate =
-    fn(DateTime<rrule::Tz>, DateTime<rrule::Tz>, &Mob, &mut ExpectedTargets) -> Markup;
+    fn(DateTime<rrule::Tz>, DateTime<rrule::Tz>, &Mob, &mut ExpectedFiles) -> Markup;
 
 impl Mob {
     pub(crate) fn events(
         &self,
-        expected_targets: &mut ExpectedTargets,
+        expected_files: &mut ExpectedFiles,
         event_content_template: EventContentTemplate,
     ) -> Vec<CalendarEvent> {
         let events = self
@@ -113,7 +113,7 @@ impl Mob {
                 let start = *recurring_session.recurrence().get_dt_start();
                 let end = start + recurring_session.duration();
 
-                let event_content = event_content_template(start, end, &mob, expected_targets);
+                let event_content = event_content_template(start, end, &mob, expected_files);
 
                 let background_color = mob.background_color.clone();
                 let text_color = mob.text_color;
@@ -139,36 +139,36 @@ impl Mob {
     }
 
     pub(super) fn page(self) -> FileSpec {
-        let target_path = RelativePathBuf::from(format!("/mobs/{}.html", self.id));
-        let mut expected_targets = ExpectedTargets::default();
+        let path = RelativePathBuf::from(format!("/mobs/{}.html", self.id));
+        let mut expected_files = ExpectedFiles::default();
 
         let links = self
             .links
             .iter()
             .cloned()
-            .map(|link| (link, &mut expected_targets).into())
+            .map(|link| (link, &mut expected_files).into())
             .collect::<Vec<LinkElement>>();
 
         let events = self.events(
-            &mut expected_targets,
+            &mut expected_files,
             components::mob_page::event_content_template,
         );
 
-        let base = components::PageBase::new(&mut expected_targets, target_path.clone());
+        let base = components::PageBase::new(&mut expected_files, path.clone());
 
         let page = components::mob_page::MobPage::new(
             self,
             links,
             events,
             base,
-            expected_targets.insert_("/fullcalendar.js"),
-            expected_targets.insert_("/rrule.js"),
-            expected_targets.insert_("/fullcalendar_rrule.js"),
+            expected_files.insert_("/fullcalendar.js"),
+            expected_files.insert_("/rrule.js"),
+            expected_files.insert_("/fullcalendar_rrule.js"),
         );
 
         let bytes = page.render().0.into_bytes();
 
-        FileSpec::new(target_path, BytesSource::new(bytes, Some(expected_targets)))
+        FileSpec::new(path, BytesSource::new(bytes, Some(expected_files)))
     }
 }
 

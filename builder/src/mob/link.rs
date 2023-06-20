@@ -1,9 +1,9 @@
 use maud::{html, Render};
 use schema::Schema;
 use serde::{Deserialize, Serialize};
-use ssg_child::sources::ExpectedTargets;
+use ssg_child::sources::ExpectedFiles;
 
-use crate::{expected_targets::ExpectedTargetsExt, relative_path::RelativePathBuf, url::Url};
+use crate::{expected_files::ExpectedFilesExt, relative_path::RelativePathBuf, url::Url};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Schema)]
 /// A link that showcases the mob
@@ -18,12 +18,12 @@ pub(crate) enum Link {
     YouTube(String),
 }
 
-impl From<(Link, &mut ExpectedTargets)> for LinkElement {
-    fn from((link, expected_targets): (Link, &mut ExpectedTargets)) -> Self {
+impl From<(Link, &mut ExpectedFiles)> for LinkElement {
+    fn from((link, expected_files): (Link, &mut ExpectedFiles)) -> Self {
         let (url, image_path, alt) = match link {
             Link::YouTube(path) => {
                 let url = Url::parse(&format!("https://www.youtube.com/{path}")).unwrap();
-                let image_path = expected_targets.insert_("/youtube_logo.svg");
+                let image_path = expected_files.insert_("/youtube_logo.svg");
                 let alt = "YouTube";
                 (url, image_path, alt)
             }
