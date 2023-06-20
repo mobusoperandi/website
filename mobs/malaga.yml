@@ -13,7 +13,6 @@ schedule:
     duration: 120
 background_color: Peru
 text_color: SeaShell
-links:  https://alterisian.github.io/helloworld
 freeform_copy: |
   ## What we do
   We are working on a simple way to get people collaborating by creating a global ensemble platform
