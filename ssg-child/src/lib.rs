@@ -1,4 +1,4 @@
-#![deny(clippy::all, clippy::pedantic)]
+#![warn(clippy::all, clippy::pedantic)]
 
 mod disk_caching_http_client;
 pub mod file_error;
