@@ -6,6 +6,7 @@ env:
   RUST_BACKTRACE: 1
 jobs:
   ci:
+    environment: pull_request_deployments
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
