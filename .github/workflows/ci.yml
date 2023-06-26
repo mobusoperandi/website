@@ -52,12 +52,12 @@ jobs:
             exit 1
           fi
       - id: deploy
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         run: |
           npx vercel pull --yes --environment=preview --scope mobusoperandi --token=${{ secrets.VERCEL_TOKEN }}
           URL=$(npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "URL=$URL" >> $GITHUB_OUTPUT
-      - if: github.event_name == 'pull_request'
+      - if: github.event_name == 'pull_request_target'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
