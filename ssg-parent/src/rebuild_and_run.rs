@@ -42,7 +42,8 @@ pub async fn watch_for_changes_and_rebuild() -> WatchError {
     }
 
     fn_stream(|emitter| async move {
-        while let Some(event) = receiver.recv().await {
+        loop {
+            let event = receiver.recv().await.unwrap();
             emitter.emit(event).await;
         }
     })
