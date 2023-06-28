@@ -20,7 +20,7 @@ pub enum WatchError {
 const BUILDER_CRATE_NAME: &str = "builder";
 
 pub async fn watch_for_changes_and_rebuild() -> WatchError {
-    let child = match cargo_run() {
+    let child = match cargo_run_builder() {
         Ok(child) => child,
         Err(error) => return error.into(),
     };
@@ -49,7 +49,7 @@ pub async fn watch_for_changes_and_rebuild() -> WatchError {
     .try_fold(child, |mut child, event: Event| async move {
         if let EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_) = event.kind {
             child.kill().await?;
-            Ok(cargo_run()?)
+            Ok(cargo_run_builder()?)
         } else {
             Ok(child)
         }
@@ -59,7 +59,7 @@ pub async fn watch_for_changes_and_rebuild() -> WatchError {
     .into()
 }
 
-fn cargo_run() -> Result<Child, std::io::Error> {
+fn cargo_run_builder() -> Result<Child, std::io::Error> {
     Command::new("cargo")
         .args(["run", "--package", BUILDER_CRATE_NAME])
         .spawn()
