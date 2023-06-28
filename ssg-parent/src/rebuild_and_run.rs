@@ -60,9 +60,7 @@ pub async fn watch_for_changes_and_rebuild() -> WatchError {
 }
 
 fn cargo_run() -> Result<Child, std::io::Error> {
-    let child = Command::new("cargo")
+    Command::new("cargo")
         .args(["run", "--package", BUILDER_CRATE_NAME])
-        .spawn()?;
-
-    Ok(child)
+        .spawn()
 }
