@@ -20,8 +20,8 @@ pub enum WatchError {
 const BUILDER_CRATE_NAME: &str = "builder";
 
 pub async fn watch_for_changes_and_rebuild() -> WatchError {
-    let child = match cargo_run_builder() {
-        Ok(child) => child,
+    let cargo_run_builder_process = match cargo_run_builder() {
+        Ok(cargo_run_builder_process) => cargo_run_builder_process,
         Err(error) => return error.into(),
     };
 
@@ -47,14 +47,17 @@ pub async fn watch_for_changes_and_rebuild() -> WatchError {
             emitter.emit(event).await;
         }
     })
-    .try_fold(child, |mut child, event: Event| async move {
-        if let EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_) = event.kind {
-            child.kill().await?;
-            Ok(cargo_run_builder()?)
-        } else {
-            Ok(child)
-        }
-    })
+    .try_fold(
+        cargo_run_builder_process,
+        |mut cargo_run_builder_process, event: Event| async move {
+            if let EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_) = event.kind {
+                cargo_run_builder_process.kill().await?;
+                Ok(cargo_run_builder()?)
+            } else {
+                Ok(cargo_run_builder_process)
+            }
+        },
+    )
     .await
     .expect_err("should end only in the case of error")
     .into()
