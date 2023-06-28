@@ -17,6 +17,8 @@ pub enum WatchError {
     Notify(#[from] notify::Error),
 }
 
+const BUILDER_CRATE_NAME: &str = "builder";
+
 pub async fn watch_for_changes_and_rebuild() -> WatchError {
     let child = match cargo_run() {
         Ok(child) => child,
@@ -34,7 +36,8 @@ pub async fn watch_for_changes_and_rebuild() -> WatchError {
         Err(error) => return error.into(),
     };
 
-    if let Err(error) = watcher.watch(&PathBuf::from("builder"), RecursiveMode::Recursive) {
+    if let Err(error) = watcher.watch(&PathBuf::from(BUILDER_CRATE_NAME), RecursiveMode::Recursive)
+    {
         return error.into();
     }
 
@@ -58,7 +61,7 @@ pub async fn watch_for_changes_and_rebuild() -> WatchError {
 
 fn cargo_run() -> Result<Child, std::io::Error> {
     let child = Command::new("cargo")
-        .args(["run", "--package=builder"])
+        .args(["run", "--package", BUILDER_CRATE_NAME])
         .spawn()?;
 
     Ok(child)
