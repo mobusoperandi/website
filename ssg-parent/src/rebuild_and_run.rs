@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use async_fn_stream::fn_stream;
+use async_fn_stream::try_fn_stream;
 use futures::TryStreamExt;
 use notify::{recommended_watcher, Event, EventKind, RecursiveMode, Watcher};
 use thiserror::Error;
@@ -25,34 +25,26 @@ pub async fn watch_for_changes_and_rebuild() -> WatchError {
         Err(error) => return error.into(),
     };
 
-    let (sender, mut receiver) = mpsc::channel(1);
+    try_fn_stream(|emitter| async move {
+        let (sender, mut receiver) = mpsc::channel(1);
 
-    let watcher = recommended_watcher(move |result: Result<Event, notify::Error>| {
-        sender.blocking_send(result).unwrap();
-    });
+        let mut watcher = recommended_watcher(move |result: Result<Event, notify::Error>| {
+            sender.blocking_send(result).unwrap();
+        })?;
 
-    let mut watcher = match watcher {
-        Ok(watcher) => watcher,
-        Err(error) => return error.into(),
-    };
+        watcher.watch(&PathBuf::from(BUILDER_CRATE_NAME), RecursiveMode::Recursive)?;
 
-    if let Err(error) = watcher.watch(&PathBuf::from(BUILDER_CRATE_NAME), RecursiveMode::Recursive)
-    {
-        return error.into();
-    }
-
-    fn_stream(|emitter| async move {
         loop {
-            let event = receiver.recv().await.unwrap();
+            let event = receiver.recv().await.unwrap()?;
             emitter.emit(event).await;
         }
     })
     .try_fold(
         cargo_run_builder_process,
-        |mut cargo_run_builder_process, event: Event| async move {
+        |mut cargo_run_builder_process, event| async move {
             if let EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_) = event.kind {
                 cargo_run_builder_process.kill().await?;
-                Ok(cargo_run_builder()?)
+                Result::<_, WatchError>::Ok(cargo_run_builder()?)
             } else {
                 Ok(cargo_run_builder_process)
             }
@@ -60,7 +52,6 @@ pub async fn watch_for_changes_and_rebuild() -> WatchError {
     )
     .await
     .expect_err("should end only in the case of error")
-    .into()
 }
 
 fn cargo_run_builder() -> Result<Child, std::io::Error> {
