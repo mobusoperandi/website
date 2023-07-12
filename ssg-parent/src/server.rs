@@ -16,7 +16,7 @@ pub async fn start_development_web_server(
 ) -> std::io::Error {
     let url = Url::parse(&format!("http://{LOCALHOST}:{}", *LOCAL_DEV_PORT)).unwrap();
     let message = format!("\nServer started at {url}\n").blue();
-    println!("{message}");
+    eprintln!("{message}");
 
     if launch_browser {
         if let Err(error) = open::that(url.as_str()) {
