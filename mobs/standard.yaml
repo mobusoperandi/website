@@ -10,11 +10,11 @@ participants:
     social_url: https://github.com/rostislav-simonik
     avatar_url: https://avatars.githubusercontent.com/u/25525736?v=4
 schedule:
-  - frequency: FREQ=WEEKLY;BYDAY=FR
+  - frequency: FREQ=WEEKLY;BYDAY=SA
     timezone: Etc/UTC
-    start_date: 2022-12-13
-    start_time: 04:30
-    duration: 90
+    start_date: 2023-07-15
+    start_time: 05:00
+    duration: 150
 background_color: fuchsia
 text_color: navy
 links:
