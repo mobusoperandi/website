@@ -8,6 +8,10 @@ participants:
     name: Nitsan Avni
     social_url: https://twitter.com/NitsanAvni
     avatar_url: https://avatars.githubusercontent.com/u/2943610?v=4
+  - !Public
+    name: Michael R. Wolf
+    social_url: https://LinkedIn.com/in/MRWolf
+    avatar_url: https://avatars.githubusercontent.com/u/2851070?v=4
 schedule:
   - frequency: FREQ=WEEKLY;BYDAY=TH
     timezone: Europe/Vienna
