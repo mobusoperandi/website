@@ -2,10 +2,6 @@ title: Mob More
 subtitle: Learning Rust on the weekends
 participants:
   - !Public
-    name: Bob Allen
-    social_url: https://twitter.com/curiousagilist
-    avatar_url: https://avatars.githubusercontent.com/u/832680?v=4
-  - !Public
     name: Shahar “Dawn” Or
     social_url: https://twitter.com/mightyiam
     avatar_url: https://avatars.githubusercontent.com/u/635591?v=4
@@ -29,6 +25,8 @@ freeform_copy: |
   On a journey of learning [the Rust programming language](https://rustlang.org) led by [Dawn](https://twitter.com/mightyiam).
 
   We are currently learning the basics by going through [the Exercism Rust track](https://exercism.org/tracks/rust).
+
+  We also began contributing to [itertools](https://docs.rs/crate/itertools/latest)
 status: !Open |
   ## Join us
   
