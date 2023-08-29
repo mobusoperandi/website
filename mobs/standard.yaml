@@ -9,6 +9,10 @@ participants:
     name: Rostislav Simonik
     social_url: https://github.com/rostislav-simonik
     avatar_url: https://avatars.githubusercontent.com/u/25525736?v=4
+  - !Public
+    name: Rhett Bulkley
+    social_url: https://twitter.com/jay-bulk
+    avatar_url: https://avatars.githubusercontent.com/u/67493409?v=4
 schedule:
   - frequency: FREQ=WEEKLY;BYDAY=SA
     timezone: Etc/UTC
