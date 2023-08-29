@@ -78,7 +78,7 @@ impl TryFrom<syn::PathArguments> for Node {
             .ok_or_else(|| anyhow!("doesn't have an argument"))?;
 
         let syn::GenericArgument::Type(some_type) = some_type else {
-                bail!("type argument is not a type")
+            bail!("type argument is not a type")
         };
 
         let syn::Type::Path(type_path) = some_type else {

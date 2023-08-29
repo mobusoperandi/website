@@ -24,7 +24,9 @@ pub async fn start_development_web_server(
         }
     }
 
-    let Err(error) = live_server::listen(LOCALHOST, *LOCAL_DEV_PORT, PathBuf::from(output_dir)).await else {
+    let Err(error) =
+        live_server::listen(LOCALHOST, *LOCAL_DEV_PORT, PathBuf::from(output_dir)).await
+    else {
         panic!("success not expected")
     };
 
