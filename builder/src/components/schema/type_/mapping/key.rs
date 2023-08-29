@@ -21,7 +21,7 @@ impl TryFrom<syn::Field> for MappingKey {
     type Error = Error;
 
     fn try_from(ast_field: syn::Field) -> Result<Self> {
-        let Some(ident) =  &ast_field.ident else {
+        let Some(ident) = &ast_field.ident else {
             bail!("expected an ident")
         };
 
