@@ -65,7 +65,7 @@ where
         url,
     };
 
-    let outputs = app::app(inputs);
+    let outputs = app::App::default().outputs(inputs);
 
     let app::Outputs {
         stderr,

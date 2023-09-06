@@ -1,9 +1,4 @@
-#[derive(Debug, Default)]
-pub(super) struct State {
-    builder: BuilderState,
-}
-
-impl State {
+impl super::App {
     pub(super) fn input_event(&mut self, input: super::InputEvent) -> Option<super::OutputEvent> {
         match input {
             super::InputEvent::BuilderKilled(result) => self.builder_killed(result),
@@ -92,7 +87,7 @@ impl State {
 }
 
 #[derive(Debug, Default)]
-enum BuilderState {
+pub(super) enum BuilderState {
     // this exists to ensure that only one child is live at a time
     AwaitingKillResult,
     #[default]
