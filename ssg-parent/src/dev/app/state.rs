@@ -93,7 +93,7 @@ impl State {
 
 #[derive(Debug, Default)]
 enum BuilderState {
-    // this exist to ensure that only one child is live at a time
+    // this exists to ensure that only one child is live at a time
     AwaitingKillResult,
     #[default]
     AwaitingChild,
