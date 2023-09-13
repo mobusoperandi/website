@@ -5,8 +5,7 @@ permissions:
 env:
   RUST_BACKTRACE: 1
 jobs:
-  ci:
-    environment: pull_request_deployment
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -51,21 +50,45 @@ jobs:
             echo "modified files detected"
             exit 1
           fi
+      - id: get_output_dir
+        run: echo "output_dir=$(cargo run -- print-output-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build_output_dir
+          path: ${{ steps.get_output_dir.outputs.output_dir }}
+    outputs:
+      output_dir: ${{ steps.get_output_dir.outputs.output_dir }}
+
+  deploy-preview:
+    if: github.event_name == 'pull_request_target'
+    needs: build
+    environment: pull_request_deployment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: build_output_dir
+          path: ${{ needs.build.outputs.output_dir }}
       - id: deploy
-        if: github.event_name == 'pull_request_target'
         run: |
           npx vercel pull --yes --environment=preview --scope mobusoperandi --token=${{ secrets.VERCEL_TOKEN }}
           URL=$(npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "URL=$URL" >> $GITHUB_OUTPUT
-      - if: github.event_name == 'pull_request_target'
-        uses: thollander/actions-comment-pull-request@v2
+      - uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             Branch deployed for review at:
             ${{ steps.deploy.outputs.URL }}
-      - id: get_output_dir
-        run: echo "OUTPUT_DIR=$(cargo run -- print-output-dir)" >> $GITHUB_OUTPUT
-      - uses: JamesIves/github-pages-deploy-action@v4
-        if: github.ref == 'refs/heads/master'
+
+  deploy-production:
+    if: github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
         with:
-          folder: ${{ steps.get_output_dir.outputs.OUTPUT_DIR }}
+          name: build_output_dir
+          path: ${{ needs.build.outputs.output_dir }}
+      - uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: ${{ needs.build.outputs.output_dir }}
