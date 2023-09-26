@@ -28,8 +28,6 @@ jobs:
       - run: npm ci
       - run: ./git_hooks/pre-commit
       - run: cargo run --package builder
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: no_untracked
         run: |
           set -euxo pipefail
