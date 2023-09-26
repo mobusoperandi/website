@@ -1,4 +1,4 @@
-on: [push, pull_request_target]
+on: [push, pull_request]
 permissions:
   contents: write
   pull-requests: write
@@ -9,12 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        if: github.event_name == 'pull_request_target'
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.ref }}
-      - uses: actions/checkout@v3
-        if: github.event_name == 'push'
       - run: rustup update
       - id: get-rust-version
         run: echo "rust_version=$(rustc --version)" >> $GITHUB_OUTPUT
@@ -60,7 +54,7 @@ jobs:
       output_dir: ${{ steps.get_output_dir.outputs.output_dir }}
 
   deploy-preview:
-    if: github.event_name == 'pull_request_target'
+    if: github.event_name == 'pull_request'
     needs: build
     environment: pull_request_deployment
     runs-on: ubuntu-latest
