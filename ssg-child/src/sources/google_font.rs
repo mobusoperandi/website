@@ -58,7 +58,6 @@ impl FileSource for GoogleFont {
         } = self.clone();
 
         async move {
-            // TODO: Consider reusing the client ->
             let url = Url::parse_with_params(
                 &format!(
                     "https://gwfh.mranftl.com/api/fonts/{}",

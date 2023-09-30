@@ -100,7 +100,9 @@ impl Status {
             .expect("variant not found");
 
         let list_tokens = variant.attrs.into_iter().find_map(|attr| {
-            let syn::Meta::List(list_meta) = attr.meta else { return None; };
+            let syn::Meta::List(list_meta) = attr.meta else {
+                return None;
+            };
 
             if !list_meta.path.is_ident("attr") {
                 return None;
@@ -115,12 +117,11 @@ impl Status {
             return None;
         }
 
-        let syn::Expr::Lit(
-            syn::ExprLit {
-                lit: syn::Lit::Char(lit_char),
-                ..
-            }
-        ) = name_value.value else {
+        let syn::Expr::Lit(syn::ExprLit {
+            lit: syn::Lit::Char(lit_char),
+            ..
+        }) = name_value.value
+        else {
             panic!("value is not a literal");
         };
 
