@@ -57,6 +57,7 @@ jobs:
     environment: pull_request_deployment
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
           name: build_output_dir
