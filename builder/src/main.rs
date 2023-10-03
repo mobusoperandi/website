@@ -19,15 +19,22 @@ mod syn_helpers;
 mod tailwind;
 mod url;
 
-use builder::OUTPUT_DIR;
+use anyhow::Result;
+use camino::Utf8PathBuf;
+use clap::Parser;
 use ssg_child::generate_static_site;
 
-use anyhow::Result;
+#[derive(Parser)]
+struct Cli {
+    output_dir: Utf8PathBuf,
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let Cli { output_dir } = Cli::parse();
+
     let file_specs = file_specs::get()?;
-    let mut generation_task = generate_static_site(OUTPUT_DIR.clone(), file_specs);
+    let mut generation_task = generate_static_site(output_dir.clone(), file_specs);
 
     generation_task.set_file_result_fn(|progress_report| {
         eprintln!("{progress_report:?}");
@@ -35,7 +42,7 @@ async fn main() -> Result<()> {
 
     generation_task.await?;
 
-    tailwind::execute().await?;
+    tailwind::execute(&output_dir).await?;
 
     Ok(())
 }

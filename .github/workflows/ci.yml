@@ -27,7 +27,7 @@ jobs:
       - run: cargo install cargo-run-bin
       - run: npm ci
       - run: ./git_hooks/pre-commit
-      - run: cargo run --package builder
+      - run: cargo run --package builder $(cargo run print-output-dir)
       - name: no_untracked
         run: |
           set -euxo pipefail

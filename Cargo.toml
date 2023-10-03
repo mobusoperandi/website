@@ -1,4 +1,5 @@
 [workspace]
+members = ["builder"]
 
 [package]
 name = "_"
@@ -10,7 +11,7 @@ tokio_console = ["dep:console-subscriber"]
 
 [dependencies]
 anyhow = { version = "1.0.66", features = ["backtrace"] }
-builder = { version = "0.0.0", path = "builder" }
+camino = "1.1.4"
 chrono = { version = "0.4.19", features = ["serde"] }
 clap = { version = "4.1.4", features = ["derive"] }
 console-subscriber = { version = "0.1.8", optional = true }
