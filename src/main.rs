@@ -1,8 +1,12 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use builder::OUTPUT_DIR;
+use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
+use once_cell::sync::Lazy;
 use ssg_parent::{dev, DevError};
+
+pub static OUTPUT_DIR: Lazy<Utf8PathBuf> =
+    Lazy::new(|| Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(".vercel/output/static"));
 
 #[derive(Debug, Parser)]
 struct Cli {

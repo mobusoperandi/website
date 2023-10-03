@@ -38,7 +38,13 @@ where
         .boxed();
 
     let mut cargo_run_builder = tokio::process::Command::new("cargo");
-    cargo_run_builder.args(["run", "--package", BUILDER_CRATE_NAME]);
+    cargo_run_builder.args([
+        "run",
+        "--package",
+        BUILDER_CRATE_NAME,
+        "--",
+        output_dir.as_str(),
+    ]);
 
     let url = local_url(port);
 
