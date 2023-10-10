@@ -17,7 +17,6 @@ pub enum DevError {
     NoFreePort,
 }
 
-const BUILDER_CRATE_NAME: &str = "builder";
 const LOCALHOST: &str = "localhost";
 
 fn local_url(port: portpicker::Port) -> reqwest::Url {
@@ -37,14 +36,7 @@ impl Parent {
                 .map(|result| result.expect_err("unreachable"))
                 .boxed();
 
-        let mut cargo_run_builder = tokio::process::Command::new("cargo");
-        cargo_run_builder.args([
-            "run",
-            "--package",
-            BUILDER_CRATE_NAME,
-            "--",
-            self.output_dir.as_str(),
-        ]);
+        let cargo_run_builder = self.builder_command();
 
         let url = local_url(port);
 
