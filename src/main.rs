@@ -3,7 +3,7 @@
 use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
 use once_cell::sync::Lazy;
-use ssg_parent::{dev, DevError};
+use ssg_parent::{dev, DevError, Parent};
 
 pub static OUTPUT_DIR: Lazy<Utf8PathBuf> =
     Lazy::new(|| Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(".vercel/output/static"));
@@ -40,12 +40,12 @@ async fn main() -> Result<(), DevError> {
     #[cfg(feature = "tokio_console")]
     console_subscriber::init();
 
-    let parent = Parent::new();
+    let parent = Parent::new(OUTPUT_DIR.clone());
 
     let cli = Cli::parse();
 
     match cli.mode.unwrap_or_default() {
-        Mode::Build => { parent.build() },
+        Mode::Build => parent.build(),
         Mode::Dev { open } => return Err(parent.dev(open, OUTPUT_DIR.as_path()).await),
         Mode::PrintOutputDir => print!("{}", OUTPUT_DIR.as_os_str().to_str().unwrap()),
     }
