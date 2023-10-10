@@ -16,6 +16,8 @@ struct Cli {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Subcommand)]
 enum Mode {
+    /// Build
+    Build,
     /// watch for changes and rebuild the website
     /// and start a development web server
     Dev {
@@ -38,10 +40,13 @@ async fn main() -> Result<(), DevError> {
     #[cfg(feature = "tokio_console")]
     console_subscriber::init();
 
+    let parent = Parent::new();
+
     let cli = Cli::parse();
 
     match cli.mode.unwrap_or_default() {
-        Mode::Dev { open } => return Err(dev(open, OUTPUT_DIR.as_path()).await),
+        Mode::Build => { parent.build() },
+        Mode::Dev { open } => return Err(parent.dev(open, OUTPUT_DIR.as_path()).await),
         Mode::PrintOutputDir => print!("{}", OUTPUT_DIR.as_os_str().to_str().unwrap()),
     }
 
