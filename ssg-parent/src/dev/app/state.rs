@@ -14,7 +14,7 @@ impl super::App {
     #[allow(clippy::unnecessary_wraps)]
     fn builder_killed(&mut self, result: std::io::Result<()>) -> Option<super::OutputEvent> {
         match result {
-            Ok(_) => match self.builder {
+            Ok(()) => match self.builder {
                 BuilderState::AwaitingKillResult => {
                     self.builder = BuilderState::AwaitingChild;
                     Some(super::OutputEvent::RunBuilder)
@@ -80,7 +80,7 @@ impl super::App {
 
     fn browser_opened(result: Result<(), std::io::Error>) -> Option<super::OutputEvent> {
         match result {
-            Ok(_) => None,
+            Ok(()) => None,
             Err(error) => Some(super::OutputEvent::Error(super::super::DevError::Io(error))),
         }
     }
