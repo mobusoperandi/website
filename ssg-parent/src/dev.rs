@@ -27,18 +27,15 @@ fn local_url(port: portpicker::Port) -> reqwest::Url {
 impl Parent {
     /// Sets up a development environment that watches the file system,
     /// recompiling the crate that when run describes the website on localhost when there are changes.
-    pub async fn dev<O>(launch_browser: bool, output_dir: O) -> DevError
-    where
-        camino::Utf8PathBuf: From<O>,
-    {
-        let output_dir = camino::Utf8PathBuf::from(output_dir);
+    pub async fn dev(&self, launch_browser: bool) -> DevError {
         let Some(port) = portpicker::pick_unused_port() else {
             return DevError::NoFreePort;
         };
 
-        let server_task = live_server::listen(LOCALHOST, port, output_dir.as_std_path().to_owned())
-            .map(|result| result.expect_err("unreachable"))
-            .boxed();
+        let server_task =
+            live_server::listen(LOCALHOST, port, self.output_dir.as_std_path().to_owned())
+                .map(|result| result.expect_err("unreachable"))
+                .boxed();
 
         let mut cargo_run_builder = tokio::process::Command::new("cargo");
         cargo_run_builder.args([
@@ -46,7 +43,7 @@ impl Parent {
             "--package",
             BUILDER_CRATE_NAME,
             "--",
-            output_dir.as_str(),
+            self.output_dir.as_str(),
         ]);
 
         let url = local_url(port);

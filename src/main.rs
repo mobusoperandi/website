@@ -3,7 +3,7 @@
 use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
 use once_cell::sync::Lazy;
-use ssg_parent::{dev, DevError, Parent};
+use ssg_parent::{DevError, Parent};
 
 pub static OUTPUT_DIR: Lazy<Utf8PathBuf> =
     Lazy::new(|| Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(".vercel/output/static"));
@@ -46,7 +46,7 @@ async fn main() -> Result<(), DevError> {
 
     match cli.mode.unwrap_or_default() {
         Mode::Build => parent.build(),
-        Mode::Dev { open } => return Err(parent.dev(open, OUTPUT_DIR.as_path()).await),
+        Mode::Dev { open } => return Err(parent.dev(open).await),
         Mode::PrintOutputDir => print!("{}", OUTPUT_DIR.as_os_str().to_str().unwrap()),
     }
 
