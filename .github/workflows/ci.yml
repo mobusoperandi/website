@@ -19,12 +19,10 @@ jobs:
             .bin/
             target/
             ~/.cargo/
-          key: ${{ runner.os }}_${{ steps.get-rust-version.outputs.rust_version }}_cargo-run-bin_${{ hashFiles('rust-toolchain.toml', 'Cargo.toml', 'Cargo.lock') }}
+          key: ${{ runner.os }}_${{ steps.get-rust-version.outputs.rust_version }}_${{ hashFiles('rust-toolchain.toml', 'Cargo.toml', 'Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}_${{ steps.get-rust-version.outputs.rust_version }}_cargo-run-bin_
             ${{ runner.os }}_${{ steps.get-rust-version.outputs.rust_version }}_
             ${{ runner.os }}_
-      - run: cargo install cargo-run-bin
       - run: npm ci
       - run: ./git_hooks/pre-commit
       - run: cargo run --package builder $(cargo run print-output-dir)
