@@ -2,7 +2,7 @@
 
 mod dev;
 
-use std::num::NonZeroI16;
+use std::{num::NonZeroI16, process::Stdio};
 
 pub use dev::DevError;
 
@@ -41,5 +41,9 @@ impl Parent {
     }
 
     pub fn build(&self) -> Result<(), BuildError> {
+        let builder_command = &mut self.builder_command();
+        builder_command.stdout(Stdio::null());
+        builder_command.stderr(Stdio::piped());
+        let child = builder_command.spawn()?;
     }
 }
