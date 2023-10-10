@@ -54,7 +54,7 @@ where
         reactive::driver::child_process_killer::ChildProcessKillerDriver::new();
     let (open_browser_driver, browser_opened) =
         reactive::driver::open_that::StaticOpenThatDriver::new(url.to_string());
-    let (eprintln_driver, _) = reactive::driver::println::EprintlnDriver::new();
+    let (eprintln_driver, ()) = reactive::driver::println::EprintlnDriver::new();
     let (notify_driver, notify) =
         match reactive::driver::notify::FsChangeDriver::new(BUILDER_CRATE_NAME) {
             Ok(val) => val,
@@ -90,11 +90,11 @@ where
 
     futures::select! {
         error = error.fuse() => error,
-        _ = builder_driver_task.fuse() => unreachable!(),
-        _ = child_process_killer_driver_task.fuse() => unreachable!(),
-        _ = stderr_driver_task.fuse() => unreachable!(),
-        _ = open_browser_driver_task.fuse() => unreachable!(),
-        _ = stream_splitter_task.fuse() => unreachable!(),
-        _ = notify_driver_task.fuse() => unreachable!(),
+        () = builder_driver_task.fuse() => unreachable!(),
+        () = child_process_killer_driver_task.fuse() => unreachable!(),
+        () = stderr_driver_task.fuse() => unreachable!(),
+        () = open_browser_driver_task.fuse() => unreachable!(),
+        () = stream_splitter_task.fuse() => unreachable!(),
+        () = notify_driver_task.fuse() => unreachable!(),
     }
 }
