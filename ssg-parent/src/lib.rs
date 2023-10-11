@@ -5,7 +5,7 @@ mod dev;
 use std::{num::NonZeroI16, process::Stdio};
 
 pub use dev::DevError;
-use futures::StreamExt;
+use futures::{StreamExt, TryStreamExt};
 use tokio::io::{AsyncBufReadExt, BufReader};
 
 const BUILDER_CRATE_NAME: &str = "builder";
@@ -48,18 +48,18 @@ impl Parent {
         let builder_command = &mut self.builder_command();
         builder_command.stdout(Stdio::null());
         builder_command.stderr(Stdio::piped());
+
         let mut child = builder_command.spawn()?;
         let child_stderr = child.stderr.take().expect("stderr should be piped");
+
         let child_stderr =
             tokio_stream::wrappers::LinesStream::new(BufReader::new(child_stderr).lines());
+
         let child_stderr: String = child_stderr
-            .inspect(|line| {
-                if let Ok(line) = line {
-                    eprintln!("{line}");
-                }
-            })
-            .collect::<Result<_, _>>()
+            .inspect_ok(|line| eprintln!("builder: {line}"))
+            .try_collect()
             .await?;
-        todo!()
+
+        child
     }
 }
