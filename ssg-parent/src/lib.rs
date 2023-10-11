@@ -54,21 +54,31 @@ impl Parent {
         builder_command.stdout(Stdio::null());
         builder_command.stderr(Stdio::piped());
 
-        let mut child = builder_command
-            .spawn()
-            .map_err(|error| (error.into(), String::new()))?;
+        let mut child = builder_command.spawn();
+
+        let child = match child {
+            Ok(child) => child,
+            Err(err) => return (Err(err.into()), String::new()),
+        };
+
         let child_stderr = child.stderr.take().expect("stderr should be piped");
 
         let child_stderr =
             tokio_stream::wrappers::LinesStream::new(BufReader::new(child_stderr).lines());
 
-        let child_stderr: String = child_stderr
+        let child_stderr = child_stderr
             .inspect_ok(|line| eprintln!("builder: {line}"))
-            .try_collect()
-            .await
-            .map_err(|error| (error.into(), String::new()))?;
+            .try_collect::<String>()
+            .await;
 
-        match child.wait().await {
+        let child_stderr = match child_stderr {
+            Ok(child_stderr) => child_stderr,
+            Err(err) => return (Err(err.into()), String::new()),
+        };
+
+        let exit_status = child.wait().await;
+
+        match exit_status {
             Err(error) => Err((error.into(), child_stderr)),
             Ok(exit_status) => match exit_status.code() {
                 Some(0) => Ok(child_stderr),
