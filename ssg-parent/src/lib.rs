@@ -2,7 +2,10 @@
 
 mod dev;
 
-use std::{num::NonZeroI16, process::Stdio};
+use std::{
+    num::{NonZeroI16, NonZeroI32},
+    process::Stdio,
+};
 
 pub use dev::DevError;
 use futures::{StreamExt, TryStreamExt};
@@ -19,7 +22,9 @@ pub enum BuildError {
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error("")]
-    ExitCode(NonZeroI16),
+    ExitCode(NonZeroI32),
+    #[error("")]
+    ExitWithoutCode,
 }
 
 impl Parent {
@@ -44,12 +49,14 @@ impl Parent {
         command
     }
 
-    pub async fn build(&self) -> Result<(), BuildError> {
+    pub async fn build(&self) -> (Result<(), BuildError>, String) {
         let builder_command = &mut self.builder_command();
         builder_command.stdout(Stdio::null());
         builder_command.stderr(Stdio::piped());
 
-        let mut child = builder_command.spawn()?;
+        let mut child = builder_command
+            .spawn()
+            .map_err(|error| (error.into(), String::new()))?;
         let child_stderr = child.stderr.take().expect("stderr should be piped");
 
         let child_stderr =
@@ -58,8 +65,19 @@ impl Parent {
         let child_stderr: String = child_stderr
             .inspect_ok(|line| eprintln!("builder: {line}"))
             .try_collect()
-            .await?;
+            .await
+            .map_err(|error| (error.into(), String::new()))?;
 
-        child
+        match child.wait().await {
+            Err(error) => Err((error.into(), child_stderr)),
+            Ok(exit_status) => match exit_status.code() {
+                Some(0) => Ok(child_stderr),
+                None => Err((BuildError::ExitWithoutCode, child_stderr)),
+                Some(non_zero) => Err((
+                    BuildError::ExitCode(NonZeroI32::new(non_zero).unwrap()),
+                    child_stderr,
+                )),
+            },
+        }
     }
 }
