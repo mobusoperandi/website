@@ -45,7 +45,7 @@ async fn main() -> Result<(), DevError> {
     let cli = Cli::parse();
 
     match cli.mode.unwrap_or_default() {
-        Mode::Build => parent.build(),
+        Mode::Build => parent.build().await?,
         Mode::Dev { open } => return Err(parent.dev(open).await),
         Mode::PrintOutputDir => print!("{}", OUTPUT_DIR.as_os_str().to_str().unwrap()),
     }

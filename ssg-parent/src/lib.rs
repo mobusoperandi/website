@@ -14,7 +14,7 @@ pub struct Parent {
 }
 
 #[derive(Debug, thiserror::Error)]
-enum BuildError {
+pub enum BuildError {
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error("")]
@@ -43,13 +43,14 @@ impl Parent {
         command
     }
 
-    pub fn build(&self) -> Result<(), BuildError> {
+    pub async fn build(&self) -> Result<(), BuildError> {
         let builder_command = &mut self.builder_command();
         builder_command.stdout(Stdio::null());
         builder_command.stderr(Stdio::piped());
-        let child = builder_command.spawn()?;
+        let mut child = builder_command.spawn()?;
         let stderr = child.stderr.take().expect("stderr should be piped");
-        let stderr = tokio_stream::wrapper::LinesStream::new(BufReader::new(stderr).lines());
+        let stderr = tokio_stream::wrappers::LinesStream::new(BufReader::new(stderr).lines());
+        let stderr = stderr.map
         todo!()
     }
 }

@@ -3,7 +3,7 @@ mod app;
 use futures::FutureExt;
 use reactive::driver::Driver;
 
-use crate::Parent;
+use crate::{BuildError, Parent, BUILDER_CRATE_NAME};
 
 /// Error type returned from the reactive app
 #[derive(Debug, thiserror::Error)]
@@ -15,6 +15,8 @@ pub enum DevError {
     Io(std::io::Error),
     #[error("no free port")]
     NoFreePort,
+    #[error(transparent)]
+    Build(#[from] BuildError),
 }
 
 const LOCALHOST: &str = "localhost";
