@@ -54,9 +54,7 @@ impl Parent {
         builder_command.stdout(Stdio::null());
         builder_command.stderr(Stdio::piped());
 
-        let mut child = builder_command.spawn();
-
-        let child = match child {
+        let mut child = match builder_command.spawn() {
             Ok(child) => child,
             Err(err) => return (Err(err.into()), String::new()),
         };
@@ -77,6 +75,11 @@ impl Parent {
         };
 
         let exit_status = child.wait().await;
+
+        let exit_status = match exit_status  {
+            Ok(exit_status) => exit_status,
+            Err(err) => return (Err(err.into()), child_stderr),
+        };
 
         match exit_status {
             Err(error) => Err((error.into(), child_stderr)),
