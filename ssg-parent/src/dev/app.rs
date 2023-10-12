@@ -1,10 +1,4 @@
-mod state;
-
-/// State machine for the dev environment
-#[derive(Debug, Default)]
-pub(super) struct App {
-    builder: state::BuilderState,
-}
+pub(crate) mod state;
 
 use colored::Colorize;
 use futures::{
@@ -54,7 +48,7 @@ pub(super) struct Outputs {
     pub(super) stream_splitter_task: LocalBoxFuture<'static, ()>,
 }
 
-impl App {
+impl super::Parent {
     pub(super) fn outputs(self, inputs: Inputs) -> Outputs {
         let Inputs {
             server_task,
@@ -89,8 +83,8 @@ impl App {
                 .boxed_local(),
             browser_launch.map(InputEvent::BrowserOpened).boxed_local(),
         ])
-        .scan(self, move |app, input| {
-            future::ready(Some(app.input_event(input)))
+        .scan(self, move |parent, input| {
+            future::ready(Some(parent.input_event(input)))
         })
         .filter_map(future::ready);
 

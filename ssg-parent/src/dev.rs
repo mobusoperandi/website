@@ -1,4 +1,4 @@
-mod app;
+pub(crate) mod app;
 
 use futures::FutureExt;
 use reactive::driver::Driver;
@@ -27,7 +27,7 @@ fn local_url(port: portpicker::Port) -> reqwest::Url {
 impl Parent {
     /// Sets up a development environment that watches the file system,
     /// recompiling the crate that when run describes the website on localhost when there are changes.
-    pub async fn dev(&self, launch_browser: bool) -> DevError {
+    pub async fn dev(self, launch_browser: bool) -> DevError {
         let Some(port) = portpicker::pick_unused_port() else {
             return DevError::NoFreePort;
         };
@@ -71,7 +71,7 @@ impl Parent {
             url,
         };
 
-        let outputs = app::App::default().outputs(inputs);
+        let outputs = self.outputs(inputs);
 
         let app::Outputs {
             stderr,

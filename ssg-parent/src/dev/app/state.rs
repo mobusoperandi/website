@@ -1,4 +1,6 @@
-impl super::App {
+use crate::Parent;
+
+impl Parent {
     pub(super) fn input_event(&mut self, input: super::InputEvent) -> Option<super::OutputEvent> {
         match input {
             super::InputEvent::BuilderKilled(result) => self.builder_killed(result),
@@ -87,7 +89,7 @@ impl super::App {
 }
 
 #[derive(Debug, Default)]
-pub(super) enum BuilderState {
+pub(crate) enum BuilderState {
     // this exists to ensure that only one child is live at a time
     AwaitingKillResult,
     #[default]
