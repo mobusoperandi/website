@@ -14,7 +14,7 @@ schedule:
     timezone: UTC
     start_date: 2023-07-14
     start_time: 13:00
-    duration: 120
+    duration: 90
 background_color: salmon
 text_color: black
 freeform_copy: |
