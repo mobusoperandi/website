@@ -54,11 +54,38 @@ impl BuilderState {
     }
 }
 
+#[derive(Debug, thiserror::Error)]
+pub enum BuildError {
+    #[error("builder: {_0}")]
+    Io(#[from] std::io::Error),
+    #[error("builder terminated with exit code {_0}")]
+    ExitCode(i32),
+    #[error("builder terminated without exit code")]
+    NoExitCode,
+}
+
 impl Parent {
     pub fn new(output_dir: impl Into<camino::Utf8PathBuf>) -> Self {
         Self {
             output_dir: output_dir.into(),
             builder: BuilderState::default(),
+        }
+    }
+
+    /// Build once
+    ///
+    /// # Errors
+    ///
+    /// See the error type.
+    pub async fn build(&self) -> Result<(), BuildError> {
+        let mut command = self.builder_command();
+        let status = command.status().await?;
+        if status.success() {
+            Ok(())
+        } else {
+            Err(status
+                .code()
+                .map_or(BuildError::NoExitCode, BuildError::ExitCode))
         }
     }
 
@@ -74,14 +101,7 @@ impl Parent {
                 .map(|result| result.expect_err("unreachable"))
                 .boxed();
 
-        let mut cargo_run_builder = tokio::process::Command::new("cargo");
-        cargo_run_builder.args([
-            "run",
-            "--package",
-            BUILDER_CRATE_NAME,
-            "--",
-            self.output_dir.as_str(),
-        ]);
+        let cargo_run_builder = self.builder_command();
 
         let url = local_url(port);
 
@@ -134,6 +154,20 @@ impl Parent {
             () = stream_splitter_task.fuse() => unreachable!(),
             () = notify_driver_task.fuse() => unreachable!(),
         }
+    }
+
+    fn builder_command(&self) -> tokio::process::Command {
+        let mut cargo_run_builder = tokio::process::Command::new("cargo");
+
+        cargo_run_builder.args([
+            "run",
+            "--package",
+            BUILDER_CRATE_NAME,
+            "--",
+            self.output_dir.as_str(),
+        ]);
+
+        cargo_run_builder
     }
 
     fn input_event(&mut self, input: InputEvent) -> Option<OutputEvent> {
