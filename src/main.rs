@@ -3,7 +3,7 @@
 use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
 use once_cell::sync::Lazy;
-use ssg_parent::{dev, DevError};
+use ssg_parent::Parent;
 
 pub static OUTPUT_DIR: Lazy<Utf8PathBuf> =
     Lazy::new(|| Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(".vercel/output/static"));
@@ -16,6 +16,8 @@ struct Cli {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Subcommand)]
 enum Mode {
+    /// build the website
+    Build,
     /// watch for changes and rebuild the website
     /// and start a development web server
     Dev {
@@ -34,14 +36,17 @@ impl Default for Mode {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), DevError> {
+async fn main() -> anyhow::Result<()> {
     #[cfg(feature = "tokio_console")]
     console_subscriber::init();
 
     let cli = Cli::parse();
 
+    let parent = Parent::new(OUTPUT_DIR.clone());
+
     match cli.mode.unwrap_or_default() {
-        Mode::Dev { open } => return Err(dev(open, OUTPUT_DIR.as_path()).await),
+        Mode::Build => parent.build().await?,
+        Mode::Dev { open } => anyhow::bail!(parent.dev(open).await),
         Mode::PrintOutputDir => print!("{}", OUTPUT_DIR.as_os_str().to_str().unwrap()),
     }
 
