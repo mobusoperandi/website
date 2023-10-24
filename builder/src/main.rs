@@ -16,7 +16,6 @@ mod pages;
 mod relative_path;
 mod style;
 mod syn_helpers;
-mod tailwind;
 mod url;
 
 use anyhow::Result;
@@ -41,8 +40,6 @@ async fn main() -> Result<()> {
     });
 
     generation_task.await?;
-
-    tailwind::execute(&output_dir).await?;
 
     Ok(())
 }

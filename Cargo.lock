@@ -11,6 +11,7 @@ dependencies = [
  "chrono",
  "clap 4.2.0",
  "console-subscriber",
+ "futures",
  "indexmap 1.9.3",
  "once_cell",
  "serde",
@@ -632,7 +633,7 @@ dependencies = [
  "const_format",
  "csscolorparser",
  "custom_attrs",
- "derive_more",
+ "derive_more 0.99.17",
  "futures",
  "getset",
  "global_counter",
@@ -1211,6 +1212,27 @@ dependencies = [
  "quote",
  "rustc_version 0.4.0",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "derive_more"
+version = "1.0.0-beta.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1335e0609db169713d97c340dd769773c6c63cd953c8fcf1063043fd3d6dd11"
+dependencies = [
+ "derive_more-impl",
+]
+
+[[package]]
+name = "derive_more-impl"
+version = "1.0.0-beta.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df541e0e2a8069352be228ce4b85a1da6f59bfd325e56f57e4b241babbc3f832"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.11",
+ "unicode-xid",
 ]
 
 [[package]]
@@ -3652,7 +3674,7 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "camino",
- "derive_more",
+ "derive_more 0.99.17",
  "dirs",
  "futures",
  "getset",
@@ -3677,6 +3699,7 @@ dependencies = [
  "async-trait",
  "camino",
  "colored",
+ "derive_more 1.0.0-beta.3",
  "futures",
  "live-server",
  "once_cell",
