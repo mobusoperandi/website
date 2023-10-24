@@ -3,16 +3,22 @@
 use colored::Colorize;
 use futures::{
     channel::mpsc,
-    future::{self, LocalBoxFuture},
+    future::{self, BoxFuture, LocalBoxFuture},
     stream::{self, LocalBoxStream},
     FutureExt, SinkExt, StreamExt,
 };
 use reactive::driver::Driver;
 
-#[derive(Debug)]
+type PostBuildReturn =
+    BoxFuture<'static, Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>;
+
+#[derive(derive_more::Debug)]
+#[must_use]
 pub struct Parent {
     output_dir: camino::Utf8PathBuf,
     builder: BuilderState,
+    #[debug("{}", match post_build { None => "None", Some(_) => "Some(function)" })]
+    post_build: Option<Box<dyn Fn() -> PostBuildReturn>>,
 }
 
 const BUILDER_CRATE_NAME: &str = "builder";
@@ -62,6 +68,8 @@ pub enum BuildError {
     ExitCode(i32),
     #[error("builder terminated without exit code")]
     NoExitCode,
+    #[error("post_build: {0}")]
+    PostBuild(#[from] Box<dyn std::error::Error + Send + Sync>),
 }
 
 impl Parent {
@@ -69,7 +77,13 @@ impl Parent {
         Self {
             output_dir: output_dir.into(),
             builder: BuilderState::default(),
+            post_build: None,
         }
+    }
+
+    pub fn post_build(mut self, f: impl Fn() -> PostBuildReturn + 'static) -> Self {
+        self.post_build = Some(Box::new(f));
+        self
     }
 
     /// Build once
@@ -80,13 +94,15 @@ impl Parent {
     pub async fn build(&self) -> Result<(), BuildError> {
         let mut command = self.builder_command();
         let status = command.status().await?;
-        if status.success() {
-            Ok(())
-        } else {
-            Err(status
+        if !status.success() {
+            return Err(status
                 .code()
-                .map_or(BuildError::NoExitCode, BuildError::ExitCode))
+                .map_or(BuildError::NoExitCode, BuildError::ExitCode));
         }
+        if let Some(post_build) = &self.post_build {
+            post_build().await?;
+        }
+        Ok(())
     }
 
     /// Sets up a development environment that watches the file system,
@@ -378,5 +394,24 @@ impl Parent {
             error,
             stream_splitter_task,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{BuilderState, Parent};
+
+    #[test]
+    fn parent_debug() {
+        let parent_no_post_build = Parent {
+            output_dir: camino::Utf8PathBuf::from("path/to/there"),
+            builder: BuilderState::default(),
+            post_build: None,
+        };
+
+        let actual = format!("{parent_no_post_build:?}");
+        let expected =
+            "Parent { output_dir: \"path/to/there\", builder: AwaitingChild, post_build: None }";
+        assert_eq!(actual, expected);
     }
 }

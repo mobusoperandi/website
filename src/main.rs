@@ -1,5 +1,7 @@
 #![warn(clippy::all, clippy::pedantic)]
 
+mod tailwind;
+
 use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
 use once_cell::sync::Lazy;
@@ -42,7 +44,7 @@ async fn main() -> anyhow::Result<()> {
 
     let cli = Cli::parse();
 
-    let parent = Parent::new(OUTPUT_DIR.clone());
+    let parent = Parent::new(OUTPUT_DIR.clone()).post_build(tailwind::execute);
 
     match cli.mode.unwrap_or_default() {
         Mode::Build => parent.build().await?,
