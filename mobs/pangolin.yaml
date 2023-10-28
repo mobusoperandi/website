@@ -6,9 +6,10 @@ participants:
     social_url: https://twitter.com/mightyiam
     avatar_url: https://avatars.githubusercontent.com/u/635591?v=4
   - !Public
-    name: José Manuel Peña
-    social_url: http://twitter.com/josemanuelp0
-    avatar_url: https://avatars.githubusercontent.com/u/6510893?v=4
+    name: Roland Fredenhagen
+    social_url: https://github.com/ModProg
+    avatar_url: https://avatars.githubusercontent.com/u/11978847?v=4
+
 schedule:
   - frequency: FREQ=WEEKLY;BYDAY=TU,WE
     timezone: Etc/UTC
@@ -22,9 +23,15 @@ links:
 freeform_copy: |
   ## What we do
 
-  We are working on the [Mobus Operandi website](https://github.com/mobusoperandi/website).
+  We are working on the [Mobus Operandi website](https://github.com/mobusoperandi/website)
+  and on some Rust web development tooling that may eventually be published for general use.
+
+  This includes some advanced topics such as futures, streams and reactive programming.
+
 status: !Open |
-  ## Join us
+  ## We're open for more participants
+
+  We're looking for experienced developers who are reasonable competent with Rust.
+
+  For more details and application, see [this gist](https://gist.github.com/mightyiam/6618d6ae649dc26ef485a21ccfe1eb3e).
   
-  We are currently only two, so we are definitely open to more participants.
-  To apply, please contact [Dawn](https://twitter.com/mightyiam) and let him know that you’re interested.

@@ -21,7 +21,11 @@ freeform_copy: |
   ## We're learning Agda
 
   Learning [Agda](https://wiki.portal.chalmers.se/agda/pmwiki.php) since 2023-02-13.
+
+  Currently going through [Programming Language Foundations in Agda](https://plfa.github.io/).
 status: !Open |
   ## Join us
 
-  To apply, please contact [Dawn](https://github.com/mightyiam).
+  If you're interested in Agda, consider applying to join us in our modest study.
+
+  For more details and application, see [this gist](https://gist.github.com/mightyiam/6618d6ae649dc26ef485a21ccfe1eb3e).
