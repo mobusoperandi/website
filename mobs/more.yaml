@@ -9,6 +9,15 @@ participants:
     name: Warren Wise
     social_url: https://twitter.com/warren2k
     avatar_url: https://avatars.githubusercontent.com/u/846021?v=4
+  - !Public
+    name: Remy Clarke
+    social_url: https://github.com/clarkeremy
+    avatar_url: https://avatars.githubusercontent.com/u/60509493?v=4
+  - !Public
+    name: Adrian Furdui
+    social_url: https://github.com/adrianEffe
+    avatar_url: https://avatars.githubusercontent.com/u/67417197?v=4
+  - !Hidden
 schedule:
   - frequency: FREQ=WEEKLY;BYDAY=SA,SU
     timezone: Etc/UTC
