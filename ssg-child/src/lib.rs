@@ -28,13 +28,6 @@ impl Error {
     }
 }
 
-#[non_exhaustive]
-enum FileSourceEnum<Custom: sources::FileSource = std::convert::Infallible> {
-    Our,
-    Ones,
-    Custom(Custom)
-}
-
 pub fn generate_static_site(
     file_specs: impl IntoIterator<Item = FileSpec> + 'static,
 ) -> Result<GenerationTask, Error> {

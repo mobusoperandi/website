@@ -11,13 +11,15 @@ use getset::Getters;
 pub use google_font::*;
 pub use http::*;
 use relative_path::RelativePathBuf;
+use serde::{Serialize, Deserialize};
 
 pub trait FileSource {
     fn obtain_content(&self) -> BoxFuture<Result<FileContents, Box<dyn std::error::Error + Send>>>;
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 #[non_exhaustive]
-pub enum FileSourceEnum<C: FileSource = Infallible> {
+pub enum FileSourceEnum<C = Infallible> {
     Bytes(BytesSource),
     GoogleFont(GoogleFont),
     Http(Http),
@@ -68,7 +70,7 @@ impl FileContents {
     }
 }
 
-#[derive(Debug, Clone, Default, derive_more::IntoIterator)]
+#[derive(Debug, Clone, Default, derive_more::IntoIterator, Serialize, Deserialize)]
 pub struct ExpectedFiles(BTreeSet<RelativePathBuf>);
 
 impl ExpectedFiles {

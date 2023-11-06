@@ -5,12 +5,13 @@ use getset::Getters;
 use lazy_regex::regex_captures;
 use readext::ReadExt;
 use reqwest::{header::CONTENT_DISPOSITION, Url};
+use serde::{Serialize, Deserialize};
 
 use crate::disk_caching_http_client::HTTP_CLIENT;
 
 use super::{FileContents, FileSource};
 
-#[derive(Debug, Clone, Getters)]
+#[derive(Debug, Clone, Getters, Serialize, Deserialize)]
 pub struct GoogleFont {
     #[getset(get = "pub")]
     family: String,

@@ -1,8 +1,9 @@
 use futures::{future::BoxFuture, FutureExt};
+use serde::{Serialize, Deserialize};
 
 use super::{ExpectedFiles, FileContents, FileSource};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::module_name_repetitions)]
 pub struct BytesSource {
     bytes: Vec<u8>,

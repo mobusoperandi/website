@@ -1,11 +1,12 @@
 use futures::{future::BoxFuture, FutureExt, TryFutureExt};
 use reqwest::Url;
+use serde::{Serialize, Deserialize};
 
 use crate::disk_caching_http_client::HTTP_CLIENT;
 
 use super::{FileContents, FileSource};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Http(Url);
 
 impl From<Url> for Http {
