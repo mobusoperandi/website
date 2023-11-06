@@ -1,5 +1,7 @@
 #![warn(clippy::all, clippy::pedantic)]
 
+use std::os::unix::prelude::OsStringExt;
+
 use colored::Colorize;
 use futures::{
     channel::mpsc,
@@ -177,7 +179,6 @@ impl Parent {
     }
 
     fn builder_command(&self, sender: IpcSender<FileMsg>) -> tokio::process::Command {
-        let sender = bincode::serialize(&sender)?;
         let mut cargo_run_builder = tokio::process::Command::new("cargo");
 
         cargo_run_builder.args([
@@ -187,6 +188,10 @@ impl Parent {
             "--",
             self.output_dir.as_str(),
         ]);
+
+        let sender = bincode::serialize(&sender).expect("serialization should not fail");
+        let sender = std::ffi::OsString::from_vec(sender);
+        cargo_run_builder.env(FileMsg::CHANNEL_ENV_VAR, sender);
 
         cargo_run_builder
     }

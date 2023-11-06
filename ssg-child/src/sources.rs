@@ -16,6 +16,13 @@ pub trait FileSource {
     fn obtain_content(&self) -> BoxFuture<Result<FileContents, Box<dyn std::error::Error + Send>>>;
 }
 
+#[non_exhaustive]
+enum FileSourceEnum<Custom: FileSource = std::convert::Infallible> {
+    Bytes(BytesSource),
+    GoogleFont(GoogleFont),
+    Custom(Custom),
+}
+
 #[derive(Debug, Getters)]
 pub struct FileContents {
     #[getset(get = "pub(crate)")]
