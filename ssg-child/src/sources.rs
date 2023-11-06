@@ -1,10 +1,11 @@
-pub mod bytes;
-pub mod google_font;
-pub mod http;
+mod bytes;
+mod google_font;
+mod http;
 mod static_byte_slice;
 
 use std::collections::BTreeSet;
 
+pub use bytes::*;
 use futures::future::BoxFuture;
 use getset::Getters;
 pub use google_font::*;

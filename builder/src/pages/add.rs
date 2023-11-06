@@ -6,7 +6,7 @@ use maud::Render;
 use once_cell::sync::Lazy;
 use schema::{DeriveInput, Schema};
 use ssg_child::{
-    sources::{bytes::BytesSource, ExpectedFiles},
+    sources::{BytesSource, ExpectedFiles},
     FileSpec,
 };
 
