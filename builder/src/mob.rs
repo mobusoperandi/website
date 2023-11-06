@@ -17,7 +17,7 @@ use getset::Getters;
 use maud::{html, Markup, Render};
 use once_cell::sync::Lazy;
 
-use ssg_child::sources::bytes::BytesSource;
+use ssg_child::sources::BytesSource;
 use ssg_child::sources::ExpectedFiles;
 use ssg_child::FileSpec;
 
