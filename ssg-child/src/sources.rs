@@ -3,7 +3,7 @@ mod google_font;
 mod http;
 mod static_byte_slice;
 
-use std::collections::BTreeSet;
+use std::{collections::BTreeSet, convert::Infallible};
 
 pub use bytes::*;
 use futures::future::BoxFuture;
@@ -17,10 +17,30 @@ pub trait FileSource {
 }
 
 #[non_exhaustive]
-enum FileSourceEnum<Custom: FileSource = std::convert::Infallible> {
+pub enum FileSourceEnum<C: FileSource = Infallible> {
     Bytes(BytesSource),
     GoogleFont(GoogleFont),
-    Custom(Custom),
+    Http(Http),
+    StaticByteSlice(&'static [u8]),
+    Custom(C),
+}
+
+impl FileSource for Infallible {
+    fn obtain_content(&self) -> BoxFuture<Result<FileContents, Box<dyn std::error::Error + Send>>> {
+        match *self {}
+    }
+}
+
+impl<C: FileSource> FileSource for FileSourceEnum<C> {
+    fn obtain_content(&self) -> BoxFuture<Result<FileContents, Box<dyn std::error::Error + Send>>> {
+        match self {
+            FileSourceEnum::Bytes(source) => source.obtain_content(),
+            FileSourceEnum::GoogleFont(source) => source.obtain_content(),
+            FileSourceEnum::Http(source) => source.obtain_content(),
+            FileSourceEnum::StaticByteSlice(source) => source.obtain_content(),
+            FileSourceEnum::Custom(source) => source.obtain_content(),
+        }
+    }
 }
 
 #[derive(Debug, Getters)]
