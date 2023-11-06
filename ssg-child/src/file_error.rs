@@ -20,5 +20,5 @@ pub(crate) enum FileErrorCause {
     #[error(transparent)]
     Source(Box<dyn std::error::Error + Send>),
     #[error(transparent)]
-    OutputIo(#[from] std::io::Error),
+    Send(#[from] ipc_channel::Error),
 }

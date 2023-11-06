@@ -7,7 +7,9 @@ use futures::{
     stream::{self, LocalBoxStream},
     FutureExt, SinkExt, StreamExt,
 };
+use ipc_channel::ipc::IpcSender;
 use reactive::driver::Driver;
+use ssg_child::file_msg::FileMsg;
 
 type PostBuildReturn =
     BoxFuture<'static, Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>;
@@ -92,8 +94,10 @@ impl Parent {
     ///
     /// See the error type.
     pub async fn build(&self) -> Result<(), BuildError> {
-        let mut command = self.builder_command();
-        let status = command.status().await?;
+        let (sender, receiver) = ipc_channel::ipc::channel()?;
+        let mut command = self.builder_command(sender);
+        let child = command.spawn()?;
+
         if !status.success() {
             return Err(status
                 .code()
@@ -172,7 +176,8 @@ impl Parent {
         }
     }
 
-    fn builder_command(&self) -> tokio::process::Command {
+    fn builder_command(&self, sender: IpcSender<FileMsg>) -> tokio::process::Command {
+        let sender = bincode::serialize(&sender)?;
         let mut cargo_run_builder = tokio::process::Command::new("cargo");
 
         cargo_run_builder.args([
