@@ -61,6 +61,17 @@ pub(crate) enum Status {
     /// ```
     #[attr(indicator = '⛲')]
     Public(Markdown),
+    /// This mob has been terminated.
+    ///
+    /// The value may explain why.
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// !Terminated |
+    ///   Our goals have been accomplished and we moved on to other activities.
+    /// ```
+    Terminated(Option<Markdown>),
 }
 
 impl Status {
