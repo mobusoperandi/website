@@ -18,6 +18,7 @@ pub fn page() -> FileSpec {
 
     let events = MOBS
         .iter()
+        .filter(|mob| !matches!(mob.status(), mob::Status::Terminated(_)))
         .map(|mob| mob.events(&mut expected_files, event_content_template))
         .collect::<Vec<_>>()
         .into_iter()

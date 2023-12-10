@@ -51,21 +51,24 @@ impl MobPage {
 
 impl Render for MobPage {
     fn render(&self) -> maud::Markup {
-        let join_content = match self.mob.status() {
+        let status_content = match self.mob.status() {
             mob::Status::Short(join_content) | mob::Status::Open(join_content) => {
                 Some(join_content.clone())
             }
             mob::Status::Full(join_content) => join_content.clone(),
             mob::Status::Public(join_content) => Some(join_content.clone()),
+            mob::Status::Terminated(content) => content.clone(),
         };
 
-        let calendar = components::Calendar::new(
-            self.events.clone(),
-            None,
-            self.fullcalendar_path.clone(),
-            self.rrule_path.clone(),
-            self.fullcalendar_rrule_path.clone(),
-        );
+        let calendar = (!matches!(self.mob.status(), mob::Status::Terminated(_))).then(|| {
+            components::Calendar::new(
+                self.events.clone(),
+                None,
+                self.fullcalendar_path.clone(),
+                self.rrule_path.clone(),
+                self.fullcalendar_rrule_path.clone(),
+            )
+        });
 
         let root_classes = classes!(
             "flex",
@@ -115,7 +118,7 @@ impl Render for MobPage {
                     (self.mob.freeform_copy_markdown())
                 }
                 div class=(*style::PROSE_CLASSES) {
-                    @if let Some(join_content) = join_content {
+                    @if let Some(join_content) = status_content {
                         (join_content)
                     }
                 }
@@ -123,7 +126,9 @@ impl Render for MobPage {
 
             hr;
 
-            (calendar)
+            @if let Some(calendar) = calendar {
+                (calendar)
+            }
         };
 
         self.base
