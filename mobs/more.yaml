@@ -13,6 +13,10 @@ participants:
     name: Ruben Beck
     social_url: https://twitter.com/ubbabeck
     avatar_url: https://avatars.githubusercontent.com/u/36157890?v=4
+  - !Public
+    name: Angel Marquez
+    social_url: http://twitter.com/ttecho2021
+    avatar_url: https://avatars.githubusercontent.com/u/3174633?v=4
   - !Hidden
 schedule:
   - frequency: FREQ=WEEKLY;BYDAY=SA,SU
