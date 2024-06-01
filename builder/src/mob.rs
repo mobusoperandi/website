@@ -154,19 +154,32 @@ impl Mob {
             components::mob_page::event_content_template,
         );
 
-        let base = components::PageBase::new(&mut expected_files, path.clone());
+        let markup = if let status::Status::Renamed(renamed_id) = self.status() {
+            let base = components::PageBase::new(&mut expected_files, path.clone());
 
-        let page = components::mob_page::MobPage::new(
-            self,
-            links,
-            events,
-            base,
-            expected_files.insert_("/fullcalendar.js"),
-            expected_files.insert_("/rrule.js"),
-            expected_files.insert_("/fullcalendar_rrule.js"),
-        );
+            let page = components::redirect_page::RedirectPage::new(
+                base,
+                format!("/mobs/{renamed_id}.html"),
+            );
 
-        let bytes = page.render().0.into_bytes();
+            page.render()
+        } else {
+            let base = components::PageBase::new(&mut expected_files, path.clone());
+
+            let page = components::mob_page::MobPage::new(
+                self,
+                links,
+                events,
+                base,
+                expected_files.insert_("/fullcalendar.js"),
+                expected_files.insert_("/rrule.js"),
+                expected_files.insert_("/fullcalendar_rrule.js"),
+            );
+
+            page.render()
+        };
+
+        let bytes = markup.render().0.into_bytes();
 
         FileSpec::new(path, BytesSource::new(bytes, Some(expected_files)))
     }

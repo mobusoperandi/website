@@ -1,5 +1,5 @@
-title: Mob Standard
-subtitle: The JavaScript Standard Style mob
+title: Mob Love
+subtitle: A mob for eslint-config-love
 participants:
   - !Public
     name: Shahar “Dawn” Or
@@ -12,16 +12,19 @@ participants:
 schedule:
   - frequency: FREQ=WEEKLY;BYDAY=SA
     timezone: Etc/UTC
-    start_date: 2023-07-15
+    start_date: 2024-06-01
     start_time: 05:00
-    duration: 150
+    duration: 180
 background_color: fuchsia
 text_color: navy
-links:
-  - !YouTube "@mobstandard"
 freeform_copy: |
   ## What we do
 
-  We develop and maintain [JavaScript Standard Style](https://standardjs.com/).
+  We work on [eslint-config-love](https://github.com/mightyiam/eslint-config-love).
 
-status: !Renamed "love"
+status: !Open |
+  ## Join us
+  
+  If you're interested in JavaScript, TypeScript and open source, consider applying to our mob.
+
+  For more details and application, see [this gist](https://gist.github.com/mightyiam/6618d6ae649dc26ef485a21ccfe1eb3e).

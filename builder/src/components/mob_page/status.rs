@@ -56,6 +56,9 @@ impl Render for Status {
                 status_wrapper_true,
                 status_wrapper_false,
             ),
+            mob::Status::Renamed(_) => {
+                unreachable!()
+            }
             mob::Status::Terminated(_) => (
                 status_wrapper_false,
                 status_wrapper_false,
