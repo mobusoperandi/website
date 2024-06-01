@@ -10,6 +10,8 @@ use crate::{markdown::Markdown, syn_helpers::Attribute};
 
 pub(crate) use self::legend::Legend;
 
+use super::id::Id;
+
 #[derive(Debug, Clone, Serialize, Deserialize, Schema, AsRefStr, EnumVariantNames, CustomAttrs)]
 #[attr(indicator: Option<char>)]
 /// A mob's status
@@ -61,6 +63,16 @@ pub(crate) enum Status {
     /// ```
     #[attr(indicator = '⛲')]
     Public(Markdown),
+    /// This mob has been renamed.
+    ///
+    /// The value is the new name.
+    ///
+    /// Example:
+    ///
+    /// ```yaml
+    /// !Renamed "love"
+    /// ```
+    Renamed(Id),
     /// This mob has been terminated.
     ///
     /// The value may explain why.

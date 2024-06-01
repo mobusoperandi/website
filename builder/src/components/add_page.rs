@@ -61,6 +61,7 @@ impl Render for AddPage {
             .clone()
             .into_page(
                 Some("Add".to_owned().into()),
+                None,
                 content,
                 classes!("flex", "flex-col", VERTICAL_GAP_CLASS),
                 components::page_base::PageDescription::from(format!(

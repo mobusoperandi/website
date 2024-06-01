@@ -72,6 +72,7 @@ impl PageBase {
     pub(crate) fn into_page(
         self,
         title: Option<PageTitle>,
+        head_content: Option<Markup>,
         content: Markup,
         content_classes: Classes,
         description: PageDescription,
@@ -79,6 +80,7 @@ impl PageBase {
         Page {
             base: self,
             title,
+            head_content,
             content,
             content_classes,
             description,
@@ -89,11 +91,13 @@ impl PageBase {
 pub(crate) struct Page {
     base: PageBase,
     title: Option<PageTitle>,
+    head_content: Option<Markup>,
     content: Markup,
     content_classes: Classes,
     description: PageDescription,
 }
 
+#[allow(clippy::too_many_lines)]
 impl Render for Page {
     fn render(&self) -> Markup {
         const NAV_ICON_SIZE: u8 = 32;
@@ -146,6 +150,9 @@ impl Render for Page {
                   meta charset="utf-8";
                   meta name="description" content=(self.description);
                   meta name="viewport" content="width=device-width, initial-scale=1.0";
+                  @if let Some(head_content) = &self.head_content {
+                      (head_content)
+                  }
                   link rel="stylesheet" href={ "/index.css?v=" (version) };
                   style {
                     @for font in fonts::ALL.as_slice() { (font) }

@@ -1,4 +1,6 @@
-#[derive(Debug, Clone, derive_more::Display)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, derive_more::Display, Serialize, Deserialize)]
 pub(crate) struct Id(String);
 
 impl Id {

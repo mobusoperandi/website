@@ -89,6 +89,7 @@ impl Render for HomePage {
 
         let page = self.base.clone().into_page(
             None,
+            None,
             content,
             classes!("flex", "flex-col", "gap-1"),
             components::page_base::PageDescription::from(DESCRIPTION.to_owned()),

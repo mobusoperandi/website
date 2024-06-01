@@ -57,6 +57,7 @@ impl Render for MobPage {
             }
             mob::Status::Full(join_content) => join_content.clone(),
             mob::Status::Public(join_content) => Some(join_content.clone()),
+            mob::Status::Renamed(_id) => None,
             mob::Status::Terminated(content) => content.clone(),
         };
 
@@ -135,6 +136,7 @@ impl Render for MobPage {
             .clone()
             .into_page(
                 Some(self.mob.title().as_str().to_owned().into()),
+                None,
                 content,
                 classes!("flex", "flex-col", "gap-6"),
                 components::page_base::PageDescription::from(format!(
