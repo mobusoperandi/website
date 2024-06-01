@@ -51,21 +51,21 @@ impl From<String> for PageDescription {
 
 #[derive(Debug, Clone)]
 pub(crate) struct PageBase {
-    index_path: RelativePathBuf,
-    current_path: RelativePathBuf,
-    zulip_logo_path: RelativePathBuf,
-    inverticat_path: RelativePathBuf,
-    twitter_logo_path: RelativePathBuf,
+    index: RelativePathBuf,
+    current: RelativePathBuf,
+    zulip_logo: RelativePathBuf,
+    inverticat: RelativePathBuf,
+    twitter_logo: RelativePathBuf,
 }
 
 impl PageBase {
     pub(crate) fn new(expected_files: &mut ExpectedFiles, current_path: RelativePathBuf) -> Self {
         Self {
-            index_path: expected_files.insert_("/index.html"),
-            current_path,
-            zulip_logo_path: expected_files.insert_("/zulip_logo.svg"),
-            inverticat_path: expected_files.insert_("/inverticat.svg"),
-            twitter_logo_path: expected_files.insert_("/twitter_logo.svg"),
+            index: expected_files.insert_("/index.html"),
+            current: current_path,
+            zulip_logo: expected_files.insert_("/zulip_logo.svg"),
+            inverticat: expected_files.insert_("/inverticat.svg"),
+            twitter_logo: expected_files.insert_("/twitter_logo.svg"),
         }
     }
 
@@ -155,13 +155,13 @@ impl Render for Page {
                     div class=(header_classes) {
                         div class=(classes!("flex", "flex-col", "gap-x-2", "whitespace-nowrap"))
                             {
-                                @if self.base.index_path == self.base.current_path {
+                                @if self.base.index == self.base.current {
                                     p
                                         class=(brand_classes)
                                         { (NAME) }
                                 } @else {
                                     a
-                                        href=(self.base.index_path)
+                                        href=(self.base.index)
                                         class=(brand_classes)
                                         { (NAME) }
                                 }
@@ -173,21 +173,21 @@ impl Render for Page {
                                 img
                                     width=(NAV_ICON_SIZE)
                                     alt="Zulip"
-                                    src=(self.base.zulip_logo_path);
+                                    src=(self.base.zulip_logo);
                             }
 
                             a class=(classes!("invert")) href=(*GITHUB_ORGANIZATION_URL) {
                                 img
                                     width=(NAV_ICON_SIZE)
                                     alt="GitHub"
-                                    src=(self.base.inverticat_path);
+                                    src=(self.base.inverticat);
                             }
 
                             a href="https://twitter.com/mobusoperandi" {
                                 img
                                     width=(NAV_ICON_SIZE)
                                     alt="Twitter"
-                                    src=(self.base.twitter_logo_path);
+                                    src=(self.base.twitter_logo);
                             }
                         }
                     }
