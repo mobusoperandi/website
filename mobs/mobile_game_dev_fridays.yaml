@@ -17,8 +17,8 @@ freeform_copy: |
   ## What we do
 
   We are working on various mobile game related things, including but not limited to:
-  - exploring examples with the "bevy" game engine (Rust coding)
-  - exploring examples with the "react game kit" game engine (TypeScript / React Native coding)
+  - exploring examples with the "bevy" game engine. (Rust coding)
+  - exploring examples with the "react game kit" game engine. (TypeScript / React Native coding)
   - setting up local workstations with android and / or ios tooling.
   - designing artwork, animations, spritesheets, sound effects, etc.
   - Fine tuning game mechanics, strategy, balacing, and "funness".
