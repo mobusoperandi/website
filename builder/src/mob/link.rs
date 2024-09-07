@@ -8,6 +8,7 @@ use crate::{expected_files::ExpectedFilesExt, relative_path::RelativePathBuf, ur
 #[derive(Debug, Clone, Serialize, Deserialize, Schema)]
 /// A link that showcases the mob
 pub(crate) enum Link {
+    #[allow(clippy::doc_markdown)]
     /// A YouTube channel ID
     ///
     /// Example:

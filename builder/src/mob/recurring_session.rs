@@ -1,4 +1,4 @@
-use chrono::{Duration, TimeZone};
+use chrono::{Duration, NaiveDateTime};
 use getset::{CopyGetters, Getters};
 use rrule::{RRule, RRuleSet, Unvalidated};
 
@@ -25,11 +25,13 @@ impl TryFrom<YamlRecurringSession> for RecurringSession {
         let rrule: RRule<Unvalidated> = recurrence.parse()?;
         let timezone: rrule::Tz = timezone.into();
 
-        let start_date_time = timezone
-            .datetime_from_str(&format!("{start_date}{start_time}"), "%F%R")?
-            // workaround for https://github.com/fullcalendar/fullcalendar/issues/6815
-            // timezones with non-zero offset result in occurrences with wrong datetimes
-            .with_timezone(&rrule::Tz::UTC);
+        let start_date_time =
+            NaiveDateTime::parse_from_str(&format!("{start_date}{start_time}"), "%F%R")?
+                .and_local_timezone(timezone)
+                .unwrap()
+                // workaround for https://github.com/fullcalendar/fullcalendar/issues/6815
+                // timezones with non-zero offset result in occurrences with wrong datetimes
+                .with_timezone(&rrule::Tz::UTC);
 
         let recurrence = rrule
             // workaround for https://github.com/fullcalendar/fullcalendar/issues/6834
