@@ -11,7 +11,7 @@ schedule:
     start_date: 2024-09-06
     start_time: 11:00
     duration: 180
-background_color: periwinkle
+background_color: pink
 text_color: navy
 freeform_copy: |
   ## What we do
@@ -24,8 +24,7 @@ freeform_copy: |
   - Fine tuning game mechanics, strategy, balacing, and "funness".
   - being excited that it's friday! 
   - building our own games!
-
-status: !Public |
+status: !Open |
   ## Join us
   
   We hold our meetings on gather here: [https://app.gather.town/app/QNYoCWpW3rf8b0C5/XP%20Lounge](https://app.gather.town/app/QNYoCWpW3rf8b0C5/XP%20Lounge)
