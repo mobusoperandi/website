@@ -9,7 +9,7 @@ schedule:
   - frequency: FREQ=WEEKLY;BYDAY=FR
     timezone: Etc/UTC
     start_date: 2024-09-06
-    start_time: 11:00
+    start_time: 19:00
     duration: 180
 background_color: pink
 text_color: navy
