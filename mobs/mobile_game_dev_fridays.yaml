@@ -1,0 +1,32 @@
+title: Mobile Game Dev Fridays
+subtitle: End of the week remote gathering of mobile game devs!
+participants:
+  - !Public
+    name: Jim Lynch
+    social_url: https://x.com/JimLynchCodes
+    avatar_url: https://avatars.githubusercontent.com/u/5354163?v=4
+schedule:
+  - frequency: FREQ=WEEKLY;BYDAY=FR
+    timezone: Etc/UTC
+    start_date: 2024-09-06
+    start_time: 11:00
+    duration: 180
+background_color: pink
+text_color: navy
+freeform_copy: |
+  ## What we do
+
+  We are working on various mobile game related things, including but not limited to:
+  - exploring examples with the "bevy" game engine. (Rust coding)
+  - exploring examples with the "react game kit" game engine. (TypeScript / React Native coding)
+  - setting up local workstations with android and / or ios tooling.
+  - designing artwork, animations, spritesheets, sound effects, etc.
+  - Fine tuning game mechanics, strategy, balacing, and "funness".
+  - being excited that it's friday! 
+  - building our own games!
+status: !Open |
+  ## Join us
+  
+  We hold our meetings on gather here: [https://app.gather.town/app/QNYoCWpW3rf8b0C5/XP%20Lounge](https://app.gather.town/app/QNYoCWpW3rf8b0C5/XP%20Lounge)
+
+  See you there!
