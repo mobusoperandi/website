@@ -7,9 +7,9 @@ participants:
     avatar_url: https://avatars.githubusercontent.com/u/5354163?v=4
 schedule:
   - frequency: FREQ=WEEKLY;BYDAY=FR
-    timezone: Etc/UTC
+    timezone: Etc/EST
     start_date: 2024-09-06
-    start_time: 19:00
+    start_time: 15:00
     duration: 180
 background_color: pink
 text_color: navy
