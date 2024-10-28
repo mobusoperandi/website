@@ -50,7 +50,7 @@ pub(crate) static REPO_URL: Lazy<Url> = Lazy::new(|| {
     repo_url
 });
 
-pub(crate) const DEFAULT_BRANCH: &str = "master";
+pub(crate) const DEFAULT_BRANCH: &str = "main";
 
 pub(crate) const GITHUB_PULL_REQUESTS_URL: &str = "https://docs.github.com\
     /en/pull-requests/collaborating-with-pull-requests\
