@@ -1,0 +1,28 @@
+on: [pull_request]
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  deploy:
+    permissions:
+      pull-requests: write
+    needs: build
+    environment: pull_request_deployment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: build_output_dir
+          path: ${{ needs.build.outputs.output_dir }}
+      - id: deploy
+        run: |
+          npx vercel pull --yes --environment=preview --scope mobusoperandi --token=${{ secrets.VERCEL_TOKEN }}
+          URL=$(npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "URL=$URL" >> $GITHUB_OUTPUT
+      - uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            Branch deployed for review at:
+            ${{ steps.deploy.outputs.URL }}
