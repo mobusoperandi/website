@@ -1,0 +1,20 @@
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: build_output_dir
+          path: ${{ needs.build.outputs.output_dir }}
+      - uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: ${{ needs.build.outputs.output_dir }}
