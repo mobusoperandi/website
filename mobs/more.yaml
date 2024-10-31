@@ -39,7 +39,7 @@ freeform_copy: |
 
 status: !Open |
   ## Join us
-  
+
   If you're interested in levelling up your software development and Rust skills, consider joining us.
 
   For more details and application, see [this gist](https://gist.github.com/mightyiam/6618d6ae649dc26ef485a21ccfe1eb3e).

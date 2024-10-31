@@ -29,4 +29,3 @@ freeform_copy: |
   This includes some advanced topics such as futures, streams and reactive programming.
 
 status: !Terminated
-  

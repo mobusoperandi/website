@@ -1,8 +1,3 @@
-[package]
-name = "ssg-child"
-version = "0.0.0"
-edition = "2021"
-
 [dependencies]
 async-trait = "0.1.64"
 camino = "1.1.4"
@@ -15,12 +10,16 @@ lazy-regex = "2.5.0"
 once_cell = "1.17.1"
 readext = "0.1.0"
 relative-path = "1.8.0"
-reqwest = { version = "0.11.11", default-features = false, features = ["rustls-tls"] }
+reqwest = {version = "0.11.11", default-features = false, features = ["rustls-tls"]}
 reqwest-middleware = "0.2.0"
 task-local-extensions = "0.1.3"
 thiserror = "1.0.38"
 # TODO less features
-tokio = { version = "1.21.0", features = ["fs", "tokio-macros", "full"] }
+tokio = {version = "1.21.0", features = ["fs", "tokio-macros", "full"]}
 url = "2.3.1"
-zip = { version = "0.6.2", default-features = false, features = ["deflate"] }
+zip = {version = "0.6.2", default-features = false, features = ["deflate"]}
 
+[package]
+name = "ssg-child"
+version = "0.0.0"
+edition = "2021"

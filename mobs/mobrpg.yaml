@@ -23,10 +23,10 @@ text_color: black
 freeform_copy: |
   ## What we do
 
-  We work on an [open source webapp](https://github.com/gregorriegler/mob-programming-rpg) for the Mob Programming RPG.  
+  We work on an [open source webapp](https://github.com/gregorriegler/mob-programming-rpg) for the Mob Programming RPG.
 status: !Public |
   ## How to join
-  
+
   Just show up. We're happy to onboard new contributors.  
   Go to the README and check out the "[Contribute](https://github.com/gregorriegler/mob-programming-rpg/blob/main/README.md#contribute)" section.
 

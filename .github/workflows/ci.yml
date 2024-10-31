@@ -48,7 +48,6 @@ jobs:
           path: ${{ steps.get_output_dir.outputs.output_dir }}
     outputs:
       output_dir: ${{ steps.get_output_dir.outputs.output_dir }}
-
   deploy-preview:
     if: github.event_name == 'pull_request'
     needs: build
@@ -70,7 +69,6 @@ jobs:
           message: |
             Branch deployed for review at:
             ${{ steps.deploy.outputs.URL }}
-
   deploy-production:
     if: github.ref == 'refs/heads/main'
     needs: build
