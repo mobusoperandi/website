@@ -35,20 +35,7 @@ jobs:
       - run: npm ci
       - run: ./git_hooks/pre-commit
       - run: cargo run build
-      - name: no_untracked
-        run: |
-          set -euxo pipefail
-          if [[ `git ls-files --exclude-standard --others` ]]; then
-            echo "untracked files detected"
-            exit 1
-          fi
-      - name: no_modified
-        run: |
-          set -euxo pipefail
-          if ! git diff --exit-code; then
-            echo "modified files detected"
-            exit 1
-          fi
+      - uses: numtide/clean-git-action@v2
       - id: get_output_dir
         run: echo "output_dir=$(cargo run -- print-output-dir)" >> $GITHUB_OUTPUT
       - uses: actions/upload-artifact@v3
