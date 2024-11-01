@@ -1,5 +1,6 @@
 #![warn(clippy::all, clippy::pedantic)]
 
+use camino::Utf8PathBuf;
 use colored::Colorize;
 use futures::{
     channel::mpsc,
@@ -129,7 +130,11 @@ impl Parent {
             reactive::driver::open_that::StaticOpenThatDriver::new(url.to_string());
         let (eprintln_driver, ()) = reactive::driver::println::EprintlnDriver::new();
         let (notify_driver, notify) =
-            match reactive::driver::notify::FsChangeDriver::new(BUILDER_CRATE_NAME) {
+            match reactive::driver::notify::FsChangeDriver::new(Utf8PathBuf::from_iter([
+                env!("CARGO_MANIFEST_DIR"),
+                "..",
+                BUILDER_CRATE_NAME,
+            ])) {
                 Ok(val) => val,
                 Err(e) => return e.into(),
             };

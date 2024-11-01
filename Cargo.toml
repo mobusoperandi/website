@@ -1,27 +1,9 @@
-[dependencies]
-anyhow = {version = "1.0.66", features = ["backtrace"]}
-camino = "1.1.4"
-chrono = {version = "0.4.19", features = ["serde"]}
-clap = {version = "4.1.4", features = ["derive"]}
-console-subscriber = {version = "0.1.8", optional = true}
-futures = "0.3.28"
-indexmap = "1.9.2"
-once_cell = "1.16.0"
-serde = {version = "1.0.138", features = ["derive"]}
-serde_json = "1.0.82"
-ssg-parent = {version = "0.0.0", path = "ssg-parent"}
-thiserror = "1.0.40"
-# TODO less features
-tokio = {version = "1.21.0", features = ["full"]}
-url = "2.3.1"
-
-[features]
-tokio_console = ["dep:console-subscriber"]
-
-[package]
-name = "cli"
-version = "0.0.0"
-edition = "2021"
-
 [workspace]
-members = ["builder"]
+resolver = "2"
+members = ["crates/*"]
+default-members = ["crates/cli"]
+
+[workspace.dependencies]
+reactive.path = "crates/reactive"
+ssg-child.path = "crates/ssg-child"
+ssg-parent.path = "crates/ssg-parent"

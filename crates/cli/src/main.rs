@@ -8,7 +8,7 @@ use once_cell::sync::Lazy;
 use ssg_parent::Parent;
 
 pub static OUTPUT_DIR: Lazy<Utf8PathBuf> =
-    Lazy::new(|| Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(".vercel/output/static"));
+    Lazy::new(|| Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.vercel/output/static"));
 
 #[derive(Debug, Parser)]
 struct Cli {

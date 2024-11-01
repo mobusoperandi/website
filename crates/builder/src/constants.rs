@@ -9,7 +9,7 @@ pub(crate) const DESCRIPTION: &str = "A mob programming community";
 pub(crate) const MOBS_DIR: &str = "mobs";
 
 pub(crate) static MOBS_PATH: Lazy<Utf8PathBuf> = Lazy::new(|| {
-    [env!("CARGO_MANIFEST_DIR"), "..", MOBS_DIR]
+    [env!("CARGO_MANIFEST_DIR"), "..", "..", MOBS_DIR]
         .iter()
         .collect()
 });
