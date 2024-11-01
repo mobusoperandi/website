@@ -3,26 +3,6 @@
 version = 3
 
 [[package]]
-name = "_"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "camino",
- "chrono",
- "clap",
- "console-subscriber",
- "futures",
- "indexmap 1.9.3",
- "once_cell",
- "serde",
- "serde_json",
- "ssg-parent",
- "thiserror",
- "tokio",
- "url",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -871,6 +851,26 @@ name = "clap_lex"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1462739cb27611015575c0c11df5df7601141071f07518d56fcc1be504cbec97"
+
+[[package]]
+name = "cli"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "camino",
+ "chrono",
+ "clap",
+ "console-subscriber",
+ "futures",
+ "indexmap 1.9.3",
+ "once_cell",
+ "serde",
+ "serde_json",
+ "ssg-parent",
+ "thiserror",
+ "tokio",
+ "url",
+]
 
 [[package]]
 name = "colorchoice"

@@ -19,7 +19,7 @@ url = "2.3.1"
 tokio_console = ["dep:console-subscriber"]
 
 [package]
-name = "_"
+name = "cli"
 version = "0.0.0"
 edition = "2021"
 
