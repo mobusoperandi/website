@@ -1,5 +1,5 @@
 /* global FullCalendar */
-(function initCalendar({ events, displayEventTime, selectors }) {
+function initCalendar({ events, displayEventTime, selectors }) {
   window.addEventListener("DOMContentLoaded", () => {
     const styleElm = document.createElement("style");
 
@@ -71,4 +71,7 @@
 
     calendar.render();
   });
-});
+}
+
+// prettier-ignore
+initCalendar
