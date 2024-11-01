@@ -8,10 +8,11 @@ use once_cell::sync::Lazy;
 use ssg_parent::Parent;
 
 pub static OUTPUT_DIR: Lazy<Utf8PathBuf> = Lazy::new(|| {
-    Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../.vercel/output/static")
-        .canonicalize_utf8()
-        .unwrap()
+    path_clean::clean(
+        Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.vercel/output/static"),
+    )
+    .try_into()
+    .unwrap()
 });
 
 #[derive(Debug, Parser)]
