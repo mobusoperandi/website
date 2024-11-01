@@ -43,7 +43,7 @@ impl Default for Mode {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() {
     #[cfg(feature = "tokio_console")]
     console_subscriber::init();
 
@@ -52,10 +52,13 @@ async fn main() -> anyhow::Result<()> {
     let parent = Parent::new(OUTPUT_DIR.clone()).post_build(tailwind::execute);
 
     match cli.mode.unwrap_or_default() {
-        Mode::Build => parent.build().await?,
-        Mode::Dev { open } => anyhow::bail!(parent.dev(open).await),
+        Mode::Build => {
+            parent.build().await.unwrap();
+        }
+        Mode::Dev { open } => {
+            let error = parent.dev(open).await;
+            panic!("{error}");
+        }
         Mode::PrintOutputDir => print!("{}", OUTPUT_DIR.as_os_str().to_str().unwrap()),
-    }
-
-    Ok(())
+    };
 }

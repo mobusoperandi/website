@@ -18,7 +18,6 @@ mod style;
 mod syn_helpers;
 mod url;
 
-use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::Parser;
 use ssg_child::generate_static_site;
@@ -29,17 +28,15 @@ struct Cli {
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
     let Cli { output_dir } = Cli::parse();
 
-    let file_specs = file_specs::get()?;
+    let file_specs = file_specs::get();
     let mut generation_task = generate_static_site(output_dir.clone(), file_specs);
 
     generation_task.set_file_result_fn(|progress_report| {
         eprintln!("{progress_report:?}");
     });
 
-    generation_task.await?;
-
-    Ok(())
+    generation_task.await.unwrap();
 }

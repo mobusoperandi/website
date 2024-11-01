@@ -1,6 +1,5 @@
 use std::ops::Deref;
 
-use anyhow::Result;
 use indexmap::IndexMap;
 use maud::Render;
 use once_cell::sync::Lazy;
@@ -54,13 +53,13 @@ pub(crate) static INTERNAL_TYPES_DERIVE_INPUTS: Lazy<IndexMap<TypeIdent, DeriveI
         .collect()
     });
 
-pub fn page() -> Result<FileSpec> {
+pub fn page() -> FileSpec {
     let current_path = RelativePathBuf::from("/add.html");
 
     let internal_types = INTERNAL_TYPES_DERIVE_INPUTS
         .values()
-        .map(|derive_input| Type::try_from(derive_input.deref().clone()))
-        .collect::<Result<Vec<Type>, anyhow::Error>>()?;
+        .map(|derive_input| Type::try_from(derive_input.deref().clone()).unwrap())
+        .collect::<Vec<Type>>();
 
     let mut expected_files = ExpectedFiles::default();
     let base = components::PageBase::new(&mut expected_files, current_path.clone());
@@ -68,8 +67,5 @@ pub fn page() -> Result<FileSpec> {
 
     let bytes = add_page.render().0.into_bytes();
 
-    Ok(FileSpec::new(
-        current_path,
-        BytesSource::new(bytes, Some(expected_files)),
-    ))
+    FileSpec::new(current_path, BytesSource::new(bytes, Some(expected_files)))
 }

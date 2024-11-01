@@ -79,21 +79,24 @@ impl TryFrom<(String, MobFile)> for Mob {
     }
 }
 
-fn read_mob(dir_entry: Result<std::fs::DirEntry, io::Error>) -> anyhow::Result<Mob> {
-    let data_file_path = dir_entry?.path();
+fn read_mob(dir_entry: Result<std::fs::DirEntry, io::Error>) -> Mob {
+    let data_file_path = dir_entry.unwrap().path();
     let id = data_file_path
         .file_stem()
-        .context("no filename extension")?
+        .context("no filename extension")
+        .unwrap()
         .to_str()
-        .context("invalid utf8")?
+        .context("invalid utf8")
+        .unwrap()
         .into();
 
-    let data = std::fs::read_to_string(data_file_path.clone())?;
+    let data = std::fs::read_to_string(data_file_path.clone()).unwrap();
 
-    let yaml_mob: MobFile =
-        serde_yaml::from_str(&data).map_err(|e| anyhow!("{:?} {:?}", data_file_path, e))?;
+    let yaml_mob: MobFile = serde_yaml::from_str(&data)
+        .map_err(|e| anyhow!("{:?} {:?}", data_file_path, e))
+        .unwrap();
 
-    (id, yaml_mob).try_into()
+    (id, yaml_mob).try_into().unwrap()
 }
 
 type EventContentTemplate =
@@ -189,8 +192,7 @@ pub(crate) static MOBS: Lazy<Vec<Mob>> = Lazy::new(|| {
     std::fs::read_dir(MOBS_PATH.as_path())
         .unwrap()
         .map(read_mob)
-        .collect::<Result<Vec<Mob>>>()
-        .unwrap()
+        .collect::<Vec<Mob>>()
 });
 
 pub(crate) fn get_all_participants() -> BTreeSet<Person> {
