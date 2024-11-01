@@ -7,8 +7,12 @@ use clap::{Parser, Subcommand};
 use once_cell::sync::Lazy;
 use ssg_parent::Parent;
 
-pub static OUTPUT_DIR: Lazy<Utf8PathBuf> =
-    Lazy::new(|| Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.vercel/output/static"));
+pub static OUTPUT_DIR: Lazy<Utf8PathBuf> = Lazy::new(|| {
+    Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../.vercel/output/static")
+        .canonicalize_utf8()
+        .unwrap()
+});
 
 #[derive(Debug, Parser)]
 struct Cli {
