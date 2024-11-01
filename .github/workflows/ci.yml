@@ -6,11 +6,16 @@ on:
 permissions:
   contents: write
   pull-requests: write
+
 env:
   RUST_BACKTRACE: 1
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      output_dir: ${{ steps.get_output_dir.outputs.output_dir }}
+
     steps:
       - uses: actions/checkout@v3
       - run: rustup update
@@ -50,13 +55,13 @@ jobs:
         with:
           name: build_output_dir
           path: ${{ steps.get_output_dir.outputs.output_dir }}
-    outputs:
-      output_dir: ${{ steps.get_output_dir.outputs.output_dir }}
+
   deploy-preview:
     if: github.event_name == 'pull_request'
     needs: build
     environment: pull_request_deployment
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
@@ -73,6 +78,7 @@ jobs:
           message: |
             Branch deployed for review at:
             ${{ steps.deploy.outputs.URL }}
+
   deploy-production:
     if: github.ref == 'refs/heads/main'
     needs: build
