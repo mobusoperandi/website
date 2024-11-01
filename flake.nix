@@ -14,6 +14,11 @@
 
     nixpkgs.url = "nixpkgs/nixpkgs-unstable";
 
+    rust-flake = {
+      url = "github:juspay/rust-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     systems.url = "github:nix-systems/default";
 
     treefmt-nix = {
@@ -26,6 +31,7 @@
     inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
+        ./cli.nix
         ./fmt.nix
         ./systems.nix
         inputs.devshell.flakeModule
