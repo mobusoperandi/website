@@ -1,6 +1,10 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use camino::Utf8PathBuf;
+use std::{
+    ffi::{OsStr, OsString},
+    path::PathBuf,
+};
+
 use colored::Colorize;
 use futures::{
     channel::mpsc,
@@ -16,13 +20,16 @@ type PostBuildReturn =
 #[derive(derive_more::Debug)]
 #[must_use]
 pub struct Parent {
+    #[debug(skip)]
+    builder_command: OsString,
+    #[debug(skip)]
+    builder_args: Vec<OsString>,
     output_dir: camino::Utf8PathBuf,
     builder: BuilderState,
     #[debug("{}", match post_build { None => "None", Some(_) => "Some(function)" })]
     post_build: Option<Box<dyn Fn() -> PostBuildReturn>>,
 }
 
-const BUILDER_CRATE_NAME: &str = "builder";
 const LOCALHOST: &str = "localhost";
 
 /// Error type returned from the reactive app
@@ -74,9 +81,18 @@ pub enum BuildError {
 }
 
 impl Parent {
-    pub fn new(output_dir: impl Into<camino::Utf8PathBuf>) -> Self {
+    pub fn new(
+        output_dir: impl Into<camino::Utf8PathBuf>,
+        builder_command: impl AsRef<OsStr> + 'static,
+        builder_args: impl IntoIterator<Item = impl AsRef<OsStr>>,
+    ) -> Self {
         Self {
             output_dir: output_dir.into(),
+            builder_command: builder_command.as_ref().to_owned(),
+            builder_args: builder_args
+                .into_iter()
+                .map(|v| v.as_ref().to_owned())
+                .collect::<Vec<_>>(),
             builder: BuilderState::default(),
             post_build: None,
         }
@@ -108,7 +124,11 @@ impl Parent {
 
     /// Sets up a development environment that watches the file system,
     /// recompiling the crate that when run describes the website on localhost when there are changes.
-    pub async fn dev(self, launch_browser: bool) -> DevError {
+    pub async fn dev(
+        self,
+        paths_to_watch: impl IntoIterator<Item = impl Into<PathBuf>>,
+        launch_browser: bool,
+    ) -> DevError {
         let Some(port) = portpicker::pick_unused_port() else {
             return DevError::NoFreePort;
         };
@@ -129,15 +149,12 @@ impl Parent {
         let (open_browser_driver, browser_opened) =
             reactive::driver::open_that::StaticOpenThatDriver::new(url.to_string());
         let (eprintln_driver, ()) = reactive::driver::println::EprintlnDriver::new();
-        let (notify_driver, notify) =
-            match reactive::driver::notify::FsChangeDriver::new(Utf8PathBuf::from_iter([
-                env!("CARGO_MANIFEST_DIR"),
-                "..",
-                BUILDER_CRATE_NAME,
-            ])) {
-                Ok(val) => val,
-                Err(e) => return e.into(),
-            };
+        let (notify_driver, notify) = match reactive::driver::notify::FsChangeDriver::new(
+            paths_to_watch.into_iter().map(Into::into).collect(),
+        ) {
+            Ok(val) => val,
+            Err(e) => return e.into(),
+        };
 
         let inputs = Inputs {
             server_task,
@@ -178,17 +195,9 @@ impl Parent {
     }
 
     fn builder_command(&self) -> tokio::process::Command {
-        let mut cargo_run_builder = tokio::process::Command::new("cargo");
-
-        cargo_run_builder.args([
-            "run",
-            "--package",
-            BUILDER_CRATE_NAME,
-            "--",
-            self.output_dir.as_str(),
-        ]);
-
-        cargo_run_builder
+        let mut command = tokio::process::Command::new(&self.builder_command);
+        command.args(&self.builder_args);
+        command
     }
 
     fn input_event(&mut self, input: InputEvent) -> Option<OutputEvent> {
@@ -404,12 +413,16 @@ impl Parent {
 
 #[cfg(test)]
 mod test {
+    use std::ffi::OsString;
+
     use crate::{BuilderState, Parent};
 
     #[test]
     fn parent_debug() {
         let parent_no_post_build = Parent {
             output_dir: camino::Utf8PathBuf::from("path/to/there"),
+            builder_command: OsString::new(),
+            builder_args: vec![],
             builder: BuilderState::default(),
             post_build: None,
         };

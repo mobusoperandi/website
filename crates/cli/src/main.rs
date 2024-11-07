@@ -49,14 +49,28 @@ async fn main() {
 
     let cli = Cli::parse();
 
-    let parent = Parent::new(OUTPUT_DIR.clone()).post_build(tailwind::execute);
+    let parent = Parent::new(
+        OUTPUT_DIR.clone(),
+        "cargo",
+        ["run", "--package", "builder", "--", OUTPUT_DIR.as_str()],
+    )
+    .post_build(tailwind::execute);
 
     match cli.mode.unwrap_or_default() {
         Mode::Build => {
             parent.build().await.unwrap();
         }
         Mode::Dev { open } => {
-            let error = parent.dev(open).await;
+            let error = parent
+                .dev(
+                    [Utf8PathBuf::from_iter([
+                        env!("CARGO_MANIFEST_DIR"),
+                        "..",
+                        "builder",
+                    ])],
+                    open,
+                )
+                .await;
             panic!("{error}");
         }
         Mode::PrintOutputDir => print!("{}", OUTPUT_DIR.as_os_str().to_str().unwrap()),
