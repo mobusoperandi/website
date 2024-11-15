@@ -1,18 +1,20 @@
 use std::io::{stdout, Write};
 
-use anyhow::ensure;
 use camino::{Utf8Path, Utf8PathBuf};
+use tempfile::NamedTempFile;
 use tokio::process::Command;
 
-pub(crate) async fn execute(output_dir: &Utf8Path) -> anyhow::Result<()> {
-    let output = Command::new("npx")
+pub(crate) async fn execute(output_dir: &Utf8Path) {
+    let input_contents = include_bytes!(env!("TAILWINDCSS_INPUT"));
+    let mut input_file = NamedTempFile::new().unwrap();
+    input_file.write_all(input_contents).unwrap();
+
+    let output = Command::new(env!("TAILWINDCSS"))
         .args([
-            "tailwindcss",
+            "--config",
+            env!("TAILWINDCSS_CONFIG"),
             "--input",
-            [env!("CARGO_MANIFEST_DIR"), "src", "input.css"]
-                .iter()
-                .collect::<Utf8PathBuf>()
-                .as_ref(),
+            input_file.path().to_str().unwrap(),
             "--output",
             [".".as_ref(), output_dir, "index.css".as_ref()]
                 .iter()
@@ -26,10 +28,10 @@ pub(crate) async fn execute(output_dir: &Utf8Path) -> anyhow::Result<()> {
                 .as_ref(),
         ])
         .output()
-        .await?;
+        .await
+        .unwrap();
 
-    stdout().write_all(&output.stderr)?;
+    stdout().write_all(&output.stderr).unwrap();
 
-    ensure!(output.status.success());
-    Ok(())
+    assert!(output.status.success());
 }

@@ -7,59 +7,42 @@ permissions:
   contents: write
   pull-requests: write
 
-env:
-  RUST_BACKTRACE: 1
-
 jobs:
-  build:
+  check-and-build:
+    permissions:
+      id-token: write
+
     runs-on: ubuntu-latest
-    outputs:
-      output_dir: ${{ steps.get_output_dir.outputs.output_dir }}
 
     steps:
       - uses: actions/checkout@v3
-      - run: rustup update
-      - id: get-rust-version
-        run: echo "rust_version=$(rustc --version)" >> $GITHUB_OUTPUT
-        shell: bash
-      - uses: actions/cache@v3
-        with:
-          path: |
-            .bin/
-            target/
-            ~/.cargo/
-          key: ${{ runner.os }}_${{ steps.get-rust-version.outputs.rust_version }}_${{ hashFiles('rust-toolchain.toml', 'Cargo.toml', 'Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}_${{ steps.get-rust-version.outputs.rust_version }}_
-            ${{ runner.os }}_
-      - run: npm ci
-      - run: ./git_hooks/pre-commit
-      - run: cargo run build
-      - uses: numtide/clean-git-action@v2
-      - id: get_output_dir
-        run: echo "output_dir=$(cargo run -- print-output-dir)" >> $GITHUB_OUTPUT
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - run: nix --accept-flake-config flake check
+      - run: nix --accept-flake-config build
       - uses: actions/upload-artifact@v3
         with:
-          name: build_output_dir
-          path: ${{ steps.get_output_dir.outputs.output_dir }}
+          path: ./result
+          if-no-files-found: error
 
   deploy-preview:
     if: github.event_name == 'pull_request'
-    needs: build
+    needs: check-and-build
     environment: pull_request_deployment
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
       - uses: actions/download-artifact@v3
         with:
-          name: build_output_dir
-          path: ${{ needs.build.outputs.output_dir }}
+          name: artifact
+          path: .vercel/output/static
       - id: deploy
-        run: |
-          npx vercel pull --yes --environment=preview --scope mobusoperandi --token=${{ secrets.VERCEL_TOKEN }}
-          URL=$(npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
-          echo "URL=$URL" >> $GITHUB_OUTPUT
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: nix --accept-flake-config run .#deploy-preview
       - uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
@@ -68,14 +51,13 @@ jobs:
 
   deploy-production:
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: check-and-build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
-          name: build_output_dir
-          path: ${{ needs.build.outputs.output_dir }}
+          path: deploy
       - uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: ${{ needs.build.outputs.output_dir }}
+          folder: deploy

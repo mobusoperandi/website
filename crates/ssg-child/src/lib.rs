@@ -1,6 +1,5 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-mod disk_caching_http_client;
 pub mod file_error;
 mod file_spec;
 pub mod file_success;

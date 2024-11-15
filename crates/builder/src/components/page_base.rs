@@ -5,7 +5,7 @@ use maud::{html, Markup, Render, DOCTYPE};
 use ssg_child::sources::ExpectedFiles;
 
 use crate::{
-    constants::{COMMIT_HASH, DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL},
+    constants::{DESCRIPTION, GITHUB_ORGANIZATION_URL, NAME, REPO_URL, ZULIP_URL},
     expected_files::ExpectedFilesExt,
     fonts,
     html::Classes,
@@ -111,7 +111,7 @@ impl Render for Page {
         let brand_classes = classes!("tracking-widest", "text-center");
 
         let root_classes = classes![
-            format!("font-[{}]", *fonts::VOLLKORN),
+            format!("font-[{}]", fonts::VOLLKORN.family()),
             "[font-size:16px]",
             format!("bg-{}", style::BACKGROUND_COLOR),
             format!("text-{}", style::TEXT_COLOR),
@@ -208,7 +208,6 @@ impl Render for Page {
                     hr;
 
                     div class=(classes!("flex", "justify-between", "flex-wrap", "items-end")) {
-                        pre class=(classes!("text-xs")) { code { (*COMMIT_HASH) } }
                         a class=(classes!("text-sm")) href=(*REPO_URL) { "Source"}
                     }
                 }

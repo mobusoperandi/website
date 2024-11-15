@@ -428,7 +428,7 @@ mod test {
 
         let actual = format!("{parent_no_post_build:?}");
         let expected =
-            "Parent { output_dir: \"path/to/there\", builder: AwaitingChild, post_build: None }";
+            "Parent { output_dir: \"path/to/there\", builder: AwaitingChild, post_build: None, .. }";
         assert_eq!(actual, expected);
     }
 }

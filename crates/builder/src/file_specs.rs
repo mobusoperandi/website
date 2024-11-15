@@ -1,28 +1,24 @@
+use camino::Utf8Path;
+use itertools::Itertools;
 use ssg_child::FileSpec;
 
-use crate::{components, fonts, graphic_file_specs, pages};
+use crate::{fonts, graphic_file_specs, pages};
 
-pub(crate) fn get() -> impl Iterator<Item = FileSpec> {
+pub(crate) fn get(mobs_path: &Utf8Path) -> impl Iterator<Item = FileSpec> {
     let fonts = fonts::all();
-    let pages = pages::all();
+    let mobs = crate::mob::get_all(mobs_path).into_iter().collect_vec();
+    let pages = pages::all(mobs);
 
     let calendar_library = FileSpec::new(
         "/fullcalendar.js",
-        ssg_child::sources::Http::from(components::CALENDAR_LIBRARY_URL.to_inner().clone()),
+        include_bytes!(env!("FULLCALENDAR")).as_slice(),
     );
 
-    let rrule_library = FileSpec::new(
-        "/rrule.js",
-        ssg_child::sources::Http::from(components::CALENDAR_RRULE_URL.to_inner().clone()),
-    );
+    let rrule_library = FileSpec::new("/rrule.js", include_bytes!(env!("RRULE")).as_slice());
 
     let fullcalendar_rrule = FileSpec::new(
         "/fullcalendar_rrule.js",
-        ssg_child::sources::Http::from(
-            components::CALENDAR_FULLCALENDAR_RRULE_URL
-                .to_inner()
-                .clone(),
-        ),
+        include_bytes!(env!("FULLCALENDAR_RRULE")).as_slice(),
     );
 
     [calendar_library, rrule_library, fullcalendar_rrule]

@@ -10,10 +10,6 @@ impl Url {
         url::Url::parse(input).map(Self)
     }
 
-    pub(crate) fn to_inner(&self) -> &url::Url {
-        &self.0
-    }
-
     pub(crate) fn set_path(&mut self, path: &str) {
         self.0.set_path(path);
     }
