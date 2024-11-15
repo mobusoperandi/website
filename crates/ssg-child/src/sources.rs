@@ -1,6 +1,6 @@
+mod byte_array;
 mod bytes;
-mod google_font;
-mod http;
+mod fs_path;
 mod static_byte_slice;
 
 use std::collections::BTreeSet;
@@ -8,8 +8,6 @@ use std::collections::BTreeSet;
 pub use bytes::*;
 use futures::future::BoxFuture;
 use getset::Getters;
-pub use google_font::*;
-pub use http::*;
 use relative_path::RelativePathBuf;
 
 pub trait FileSource {

@@ -1,7 +1,6 @@
 use chrono::Duration;
 use csscolorparser::Color;
 use maud::{html, Markup, PreEscaped, Render};
-use once_cell::sync::Lazy;
 use rrule::RRuleSet;
 use serde::{Serialize, Serializer};
 use serde_json::json;
@@ -10,7 +9,6 @@ use crate::html::css_class;
 use crate::mob;
 use crate::relative_path::RelativePathBuf;
 use crate::style::{BUTTON_CLASSES, BUTTON_GAP, TEXT_COLOR};
-use crate::url::Url;
 
 pub(crate) struct Calendar {
     events: Vec<CalendarEvent>,
@@ -80,25 +78,6 @@ where
     ))
 }
 
-const FULLCALENDAR_VERSION: &str = "6.0.2";
-
-pub(crate) static LIBRARY_URL: Lazy<Url> = Lazy::new(|| {
-    Url::parse(
-        &(format!(
-            "https://cdn.jsdelivr.net/npm/fullcalendar@{FULLCALENDAR_VERSION}/index.global.min.js"
-        )),
-    )
-    .unwrap()
-});
-
-pub(crate) static RRULE_URL: Lazy<Url> = Lazy::new(|| {
-    Url::parse("https://cdn.jsdelivr.net/npm/rrule@2.7.2/dist/es5/rrule.min.js").unwrap()
-});
-
-pub(crate) static FULLCALENDAR_RRULE_URL: Lazy<Url> = Lazy::new(|| {
-    Url::parse(&format!("https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@{FULLCALENDAR_VERSION}/index.global.min.js")).unwrap()
-});
-
 impl Render for Calendar {
     fn render(&self) -> maud::Markup {
         #[derive(Debug, PartialEq, Eq)]
@@ -124,7 +103,7 @@ impl Render for Calendar {
             }
         }
 
-        const CALENDAR_FN_SNIPPET: &str = include_str!("calendar/snippet.js");
+        const CALENDAR_FN_SNIPPET: &str = include_str!(env!("CALENDAR_SNIPPET_JS"));
         const INPUT_ATTR: &str = "data-input";
         let calendar_container_class = css_class();
         let date_range_class = css_class();

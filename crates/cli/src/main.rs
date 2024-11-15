@@ -1,45 +1,16 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-mod tailwind;
-
 use camino::Utf8PathBuf;
-use clap::{Parser, Subcommand};
-use once_cell::sync::Lazy;
+use clap::Parser;
 use ssg_parent::Parent;
-
-pub static OUTPUT_DIR: Lazy<Utf8PathBuf> = Lazy::new(|| {
-    path_clean::clean(
-        Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.vercel/output/static"),
-    )
-    .try_into()
-    .unwrap()
-});
 
 #[derive(Debug, Parser)]
 struct Cli {
-    #[command(subcommand)]
-    mode: Option<Mode>,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Subcommand)]
-enum Mode {
-    /// build the website
-    Build,
-    /// watch for changes and rebuild the website
-    /// and start a development web server
-    Dev {
-        /// open website in a browser
-        #[arg(short, long)]
-        open: bool,
-    },
-    /// print the output directory path
-    PrintOutputDir,
-}
-
-impl Default for Mode {
-    fn default() -> Self {
-        Mode::Dev { open: true }
-    }
+    mobs_path: Utf8PathBuf,
+    output_dir: Utf8PathBuf,
+    /// open website in a browser
+    #[arg(short, long)]
+    open: bool,
 }
 
 #[tokio::main]
@@ -50,29 +21,27 @@ async fn main() {
     let cli = Cli::parse();
 
     let parent = Parent::new(
-        OUTPUT_DIR.clone(),
+        &cli.output_dir,
         "cargo",
-        ["run", "--package", "builder", "--", OUTPUT_DIR.as_str()],
-    )
-    .post_build(tailwind::execute);
+        [
+            "run",
+            "--package",
+            "builder",
+            "--",
+            cli.mobs_path.as_str(),
+            cli.output_dir.as_str(),
+        ],
+    );
 
-    match cli.mode.unwrap_or_default() {
-        Mode::Build => {
-            parent.build().await.unwrap();
-        }
-        Mode::Dev { open } => {
-            let error = parent
-                .dev(
-                    [Utf8PathBuf::from_iter([
-                        env!("CARGO_MANIFEST_DIR"),
-                        "..",
-                        "builder",
-                    ])],
-                    open,
-                )
-                .await;
-            panic!("{error}");
-        }
-        Mode::PrintOutputDir => print!("{}", OUTPUT_DIR.as_os_str().to_str().unwrap()),
-    };
+    let error = parent
+        .dev(
+            [Utf8PathBuf::from_iter([
+                env!("CARGO_MANIFEST_DIR"),
+                "..",
+                "builder",
+            ])],
+            cli.open,
+        )
+        .await;
+    panic!("{error}");
 }

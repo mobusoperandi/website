@@ -6,17 +6,17 @@ use ssg_child::FileSpec;
 
 use crate::components::home_page::event_content_template;
 use crate::expected_files::ExpectedFilesExt;
-use crate::mob::MOBS;
+use crate::mob::Mob;
 use crate::relative_path::RelativePathBuf;
 use crate::{components, mob};
 
-pub fn page() -> FileSpec {
+pub fn page(mobs: &[Mob]) -> FileSpec {
     let path = RelativePathBuf::from("/index.html");
     let mut expected_files = ExpectedFiles::default();
 
-    let participants = mob::get_all_participants();
+    let participants = mob::get_all_participants(mobs);
 
-    let events = MOBS
+    let events = mobs
         .iter()
         .filter(|mob| {
             !matches!(

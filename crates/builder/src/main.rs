@@ -16,6 +16,7 @@ mod pages;
 mod relative_path;
 mod style;
 mod syn_helpers;
+mod tailwind;
 mod url;
 
 use camino::Utf8PathBuf;
@@ -24,14 +25,18 @@ use ssg_child::generate_static_site;
 
 #[derive(Parser)]
 struct Cli {
+    mobs_path: Utf8PathBuf,
     output_dir: Utf8PathBuf,
 }
 
 #[tokio::main]
 async fn main() {
-    let Cli { output_dir } = Cli::parse();
+    let Cli {
+        mobs_path,
+        output_dir,
+    } = Cli::parse();
 
-    let file_specs = file_specs::get();
+    let file_specs = file_specs::get(&mobs_path);
     let mut generation_task = generate_static_site(output_dir.clone(), file_specs);
 
     generation_task.set_file_result_fn(|progress_report| {
@@ -39,4 +44,6 @@ async fn main() {
     });
 
     generation_task.await.unwrap();
+
+    tailwind::execute(&output_dir).await;
 }

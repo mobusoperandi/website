@@ -11,18 +11,17 @@ use std::collections::BTreeSet;
 use std::io;
 
 use anyhow::{anyhow, Context, Result};
+use camino::Utf8Path;
 use chrono::DateTime;
 use csscolorparser::Color;
 use getset::Getters;
 use maud::{html, Markup, Render};
-use once_cell::sync::Lazy;
 
 use ssg_child::sources::BytesSource;
 use ssg_child::sources::ExpectedFiles;
 use ssg_child::FileSpec;
 
 use crate::components::{self, CalendarEvent};
-use crate::constants::MOBS_PATH;
 use crate::expected_files::ExpectedFilesExt;
 use crate::markdown::Markdown;
 use crate::relative_path::RelativePathBuf;
@@ -188,15 +187,12 @@ impl Mob {
     }
 }
 
-pub(crate) static MOBS: Lazy<Vec<Mob>> = Lazy::new(|| {
-    std::fs::read_dir(MOBS_PATH.as_path())
-        .unwrap()
-        .map(read_mob)
-        .collect::<Vec<Mob>>()
-});
+pub(crate) fn get_all(mobs_path: &Utf8Path) -> impl IntoIterator<Item = Mob> {
+    std::fs::read_dir(mobs_path).unwrap().map(read_mob)
+}
 
-pub(crate) fn get_all_participants() -> BTreeSet<Person> {
-    MOBS.iter()
+pub(crate) fn get_all_participants(mobs: &[Mob]) -> BTreeSet<Person> {
+    mobs.iter()
         .flat_map(|mob| mob.participants.clone())
         .filter_map(|participant| match participant {
             Participant::Hidden => None,

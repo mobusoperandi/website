@@ -3,10 +3,10 @@ mod index;
 
 use ssg_child::FileSpec;
 
-use crate::mob::{Mob, MOBS};
+use crate::mob::Mob;
 
-pub(crate) fn all() -> impl Iterator<Item = FileSpec> {
-    [index::page(), add::page()]
+pub(crate) fn all(mobs: Vec<Mob>) -> impl Iterator<Item = FileSpec> {
+    [index::page(&mobs), add::page()]
         .into_iter()
-        .chain(MOBS.iter().cloned().map(Mob::page))
+        .chain(mobs.into_iter().map(|m| Mob::page(m)))
 }

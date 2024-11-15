@@ -4,16 +4,19 @@ use ssg_child::sources::FileSource;
 
 use crate::relative_path::RelativePathBuf;
 
-#[derive(Debug, Clone, derive_more::Display)]
-pub(crate) struct GoogleFont(ssg_child::sources::GoogleFont);
+#[derive(Debug, Clone)]
+pub(crate) struct TrueTypeFont {
+    bytes: &'static [u8],
+    family: &'static str,
+}
 
-impl GoogleFont {
-    pub(crate) fn new(family: String, subset: String, variant: String) -> GoogleFont {
-        Self(ssg_child::sources::GoogleFont::new(family, subset, variant))
+impl TrueTypeFont {
+    pub(crate) const fn new(bytes: &'static [u8], family: &'static str) -> TrueTypeFont {
+        Self { bytes, family }
     }
 
     pub(crate) fn family(&self) -> &str {
-        self.0.family()
+        self.family
     }
 
     pub(crate) fn filename(&self) -> RelativePathBuf {
@@ -21,16 +24,16 @@ impl GoogleFont {
     }
 }
 
-impl FileSource for GoogleFont {
+impl FileSource for TrueTypeFont {
     fn obtain_content(
         &self,
     ) -> BoxFuture<Result<ssg_child::sources::FileContents, Box<dyn std::error::Error + Send>>>
     {
-        self.0.obtain_content()
+        self.bytes.obtain_content()
     }
 }
 
-impl Render for GoogleFont {
+impl Render for TrueTypeFont {
     fn render(&self) -> Markup {
         PreEscaped(format!(
             "
