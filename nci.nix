@@ -11,7 +11,6 @@
       nci.projects.default = {
         numtideDevshell = "default";
         path = ./.;
-        useClippy = true;
       };
 
       devshells.default = {
