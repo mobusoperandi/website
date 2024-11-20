@@ -12,6 +12,7 @@
         numtideDevshell = "default";
         path = ./.;
         useClippy = true;
+        drvConfig.env.RUSTFLAGS = "--deny warnings";
       };
 
       devshells.default = {

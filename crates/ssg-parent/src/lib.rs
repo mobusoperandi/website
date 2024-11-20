@@ -209,7 +209,6 @@ impl Parent {
         }
     }
 
-    #[allow(clippy::unnecessary_wraps)]
     fn builder_killed(&mut self, result: std::io::Result<()>) -> Option<OutputEvent> {
         match result {
             Ok(()) => match self.builder {
