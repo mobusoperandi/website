@@ -1,4 +1,4 @@
-{ inputs, lib, ... }:
+{ inputs, ... }:
 {
   imports = [
     inputs.nci.flakeModule
@@ -6,7 +6,7 @@
   ];
 
   perSystem =
-    { config, pkgs, ... }:
+    { pkgs, ... }:
     {
       nci.projects.default = {
         numtideDevshell = "default";
@@ -19,7 +19,6 @@
           pkgs.rust-analyzer
           pkgs.typescript
         ];
-        env = lib.concatMapAttrs (_: crate: crate.drvConfig.env) config.nci.crates |> lib.attrsToList;
       };
     };
 }
