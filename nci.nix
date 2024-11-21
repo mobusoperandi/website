@@ -11,6 +11,7 @@
       nci.projects.default = {
         numtideDevshell = "default";
         path = ./.;
+        drvConfig.env.RUSTFLAGS = "--deny warnings";
       };
 
       devshells.default = {
