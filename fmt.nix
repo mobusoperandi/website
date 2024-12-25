@@ -12,6 +12,7 @@
       toml-sort.enable = true;
     };
     settings = {
+      on-unmatched = "fatal";
       formatter.shfmt.includes = [ "git_hooks/*" ];
       global.excludes = [
         ".editorconfig"
